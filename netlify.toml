@@ -5,6 +5,5 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# Helps prevent false positives for publishable keys in client bundle
 [build.environment]
   SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
