@@ -21,16 +21,12 @@ export default function SiteHeader() {
     dark ? html.setAttribute("data-theme", "dark") : html.setAttribute("data-theme", "light");
   }, [dark]);
 
-  // Close on ESC + click outside + prevent body scroll when open
+  // Drawer behaviors
   useEffect(() => {
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") setOpen(false);
-    }
+    function onKey(e: KeyboardEvent) { if (e.key === "Escape") setOpen(false); }
     function onClick(e: MouseEvent) {
       if (!open) return;
-      if (sheetRef.current && !sheetRef.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
+      if (sheetRef.current && !sheetRef.current.contains(e.target as Node)) setOpen(false);
     }
     document.addEventListener("keydown", onKey);
     document.addEventListener("mousedown", onClick);
@@ -44,18 +40,16 @@ export default function SiteHeader() {
 
   return (
     <header className="site-header">
-      {/* 3-column header: [spacer] [center brand] [hamburger] */}
-      <div className="container header-row header-3col">
-        {/* Left spacer (keeps brand centered even with right menu) */}
-        <div aria-hidden />
-
-        {/* Center brand (SCANSNAP wordmark only) */}
-        <Link className="brand center-brand" href="/" aria-label="ScanSnap home">
+      <div className="container header-row header-left-brand">
+        {/* LEFT: icon + wordmark (bigger) */}
+        <Link className="brand brand-large" href="/" aria-label="ScanSnap home">
+          <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" width={42} height={42} />
+          <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" width={42} height={42} />
           <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
           <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
         </Link>
 
-        {/* Right controls: theme + hamburger */}
+        {/* RIGHT: theme + hamburger */}
         <div className="right-controls">
           <button
             className="icon-btn"
@@ -98,9 +92,7 @@ export default function SiteHeader() {
             <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
             <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
           </span>
-          <button className="icon-btn" onClick={() => setOpen(false)} aria-label="Close menu">
-            ✕
-          </button>
+          <button className="icon-btn" onClick={() => setOpen(false)} aria-label="Close menu">✕</button>
         </div>
 
         <nav className="menu-body">
@@ -126,9 +118,7 @@ export default function SiteHeader() {
             </SignedOut>
             <SignedIn>
               <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <OrganizationSwitcher
-                  appearance={{ elements: { organizationSwitcherTrigger: { borderRadius: 10 } } }}
-                />
+                <OrganizationSwitcher appearance={{ elements: { organizationSwitcherTrigger: { borderRadius: 10 } } }} />
                 <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 32, height: 32 } } }} />
               </div>
             </SignedIn>
