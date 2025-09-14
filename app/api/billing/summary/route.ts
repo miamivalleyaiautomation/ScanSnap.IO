@@ -1,39 +1,77 @@
 export const runtime = "nodejs";
 
 import { auth, clerkClient } from "@clerk/nextjs/server";
-import { prisma } from "@/lib/prisma";
+
+const LS_HEADERS = {
+  Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`,
+  Accept: "application/vnd.api+json",
+};
+
+type LsResource<T> = { data?: T; errors?: any };
+type LsList<T> = { data?: T[]; errors?: any };
 
 export async function GET() {
   try {
-    const { userId, orgId } = auth();
+    const { userId } = auth();
     if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-    const sub = await prisma.subscription.findFirst({ where: { OR: [{ userId }, { orgId }] } });
-    let portalUrl: string | null = null;
+    const user = await clerkClient.users.getUser(userId);
+    const email =
+      user.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress ||
+      user.emailAddresses[0]?.emailAddress;
 
-    if (sub?.lsCustomerId) {
-      const r = await fetch(`https://api.lemonsqueezy.com/v1/customers/${sub.lsCustomerId}`, {
-        headers: { Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`, Accept: "application/vnd.api+json" },
-        cache: "no-store",
-      });
-      if (r.ok) { const j = await r.json(); portalUrl = j?.data?.attributes?.urls?.customer_portal || null; }
-    } else {
-      const user = await clerkClient.users.getUser(userId);
-      const email = user.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress;
-      if (email) {
-        const r = await fetch(`https://api.lemonsqueezy.com/v1/customers?filter[email]=${encodeURIComponent(email)}`, {
-          headers: { Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`, Accept: "application/vnd.api+json" },
-          cache: "no-store",
-        });
-        if (r.ok) { const j = await r.json(); portalUrl = j?.data?.[0]?.attributes?.urls?.customer_portal || null; }
-      }
+    if (!email) {
+      return Response.json({ error: "No email on account" }, { status: 400 });
     }
 
+    // 1) Find LS customer by email
+    const custRes = await fetch(
+      `https://api.lemonsqueezy.com/v1/customers?filter[email]=${encodeURIComponent(email)}`,
+      { headers: LS_HEADERS, cache: "no-store" }
+    );
+    const customers: LsList<any> = await custRes.json();
+    const customer = customers.data?.[0];
+
+    if (!customer) {
+      // No LS customer yet (hasn't purchased)
+      return Response.json({
+        status: null,
+        quantity: null,
+        renewsAt: null,
+        portalUrl: null
+      });
+    }
+
+    const customerId = customer.id as string;
+    const portalUrl = customer.attributes?.urls?.customer_portal || null;
+
+    // 2) Get subscriptions for this customer
+    const subRes = await fetch(
+      `https://api.lemonsqueezy.com/v1/subscriptions?filter[customer_id]=${customerId}`,
+      { headers: LS_HEADERS, cache: "no-store" }
+    );
+    const subs: LsList<any> = await subRes.json();
+    const sub = subs.data?.[0]; // assume current/most recent
+
+    if (!sub) {
+      return Response.json({
+        status: null,
+        quantity: null,
+        renewsAt: null,
+        portalUrl
+      });
+    }
+
+    const attrs = sub.attributes || {};
+    const status = attrs.status || null;
+    const quantity = Number(attrs.first_subscription_item?.quantity ?? attrs.quantity ?? 1) || 1;
+    const renewsAt = attrs.renews_at || attrs.ends_at || null;
+
     return Response.json({
-      status: sub?.status ?? null,
-      quantity: sub?.quantity ?? null,
-      renewsAt: sub?.currentPeriodEnd?.toISOString() ?? null,
-      portalUrl,
+      status,
+      quantity,
+      renewsAt,
+      portalUrl
     });
   } catch (e: any) {
     return Response.json({ error: String(e?.message || e) }, { status: 500 });
