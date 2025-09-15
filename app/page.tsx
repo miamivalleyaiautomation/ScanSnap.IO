@@ -103,9 +103,7 @@ export default function Page() {
             <h2>Pricing</h2>
             <p>Simple, transparent pricing that scales with your team</p>
           </div>
-          <div className="grid" style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(4, minmax(0, 1fr))" }}>
-            {/* BASIC */}
-            <div className="card">
+           <div className="card">
               <span className="tag">BASIC</span>
               <h3>Free</h3>
               <p className="muted">Scan barcodes and export to PDF, CSV, or Excel.</p>
