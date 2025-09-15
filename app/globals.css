@@ -196,3 +196,13 @@ html[data-theme="dark"] .mark-dark { display:inline-block; }
   .brand-left .mark{ width:34px; height:34px; }
   .brand-center .word{ height:26px; }
 }
+/* Reset all brand assets */
+.word-light, .mark-light, .word-dark, .mark-dark { display: none !important; }
+
+/* Light theme => show *-light class (assets for LIGHT background) */
+html[data-theme="light"] .word-light,
+html[data-theme="light"] .mark-light { display: inline-block !important; }
+
+/* Dark theme => show *-dark class (assets for DARK background) */
+html[data-theme="dark"] .word-dark,
+html[data-theme="dark"] .mark-dark { display: inline-block !important; }
