@@ -227,14 +227,13 @@ button.btn.theme-toggle {
   margin-top: 10px;
 }
 
-/* Brand in mobile menu header - logo 25% smaller, text bigger */
+/* Brand in mobile menu header - logo only, no text */
 .menu-head .brand-inline .mark{ 
   height: 33px;                        /* 25% smaller than 44px */
   max-width: 33px; 
 }
 .menu-head .brand-inline .word{ 
-  height: 32px;                        /* bigger text in mobile menu */
-  max-width: 100px; 
+  display: none;                       /* hide text in mobile menu */
 }
 
 /* ===== THEME ASSET SWAP (icon/wordmark) =====
@@ -310,7 +309,7 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   .grid.cols-3{ grid-template-columns:1fr }
   .pricing-grid{ grid-template-columns:1fr }
   
-  /* Simple mobile approach: separate logo and text completely */
+  /* Mobile approach: show text image but positioned in center */
   .nav-rail {
     position: relative;
     display: flex;
@@ -319,37 +318,29 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
     height: 60px;
   }
   
-  /* Logo container - only shows the icon */
+  /* Brand container - only shows the icon on left */
   .nav-rail .brand-inline,
   .nav-rail .brand-badge {
     display: flex;
     align-items: center;
+    gap: 10px;
   }
   
-  /* Hide text inside brand container on mobile */
-  .nav-rail .brand-inline .word,
-  .nav-rail .brand-badge .word {
-    display: none;
-  }
-  
-  /* Logo 25% smaller */
+  /* Logo 25% smaller, stays in brand container */
   .nav-rail .mark{ 
     height: 33px;
     max-width: 33px; 
   }
   
-  /* Create standalone text element that's perfectly centered */
-  .nav-rail::after {
-    content: "ScanSnap";
+  /* Move text image to center with absolute positioning */
+  .nav-rail .word {
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    font-size: 20px;  /* equivalent to ~46px image height */
-    font-weight: 600;
-    color: var(--brand0);  /* use the brand blue color */
+    height: 46px;                /* 30% bigger */
+    max-width: 140px;
     z-index: 1;
-    pointer-events: none;
   }
   
   /* Right controls stay on right */
@@ -363,7 +354,7 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   footer.site .footer-brand .mark{ height:18px }
   footer.site .footer-brand .word{ height:16px }
   
-  /* Small phones: bigger text */
+  /* Small phones: bigger text image */
   .nav-rail {
     height: 64px;
   }
@@ -373,8 +364,9 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
     max-width: 33px; 
   }   
   
-  .nav-rail::after {
-    font-size: 22px;  /* bigger on small screens */
+  .nav-rail .word {
+    height: 50px;                /* bigger on small screens */
+    max-width: 150px;
   }
   
   /* Stack right controls vertically on very small screens if needed */
