@@ -307,7 +307,15 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   .hero-grid{ grid-template-columns:1fr }
   .grid.cols-2{ grid-template-columns:1fr }
   .grid.cols-3{ grid-template-columns:1fr }
-  .pricing-grid{ grid-template-columns:1fr }
+  
+  /* IMPORTANT: Override the 4-column pricing grid for mobile */
+  .pricing-grid,
+  .grid[style*="grid-template-columns: repeat(4, minmax(0, 1fr))"] { 
+    grid-template-columns: 1fr !important; 
+    gap: 1.5rem !important; 
+    max-width: 400px !important; 
+    margin: 0 auto !important; 
+  }
   
   /* Mobile approach: show text image but positioned in center */
   .nav-rail {
@@ -353,6 +361,13 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
 @media (max-width:640px){
   footer.site .footer-brand .mark{ height:18px }
   footer.site .footer-brand .word{ height:16px }
+  
+  /* Even more specific override for small screens */
+  .pricing-grid,
+  .grid[style*="grid-template-columns: repeat(4, minmax(0, 1fr))"] { 
+    max-width: 350px !important; 
+    gap: 1rem !important; 
+  }
   
   /* Small phones: bigger text image */
   .nav-rail {
