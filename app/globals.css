@@ -179,3 +179,26 @@ html[data-theme="light"] .word-light,
 html[data-theme="light"] .mark-light{ display:none; }
 html[data-theme="light"] .word-dark,
 html[data-theme="light"] .mark-dark{ display:inline-block; }
+
+/* ==== FORCED BRAND SIZING (wins over any earlier rules) ==== */
+.site-header .brand-badge .mark{ height:44px !important; width:auto !important; }
+.site-header .brand-badge .word{ height:36px !important; width:auto !important; }
+
+footer.site .footer-brand .mark{ height:20px !important; width:auto !important; }
+footer.site .footer-brand .word{ height:18px !important; width:auto !important; }
+
+/* Phone tweaks */
+@media (max-width:640px){
+  .site-header .brand-badge .mark{ height:36px !important; }
+  .site-header .brand-badge .word{ height:28px !important; }
+  footer.site .footer-brand .mark{ height:18px !important; }
+  footer.site .footer-brand .word{ height:16px !important; }
+}
+
+/* Keep the theme swap strict so only one version shows */
+.word-light,.mark-light{ display:inline-block; }
+.word-dark,.mark-dark{ display:none; }
+html[data-theme="light"] .word-light,
+html[data-theme="light"] .mark-light{ display:none; }
+html[data-theme="light"] .word-dark,
+html[data-theme="light"] .mark-dark{ display:inline-block; }
