@@ -1,112 +1,118 @@
-import PricingGrid from "@/components/PricingGrid";
+// app/page.tsx
+import Features from "@/components/Features";
+import Pricing from "@/components/Pricing";
+import Link from "next/link";
+import Image from "next/image";
 
-export default function HomePage() {
-  const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL || "https://portal.scansnap.io";
-
+export default function Home() {
   return (
-    <>
-      {/* HERO */}
-      <section className="hero">
-        <div className="bg-gradient" />
-        <div className="container hero-grid">
-          <div>
-            <div className="tag">AI-powered scanning</div>
-            <h1>Scan, organize, and ship docs in seconds.</h1>
-            <p className="lede">From quick scans to full team workflows — ScanSnap turns paper into searchable, shareable knowledge.</p>
-            <div className="actions">
-              <a className="btn primary" href="#pricing">See pricing</a>
-              <a className="btn" href={`${portalUrl}/login`}>Login</a>
+    <main>
+      {/* ===== HERO ===== */}
+      <section className="section hero" style={{ paddingTop: "40px" }}>
+        <div className="container">
+          <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1.05fr .95fr", gap: "24px", alignItems: "center" }}>
+            {/* Left copy */}
+            <div>
+              <div className="tag">Scan • Verify • Build orders</div>
+              <h1 style={{ margin: "10px 0 6px" }}>
+                Lightning-fast barcode & parts scanning
+              </h1>
+              <p className="lede">
+                Capture barcodes and codes instantly, export to <strong>PDF / CSV / Excel</strong>, verify stock against your catalog, and build error-free orders.
+                <br/> <strong>All processing stays on your device—no uploads.</strong>
+              </p>
+
+              <div className="actions" style={{ display: "flex", gap: 12, marginTop: 14, flexWrap: "wrap" }}>
+                <Link href="/login" className="btn primary">Sign in</Link>
+                <a href="#pricing" className="btn">View pricing</a>
+                <a href="https://app.scansnap.io" className="btn">Open App</a>
+              </div>
+            </div>
+
+            {/* Right: demo frame */}
+            <div>
+              <div className="card device" style={{ overflow: "hidden" }}>
+                {/* If you add a real GIF later, place it at /public/assets/app-demo.gif */}
+                <div className="device-top" />
+                <div style={{ position: "relative" }}>
+                  {/* Placeholder image block */}
+                  <div
+                    className="demo-skeleton"
+                    style={{
+                      width: "100%",
+                      aspectRatio: "16 / 10",
+                      display: "grid",
+                      placeItems: "center",
+                      border: "1px solid var(--line)",
+                      borderRadius: 12,
+                      background:
+                        "repeating-linear-gradient(135deg, rgba(148,163,184,.06), rgba(148,163,184,.06) 12px, transparent 12px, transparent 24px)",
+                    }}
+                  >
+                    <div style={{ textAlign: "center" }}>
+                      <div style={{ fontWeight: 700, marginBottom: 6 }}>Demo GIF placeholder</div>
+                      <div className="muted" style={{ fontSize: 14 }}>
+                        Drop <code>/public/assets/app-demo.gif</code> to replace this.
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* If you already have a GIF, uncomment this block: */}
+                  {/*
+                  <Image
+                    src="/assets/app-demo.gif"
+                    alt="ScanSnap app in action"
+                    width={1280}
+                    height={800}
+                    style={{ width: "100%", height: "auto", display: "block", borderRadius: 12, border: "1px solid var(--line)" }}
+                  />
+                  */}
+                </div>
+
+                {/* quick pills */}
+                <div className="bar" style={{ display: "flex", gap: 8, position: "absolute", inset: "auto 12px 12px auto" }}>
+                  <span className="pill">Fast</span>
+                  <span className="pill">Secure</span>
+                  <span className="pill">Team-ready</span>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="device">
-            <div className="device-top" />
-            <iframe src="https://app.scansnap.io/app" title="App preview" />
-            <div className="bar">
-              <button className="pill">Fast</button>
-              <button className="pill">Secure</button>
-              <button className="pill">Team-ready</button>
-            </div>
+
+          {/* Privacy callout */}
+          <div className="card" style={{ marginTop: 16 }}>
+            <strong>Privacy first.</strong> Nothing is uploaded—processing runs locally in your browser. Your catalogs, scans and orders stay on your device.
           </div>
         </div>
       </section>
 
-      {/* FEATURES */}
+      {/* ===== FEATURES ===== */}
       <section id="features" className="section">
         <div className="container">
-          <div className="grid cols-3">
-            <div className="card">
-              <h3>Lightning scans ⚡</h3>
-              <p className="muted">Drag-and-drop or camera capture. OCR and cleanup run instantly so you can keep moving.</p>
-              <ul className="feature" style={{paddingLeft:18}}>
-                <li>Crystal-clear PDFs</li>
-                <li>Auto straighten & crop</li>
-                <li>Smart file names</li>
-              </ul>
-            </div>
-            <div className="card">
-              <h3>Organize & share 📁</h3>
-              <p className="muted">Folders, tags, and quick links keep documents tidy and easy to find.</p>
-              <ul className="feature" style={{paddingLeft:18}}>
-                <li>Searchable text</li>
-                <li>One-click share</li>
-                <li>Exports anywhere</li>
-              </ul>
-            </div>
-            <div className="card">
-              <h3>Team workflows 🧑‍🤝‍🧑</h3>
-              <p className="muted">Invite teammates, set seats, and manage access with role-based controls.</p>
-              <ul className="feature" style={{paddingLeft:18}}>
-                <li>Seat-based billing</li>
-                <li>Org & members</li>
-                <li>Customer portal</li>
-              </ul>
-            </div>
-          </div>
+          <Features />
         </div>
       </section>
 
-      {/* PRICING */}
+      {/* ===== PRICING ===== */}
       <section id="pricing" className="section">
         <div className="container">
-          <div style={{display:"grid",gap:8,marginBottom:12}}>
-            <div className="tag">Pricing</div>
-            <h2 style={{margin:0}}>Simple, transparent plans</h2>
-            <p className="muted" style={{margin:0}}>Start free. Upgrade when your team is ready.</p>
-          </div>
-
-          <PricingGrid portalUrl={portalUrl} />
+          <Pricing />
         </div>
       </section>
 
-      {/* CONTACT */}
+      {/* ===== CONTACT ===== */}
       <section id="contact" className="section">
         <div className="container">
-          <div className="grid cols-2">
-            <div className="card">
-              <h3>Talk to us</h3>
-              <p className="muted">Enterprise questions, partnerships, or custom needs.</p>
-              <form action="https://formspree.io/f/xayz" method="POST" className="inputs">
-                <input className="input" name="name" placeholder="Your name" required />
-                <input className="input" name="email" type="email" placeholder="Email address" required />
-                <textarea name="message" placeholder="What can we help with?" required />
-                <button className="btn primary">Send</button>
-                <div className="fine">Prefer email? <a href="mailto:hello@scansnap.io">hello@scansnap.io</a></div>
-              </form>
-            </div>
-            <div className="card">
-              <h3>Why teams choose ScanSnap</h3>
-              <ul className="feature" style={{paddingLeft:18}}>
-                <li>Fast setup, no training required</li>
-                <li>Secure by default</li>
-                <li>Seat-based orgs with admin control</li>
-                <li>Billing handled via Lemon Squeezy</li>
-              </ul>
-              <a className="btn" href={`${portalUrl}/login`}>Login to portal</a>
-              <a className="btn" style={{marginLeft:8}} href="#pricing">Compare plans</a>
+          <div className="card">
+            <h2>Contact us</h2>
+            <p className="muted">Questions or a custom workflow? We’d love to help.</p>
+            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 10 }}>
+              <a className="btn" href="mailto:support@scansnap.io">Email support@scansnap.io</a>
+              <a className="btn" href="/#pricing">See plans</a>
             </div>
           </div>
         </div>
       </section>
-    </>
+    </main>
   );
 }
