@@ -62,6 +62,18 @@ export default function SiteHeader() {
             <Link href="/#contact" className="chip">Contact</Link>
             <Link href="https://app.scansnap.io" className="chip">Go to App</Link>
             <Link href="/login" className="chip primary">Login</Link>
+            import ThemeToggle from "@/components/ThemeToggle";
+
+export function HeaderRightControls() {
+  return (
+    <div className="right-controls">
+      <a href="/login" className="btn primary">Login</a>
+      <ThemeToggle />
+      {/* keep your hamburger / other controls here */}
+    </div>
+  );
+}
+
             <ThemeToggle />
           </nav>
 
