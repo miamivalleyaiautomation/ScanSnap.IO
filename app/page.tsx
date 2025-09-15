@@ -1,168 +1,112 @@
-export default function MarketingHome() {
+import PricingGrid from "@/components/PricingGrid";
+
+export default function HomePage() {
+  const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL || "https://portal.scansnap.io";
+
   return (
     <>
       {/* HERO */}
       <section className="hero">
+        <div className="bg-gradient" />
         <div className="container hero-grid">
           <div>
-            <h1>Scan barcodes and auto-build clean order lists—without errors.</h1>
-            <p className="lede">
-              Free exports your scans to CSV, PDF, and Excel. Pro verifies each code against your catalog,
-              pulls the description, and builds a sorted order list with quantities.
-            </p>
+            <div className="tag">AI-powered scanning</div>
+            <h1>Scan, organize, and ship docs in seconds.</h1>
+            <p className="lede">From quick scans to full team workflows — ScanSnap turns paper into searchable, shareable knowledge.</p>
             <div className="actions">
-              <a className="btn primary" href="/subscribe">Try Pro</a>
-              <a className="btn" href="/app/">Try Free</a>
-              <a className="btn" href="/app/pro/">Pro Workspace</a>
+              <a className="btn primary" href="#pricing">See pricing</a>
+              <a className="btn" href={`${portalUrl}/login`}>Login</a>
             </div>
-            <p className="note">Mobile-friendly • No install • Works in your browser</p>
           </div>
-
-          {/* Live app preview styled as device */}
-          <div className="card device" id="devicePreview1">
-            <div className="device-top"></div>
-            <iframe
-              title="ScanSnap App Preview"
-              src="https://scansnapio.netlify.app/"
-              loading="lazy"
-              referrerPolicy="no-referrer"
-            />
+          <div className="device">
+            <div className="device-top" />
+            <iframe src="https://app.scansnap.io/app" title="App preview" />
             <div className="bar">
-              {/* (optional) live toggle JS you had in main.js; left as a visual button */}
-              <button className="pill" data-live="#devicePreview1">Enable live</button>
-              <a className="pill" href="/app/" title="Open on this domain">Open app</a>
+              <button className="pill">Fast</button>
+              <button className="pill">Secure</button>
+              <button className="pill">Team-ready</button>
             </div>
           </div>
         </div>
-        <div className="bg-gradient" aria-hidden="true"></div>
       </section>
 
       {/* FEATURES */}
-      <section className="container section">
-        <div className="grid cols-3">
-          <div className="card">
-            <h3>Scan fast</h3>
-            <p className="note">Use your camera anywhere. Manual input stays available when needed.</p>
-          </div>
-          <div className="card">
-            <h3>Verify against catalog (Pro)</h3>
-            <p className="note">Upload <span className="mono">barcode,description</span>. Matches confirmed instantly; unknowns flagged.</p>
-          </div>
-          <div className="card">
-            <h3>Export clean lists</h3>
-            <p className="note">CSV, PDF, or Excel—ready for purchasing. Pro aggregates quantities and sorts by description.</p>
-          </div>
-        </div>
-      </section>
-
-      {/* PLANS: Free / Pro */}
-      <section className="container section">
-        <div className="compare">
-          <div className="card">
-            <span className="tag">Free</span>
-            <h3>Scan &amp; Export</h3>
-            <ul className="feature">
-              <li>Camera barcode scanning</li>
-              <li>Manual add fallback</li>
-              <li>Export CSV / PDF / Excel</li>
-            </ul>
-            <a className="btn" href="/app/">Open Free Scanner</a>
-          </div>
-
-          <div className="card">
-            <span className="tag pro">Pro</span>
-            <h3>Scan, Verify &amp; Sort</h3>
-            <ul className="feature">
-              <li>Import catalog (CSV/XLSX)</li>
-              <li>Scan &amp; verify description</li>
-              <li>Auto-build order list with qty</li>
-              <li>Track “found parts” at a glance</li>
-            </ul>
-            <a className="btn primary" href="/subscribe">Get Pro</a>
+      <section id="features" className="section">
+        <div className="container">
+          <div className="grid cols-3">
+            <div className="card">
+              <h3>Lightning scans ⚡</h3>
+              <p className="muted">Drag-and-drop or camera capture. OCR and cleanup run instantly so you can keep moving.</p>
+              <ul className="feature" style={{paddingLeft:18}}>
+                <li>Crystal-clear PDFs</li>
+                <li>Auto straighten & crop</li>
+                <li>Smart file names</li>
+              </ul>
+            </div>
+            <div className="card">
+              <h3>Organize & share 📁</h3>
+              <p className="muted">Folders, tags, and quick links keep documents tidy and easy to find.</p>
+              <ul className="feature" style={{paddingLeft:18}}>
+                <li>Searchable text</li>
+                <li>One-click share</li>
+                <li>Exports anywhere</li>
+              </ul>
+            </div>
+            <div className="card">
+              <h3>Team workflows 🧑‍🤝‍🧑</h3>
+              <p className="muted">Invite teammates, set seats, and manage access with role-based controls.</p>
+              <ul className="feature" style={{paddingLeft:18}}>
+                <li>Seat-based billing</li>
+                <li>Org & members</li>
+                <li>Customer portal</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* HOW IT WORKS */}
-      <section className="container section">
-        <div className="grid cols-3">
-          <div className="card">
-            <span className="tag">1</span>
-            <h4>Open scanner</h4>
-            <p className="note">Start on phone or desktop. No cables, no installs.</p>
+      {/* PRICING */}
+      <section id="pricing" className="section">
+        <div className="container">
+          <div style={{display:"grid",gap:8,marginBottom:12}}>
+            <div className="tag">Pricing</div>
+            <h2 style={{margin:0}}>Simple, transparent plans</h2>
+            <p className="muted" style={{margin:0}}>Start free. Upgrade when your team is ready.</p>
           </div>
-          <div className="card">
-            <span className="tag">2</span>
-            <h4>(Pro) Load catalog</h4>
-            <p className="note">Provide your <span className="mono">barcode,description</span> sheet (CSV/XLSX).</p>
-          </div>
-          <div className="card">
-            <span className="tag">3</span>
-            <h4>Export order list</h4>
-            <p className="note">Send accurate lists to purchasing. Save time and prevent mistakes.</p>
-          </div>
+
+          <PricingGrid portalUrl={portalUrl} />
         </div>
       </section>
 
-      {/* (Optional) Carousel / gallery placeholder */}
-      {/* <section className="container section">
-           <div className="card">
-             <h3>Screenshots</h3>
-             <div className="carousel">
-               <img src="/landing/slide-1.png" alt="" />
-               <img src="/landing/slide-2.png" alt="" />
-               <img src="/landing/slide-3.png" alt="" />
-             </div>
-           </div>
-         </section> */}
-
-      {/* FAQ */}
-      <section className="container section">
-        <div className="card">
-          <h3>FAQ</h3>
-          <div className="faq" role="list">
-            <details>
-              <summary>Do I need to install anything?</summary>
-              <p className="note">No. ScanSnap runs in your browser on desktop and mobile.</p>
-            </details>
-            <details>
-              <summary>What file format should my catalog use?</summary>
-              <p className="note">CSV or XLSX with headers <span className="mono">barcode</span> and <span className="mono">description</span>.</p>
-            </details>
-            <details>
-              <summary>Does the free version limit scanning?</summary>
-              <p className="note">Free scans and exports lists. Pro adds catalog verification and order list aggregation.</p>
-            </details>
+      {/* CONTACT */}
+      <section id="contact" className="section">
+        <div className="container">
+          <div className="grid cols-2">
+            <div className="card">
+              <h3>Talk to us</h3>
+              <p className="muted">Enterprise questions, partnerships, or custom needs.</p>
+              <form action="https://formspree.io/f/xayz" method="POST" className="inputs">
+                <input className="input" name="name" placeholder="Your name" required />
+                <input className="input" name="email" type="email" placeholder="Email address" required />
+                <textarea name="message" placeholder="What can we help with?" required />
+                <button className="btn primary">Send</button>
+                <div className="fine">Prefer email? <a href="mailto:hello@scansnap.io">hello@scansnap.io</a></div>
+              </form>
+            </div>
+            <div className="card">
+              <h3>Why teams choose ScanSnap</h3>
+              <ul className="feature" style={{paddingLeft:18}}>
+                <li>Fast setup, no training required</li>
+                <li>Secure by default</li>
+                <li>Seat-based orgs with admin control</li>
+                <li>Billing handled via Lemon Squeezy</li>
+              </ul>
+              <a className="btn" href={`${portalUrl}/login`}>Login to portal</a>
+              <a className="btn" style={{marginLeft:8}} href="#pricing">Compare plans</a>
+            </div>
           </div>
         </div>
       </section>
-
-      {/* FOOTER (uses your classes) */}
-      <footer className="site">
-        <div className="container foot-grid">
-          <div className="brand-row">
-            <a className="brand" href="/">
-              {/* Toggle mark + word by theme */}
-              <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="ScanSnap icon" width={28} height={28} />
-              <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="ScanSnap icon" width={28} height={28} />
-              <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" width={160} height={32} />
-              <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" width={160} height={32} />
-            </a>
-            <p className="note">Fast barcode scanning that saves time and prevents errors.</p>
-          </div>
-          <div>
-            <h5>Product</h5>
-            <p><a href="/app/">Free Scanner</a></p>
-            <p><a href="/app/pro/">Pro Workspace</a></p>
-            <p><a href="/subscribe">Pricing</a></p>
-          </div>
-          <div>
-            <h5>Account</h5>
-            <p><a href="/login">Log in / Sign up</a></p>
-            <p><a href="/billing">Billing</a></p>
-          </div>
-        </div>
-      </footer>
     </>
   );
 }
