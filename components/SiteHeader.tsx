@@ -1,106 +1,102 @@
+// components/SiteHeader.tsx
 "use client";
 
-import { useMemo, useState } from "react";
+import Link from "next/link";
 import ThemeToggle from "@/components/ThemeToggle";
 
 export default function SiteHeader() {
-  const [open, setOpen] = useState(false);
-
-  const portalUrl = useMemo(
-    () => process.env.NEXT_PUBLIC_PORTAL_URL || "https://portal.scansnap.io",
-    []
-  );
-  const appUrl = useMemo(
-    () => process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io",
-    []
-  );
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
+  const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL ?? "https://portal.scansnap.io";
 
   return (
-    <>
-      <header className="site-header">
-        <div className="container">
-          <div className="nav-rail">
-            {/* Brand */}
-            <a className="brand-badge" href="/" aria-label="ScanSnap home">
-              <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
-              <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
-              <span className="brand-text">
-                <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
-                <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
-              </span>
-            </a>
-
-            {/* Desktop nav */}
-            <nav className="chip-nav" aria-label="Primary">
-              <a className="chip" href="#pricing">Pricing</a>
-              <a className="chip" href="#features">Features</a>
-              <a className="chip" href="#contact">Contact</a>
-              <a className="chip" href={appUrl}>Go to App</a>
-              <a className="chip primary" href={`${portalUrl}/login`}>Login</a>
-              <ThemeToggle />
-            </nav>
-
-            {/* Mobile controls */}
-            <div className="right-controls">
-              <a className="chip" href={appUrl}>Go to App</a>
-              <a className="chip primary" href={`${portalUrl}/login`}>Login</a>
-              <ThemeToggle />
-              <button
-                className="hamburger"
-                onClick={() => setOpen(true)}
-                aria-label="Open menu"
-                type="button"
-              >
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-                  <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.6" />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Drawer */}
-      <div
-        className={`menu-backdrop ${open ? "show" : ""}`}
-        onClick={() => setOpen(false)}
-        aria-hidden={!open}
-      />
-      <aside className={`menu-sheet ${open ? "open" : ""}`} aria-hidden={!open}>
-        <div className="menu-head">
-          <div className="brand mini" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+    <header className="site-header glass">
+      <div className="container">
+        <div className="nav-rail">
+          {/* Brand: NO inner pill — just icon + wordmark, perfectly centered */}
+          <Link href="/" className="brand-inline" aria-label="ScanSnap Home">
             <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
             <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
             <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
             <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
+          </Link>
+
+          {/* Desktop inline nav chips */}
+          <nav className="chip-nav" aria-label="Primary">
+            <Link className="chip" href="#pricing">Pricing</Link>
+            <Link className="chip" href="#features">Features</Link>
+            <Link className="chip" href="#contact">Contact</Link>
+            <a className="chip" href={appUrl}>Go to App</a>
+            <Link className="chip primary" href="/login">Login</Link>
+          </nav>
+
+          {/* Right controls / mobile */}
+          <div className="right-controls">
+            <a className="btn" href={appUrl}>Go to App</a>
+            <Link className="btn primary" href="/login">Login</Link>
+            <ThemeToggle />
+            <button className="hamburger" aria-label="Open menu" data-open-menu>
+              <svg width="20" height="20" viewBox="0 0 24 24" role="img" aria-hidden="true">
+                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </button>
           </div>
-          <button
-            className="hamburger"
-            onClick={() => setOpen(false)}
-            aria-label="Close menu"
-            type="button"
-          >
-            ✕
+        </div>
+      </div>
+
+      {/* Mobile drawer */}
+      <div className="menu-backdrop" data-menu-backdrop />
+      <aside className="menu-sheet" data-menu-sheet>
+        <div className="menu-head">
+          <Link href="/" className="brand-inline mini" aria-label="ScanSnap Home">
+            <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
+            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
+            <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
+            <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
+          </Link>
+          <button className="hamburger" aria-label="Close menu" data-close-menu>
+            <svg width="18" height="18" viewBox="0 0 24 24" role="img" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
           </button>
         </div>
         <div className="menu-body">
-          <a className="menu-link" href="#pricing"  onClick={() => setOpen(false)}>Pricing</a>
-          <a className="menu-link" href="#features" onClick={() => setOpen(false)}>Features</a>
-          <a className="menu-link" href="#contact"  onClick={() => setOpen(false)}>Contact</a>
+          <Link className="menu-link" href="#pricing">Pricing</Link>
+          <Link className="menu-link" href="#features">Features</Link>
+          <Link className="menu-link" href="#contact">Contact</Link>
           <div className="menu-inline">
-            <a className="chip" href={appUrl}>Go to App</a>
-            <a className="chip primary" href={`${portalUrl}/login`}>Login</a>
+            <a className="btn" href={appUrl}>Go to App</a>
+            <Link className="btn primary" href="/login">Login</Link>
           </div>
         </div>
       </aside>
-    </>
+
+      {/* Simple menu wiring */}
+      <script
+        dangerouslySetInnerHTML={{
+          __html: `
+            (function(){
+              var open = document.querySelector('[data-open-menu]');
+              var closeBtn = document.querySelector('[data-close-menu]');
+              var sheet = document.querySelector('[data-menu-sheet]');
+              var backdrop = document.querySelector('[data-menu-backdrop]');
+              function openMenu(){ sheet && sheet.classList.add('open'); backdrop && backdrop.classList.add('show'); }
+              function closeMenu(){ sheet && sheet.classList.remove('open'); backdrop && backdrop.classList.remove('show'); }
+              open && open.addEventListener('click', openMenu);
+              closeBtn && closeBtn.addEventListener('click', closeMenu);
+              backdrop && backdrop.addEventListener('click', closeMenu);
+            }());
+          `,
+        }}
+      />
+    </header>
   );
 }
 
-/** Optional: separate right-controls if you want to import/use it elsewhere */
+// Small helper block so imports elsewhere keep working if you used these before
 export function HeaderRightControls() {
   return (
     <div className="right-controls">
+      <a href={process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io"} className="btn">Go to App</a>
       <a href="/login" className="btn primary">Login</a>
       <ThemeToggle />
     </div>
