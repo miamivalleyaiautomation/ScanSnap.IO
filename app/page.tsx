@@ -5,21 +5,18 @@ import HeroPreview from "@/components/HeroPreview";
 export const metadata = {
   title: "ScanSnap — Fast, accurate barcode & matrix code scanning",
   description:
-    "ScanSnap scans barcodes, QR & DataMatrix locally. Nothing leaves your device. Team-ready with per-seat pricing."
-};
-
-const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL || "https://portal.scansnap.io";
-const appUrl    = process.env.NEXT_PUBLIC_APP_URL    || "https://app.scansnap.io";
-
-// Optional direct buy links (fill these in Netlify env for one-click checkout)
-const LS = {
-  basic: process.env.NEXT_PUBLIC_LS_BUY_BASIC || "#pricing",
-  plus:  process.env.NEXT_PUBLIC_LS_BUY_PLUS  || "#pricing",
-  pro:   process.env.NEXT_PUBLIC_LS_BUY_PRO   || "#pricing",
-  dpms:  process.env.NEXT_PUBLIC_LS_BUY_PRO_DPMS || "#pricing",
+    "Scan barcodes, QR & DataMatrix locally. Nothing leaves your device. Team-ready with per-seat pricing.",
 };
 
 export default function Page() {
+  const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL ?? "https://portal.scansnap.io";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
+
+  const LS_BASIC = process.env.NEXT_PUBLIC_LS_BUY_BASIC ?? "#pricing";
+  const LS_PLUS  = process.env.NEXT_PUBLIC_LS_BUY_PLUS  ?? "#pricing";
+  const LS_PRO   = process.env.NEXT_PUBLIC_LS_BUY_PRO   ?? "#pricing";
+  const LS_DPMS  = process.env.NEXT_PUBLIC_LS_BUY_PRO_DPMS ?? "#pricing";
+
   return (
     <>
       <SiteHeader />
@@ -48,11 +45,10 @@ export default function Page() {
           <div>
             <div className="device">
               <div className="device-top" />
-              {/* App-in-action GIF placeholder (client component handles image error/fallback) */}
               <HeroPreview src="/assets/app-preview.gif" alt="ScanSnap in action" />
               <div className="bar">
-                <button className="pill">Preview</button>
-                <button className="pill">Local-only</button>
+                <button className="pill" type="button">Preview</button>
+                <button className="pill" type="button">Local-only</button>
               </div>
             </div>
           </div>
@@ -97,7 +93,7 @@ export default function Page() {
       {/* ===== PRICING ===== */}
       <section id="pricing" className="section">
         <div className="container">
-          <div className="grid cols-4" style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(4, minmax(0,1fr))" }}>
+          <div className="grid" style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(4, minmax(0, 1fr))" }}>
             {/* BASIC */}
             <div className="card">
               <span className="tag">BASIC</span>
@@ -125,7 +121,7 @@ export default function Page() {
                 <li>Reduce manual errors</li>
               </ul>
               <div style={{ height: 8 }} />
-              <a className="btn primary block" href={LS.plus}>Choose Plus</a>
+              <a className="btn primary block" href={LS_PLUS}>Choose Plus</a>
             </div>
 
             {/* PRO */}
@@ -139,7 +135,7 @@ export default function Page() {
                 <li>DataMatrix reading</li>
               </ul>
               <div style={{ height: 8 }} />
-              <a className="btn primary block" href={LS.pro}>Choose Pro</a>
+              <a className="btn primary block" href={LS_PRO}>Choose Pro</a>
             </div>
 
             {/* PRO + DPMS */}
@@ -155,7 +151,7 @@ export default function Page() {
                 <li>Designed for tough marks</li>
               </ul>
               <div style={{ height: 8 }} />
-              <a className="btn primary block" href={LS.dpms}>Choose Pro + DPMS</a>
+              <a className="btn primary block" href={LS_DPMS}>Choose Pro + DPMS</a>
             </div>
           </div>
 
@@ -191,16 +187,16 @@ export default function Page() {
 
       {/* ===== FOOTER ===== */}
       <footer className="site">
-  <div className="container foot-grid">
-    <div className="brand-row">
-      <div className="brand footer-brand" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
-        <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
-        <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
-        <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
-      </div>
-      {/* ... */}
-
+        <div className="container foot-grid">
+          <div className="brand-row">
+            <div className="brand footer-brand" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
+              <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
+              <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
+              <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
+            </div>
+            <p className="muted">© {new Date().getFullYear()} ScanSnap. All rights reserved.</p>
+          </div>
           <div>
             <h4>Product</h4>
             <div className="grid">
