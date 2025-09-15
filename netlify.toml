@@ -2,11 +2,11 @@
   command = "npm run build"
   publish = ".next"
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs"
-
 [build.environment]
   NODE_VERSION = "20"
   NPM_VERSION  = "10"
-  # If you still see peer-dep install issues, temporarily enable:
+  # If install still complains about peer deps, temporarily uncomment:
   # NPM_FLAGS = "--legacy-peer-deps"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
