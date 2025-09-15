@@ -135,3 +135,47 @@ footer.site{ border-top:1px solid var(--line); background:transparent; padding:1
   .grid.cols-2{ grid-template-columns:1fr; }
   .pricing-grid{ grid-template-columns:1fr; }
 }
+/* === Brand sizing (header vs footer) =================================== */
+/* Tweak these if you want different sizes later */
+:root{
+  --brand-mark-h-header: 44px;   /* header icon height (bigger) */
+  --brand-word-h-header: 36px;   /* header wordmark height (bigger) */
+  --brand-mark-h-footer: 20px;   /* footer icon height (smaller) */
+  --brand-word-h-footer: 18px;   /* footer wordmark height (smaller) */
+}
+
+/* Header brand — icon left, word centered — make both larger */
+.site-header .brand-badge .mark{
+  height: var(--brand-mark-h-header);
+  width: auto;                 /* prevent stretching */
+}
+.site-header .brand-badge .word{
+  height: var(--brand-word-h-header);
+  width: auto;                 /* prevent stretching */
+}
+
+/* Footer brand — keep it compact */
+footer.site .footer-brand .mark{
+  height: var(--brand-mark-h-footer);
+  width: auto;                 /* prevent stretching */
+}
+footer.site .footer-brand .word{
+  height: var(--brand-word-h-footer);
+  width: auto;                 /* prevent stretching */
+}
+
+/* Responsive tweaks so it still looks clean on phones */
+@media (max-width: 640px){
+  .site-header .brand-badge .mark{ height: 36px; }
+  .site-header .brand-badge .word{ height: 28px; }
+  footer.site .footer-brand .mark{ height: 18px; }
+  footer.site .footer-brand .word{ height: 16px; }
+}
+
+/* Ensure the correct asset shows per theme and never overlaps */
+.word-light, .mark-light{ display:inline-block; }
+.word-dark,  .mark-dark { display:none; }
+html[data-theme="light"] .word-light,
+html[data-theme="light"] .mark-light{ display:none; }
+html[data-theme="light"] .word-dark,
+html[data-theme="light"] .mark-dark{ display:inline-block; }
