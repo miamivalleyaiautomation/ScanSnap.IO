@@ -32,6 +32,10 @@ html[data-theme="light"]{
 
 /* ===== BASE ===== */
 *{box-sizing:border-box}
+html{
+  scroll-behavior: smooth;     /* smooth scrolling for anchor links */
+  scroll-padding-top: 100px;   /* offset for sticky header */
+}
 html,body{
   margin:0; padding:0; background:var(--bg); color:var(--fg);
   font:16px/1.55 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,"Helvetica Neue",Arial;
@@ -45,7 +49,25 @@ h2{ font-size:clamp(1.6rem,1.5vw + .6rem,2.2rem); margin:0 0 .6rem; }
 h3{ font-size:1.15rem; margin:.2rem 0 .4rem; }
 .muted{ color: var(--muted); }
 .note{ color: var(--muted); font-size:.95rem; }
-.sr-only{ position:absolute!important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+/* Section headings - proper spacing for smooth scroll */
+.section-heading {
+  margin: 0 0 2rem 0;
+  text-align: center;
+  padding-top: 1rem;
+}
+
+.section-heading h2 {
+  font-size: clamp(1.8rem, 2.5vw + 0.5rem, 2.5rem);
+  margin: 0 0 0.5rem 0;
+  color: var(--fg);
+}
+
+.section-heading p {
+  color: var(--muted);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+}
 
 .btn{
   display:inline-flex; align-items:center; gap:.55rem;
@@ -70,7 +92,12 @@ h3{ font-size:1.15rem; margin:.2rem 0 .4rem; }
 .nav-rail .brand-inline,
 .nav-rail .brand-badge{        /* support either class, same look */
   all: unset;                  /* nuke inner "pill" border/padding */
-  display:flex; align-items:center; gap:10px; line-height:0; cursor:pointer;
+  display:flex; 
+  align-items:center;          /* vertical center alignment */
+  justify-content: center;     /* horizontal center for mobile */
+  gap:10px; 
+  line-height:0; 
+  cursor:pointer;
   flex-shrink: 0;              /* prevent brand from shrinking */
 }
 .nav-rail .brand-inline img,
@@ -269,14 +296,37 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   .grid.cols-3{ grid-template-columns:1fr }
   .pricing-grid{ grid-template-columns:1fr }
   
-  /* Adjust brand sizing for tablets/mobile */
+  /* Adjust brand sizing for tablets/mobile - 30% larger text */
   .nav-rail .mark{ 
     height:36px; 
     max-width: 36px; 
   }   
   .nav-rail .word{ 
-    height:28px; 
-    max-width: 100px; 
+    height:36px;                 /* increased from 28px (30% larger) */
+    max-width: 130px;            /* increased proportionally */
+  }
+  
+  /* Center brand completely on mobile */
+  .nav-rail .brand-inline,
+  .nav-rail .brand-badge {
+    justify-content: center;
+    width: 100%;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
+  }
+  
+  /* Make nav-rail positioning work with centered brand */
+  .nav-rail {
+    position: relative;
+  }
+  
+  /* Ensure right controls stay on the right */
+  .right-controls {
+    position: relative;
+    z-index: 2;
+    margin-left: auto;
   }
 }
 
@@ -284,14 +334,14 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   footer.site .footer-brand .mark{ height:18px }
   footer.site .footer-brand .word{ height:16px }
   
-  /* Smaller brand on very small screens */
+  /* Even larger brand on very small screens - 30% increase from mobile base */
   .nav-rail .mark{ 
-    height:32px; 
-    max-width: 32px; 
+    height:42px;                 /* increased from 32px */
+    max-width: 42px; 
   }   
   .nav-rail .word{ 
-    height:24px; 
-    max-width: 80px; 
+    height:42px;                 /* increased from 24px (75% larger total) */
+    max-width: 140px; 
   }
   
   /* Stack right controls vertically on very small screens if needed */
