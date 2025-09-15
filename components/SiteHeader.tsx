@@ -40,11 +40,16 @@ export default function SiteHeader() {
 
   return (
     <header className="site-header">
-      <div className="container header-row header-left-brand">
-        {/* LEFT: icon + wordmark (bigger) */}
-        <Link className="brand brand-large" href="/" aria-label="ScanSnap home">
+      {/* 3-col: [icon-left] [center wordmark] [controls-right] */}
+      <div className="container header-row header-3col">
+        {/* LEFT: icon only */}
+        <Link className="brand-left" href="/" aria-label="ScanSnap home">
           <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" width={42} height={42} />
           <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" width={42} height={42} />
+        </Link>
+
+        {/* CENTER: wordmark only */}
+        <Link className="brand-center" href="/" aria-label="ScanSnap">
           <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
           <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
         </Link>
@@ -77,7 +82,7 @@ export default function SiteHeader() {
       {/* Backdrop */}
       <div className={`menu-backdrop${open ? " show" : ""}`} />
 
-      {/* Slide-over menu */}
+      {/* Slide-over menu (right) */}
       <aside
         id="site-menu"
         role="dialog"
@@ -117,9 +122,9 @@ export default function SiteHeader() {
               </SignInButton>
             </SignedOut>
             <SignedIn>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <OrganizationSwitcher appearance={{ elements: { organizationSwitcherTrigger: { borderRadius: 10 } } }} />
-                <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 32, height: 32 } } }} />
+              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                <OrganizationSwitcher appearance={{ elements:{ organizationSwitcherTrigger:{ borderRadius:10 } } }} />
+                <UserButton appearance={{ elements:{ userButtonAvatarBox:{ width:32, height:32 } } }} />
               </div>
             </SignedIn>
           </div>
