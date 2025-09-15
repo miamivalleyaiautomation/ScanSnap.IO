@@ -191,16 +191,16 @@ export default function Page() {
 
       {/* ===== FOOTER ===== */}
       <footer className="site">
-        <div className="container foot-grid">
-          <div className="brand-row">
-            <div className="brand footer-brand" style={{ display: "flex", alignItems: "center", gap: 10 }}>
-              <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
-              <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
-              <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
-              <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
-            </div>
-            <p className="muted">© {new Date().getFullYear()} ScanSnap. All rights reserved.</p>
-          </div>
+  <div className="container foot-grid">
+    <div className="brand-row">
+      <div className="brand footer-brand" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
+        <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
+        <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
+        <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
+      </div>
+      {/* ... */}
+
           <div>
             <h4>Product</h4>
             <div className="grid">
