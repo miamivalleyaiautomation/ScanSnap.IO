@@ -1,54 +1,70 @@
 export const runtime = "nodejs";
 
-import { auth, clerkClient } from "@clerk/nextjs/server";
-import { getVariantIdOrThrow } from "@/lib/plans";
+import { NextRequest } from "next/server";
 
-export async function POST(req: Request) {
-  const { userId, orgId } = auth();
-  if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
+const HEADERS = {
+  Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`,
+  "Content-Type": "application/json",
+  Accept: "application/vnd.api+json",
+};
 
-  const { plan } = await req.json().catch(() => ({}));
+const VARIANT_MAP: Record<string, string | undefined> = {
+  plus: process.env.LEMONSQUEEZY_VARIANT_ID_PLUS,
+  pro: process.env.LEMONSQUEEZY_VARIANT_ID_PRO,
+  pro_dpms: process.env.LEMONSQUEEZY_VARIANT_ID_PRO_DPMS,
+};
 
+export async function POST(req: NextRequest) {
   try {
-    const variantId = getVariantIdOrThrow(String(plan));
-    const user = await clerkClient.users.getUser(userId);
-    const email = user.emailAddresses.find(e => e.id === user.primaryEmailAddressId)?.emailAddress;
+    const body = await req.json().catch(() => ({}));
+    const plan: string | undefined = body?.plan;
+    if (!plan || plan === "basic") {
+      return Response.json({ error: "Use paid plans only for checkout" }, { status: 400 });
+    }
 
-    const body = {
+    const variantId = VARIANT_MAP[plan];
+    if (!variantId) return Response.json({ error: "Missing variant id" }, { status: 400 });
+
+    const storeId = process.env.LEMONSQUEEZY_STORE_ID;
+    if (!storeId) return Response.json({ error: "Missing store id" }, { status: 500 });
+
+    const redirectUrl =
+      process.env.NEXT_PUBLIC_AFTER_CHECKOUT_URL ||
+      `${process.env.NEXT_PUBLIC_PORTAL_URL || ""}/billing`;
+
+    const cancelUrl =
+      `${process.env.NEXT_PUBLIC_PORTAL_URL || ""}/pricing`;
+
+    const payload = {
       data: {
         type: "checkouts",
         attributes: {
-          checkout_options: { embed: true, logo: false, desc: false, background_color: "#0B0F19" },
-          checkout_data: {
-            email, name: user.fullName || undefined,
-            custom: { user_id: orgId ? null : userId, org_id: orgId || null, plan: String(plan) }
-          },
-          success_url: process.env.NEXT_PUBLIC_AFTER_CHECKOUT_URL || "https://app.scansnap.io/app",
-          cancel_url: `${process.env.NEXT_PUBLIC_PORTAL_URL || "https://portal.scansnap.io"}/pricing`
+          checkout_options: { embed: true },
+          cancel_url: cancelUrl,
+          redirect_url: redirectUrl
         },
         relationships: {
-          store:   { data: { type: "stores",   id: process.env.LEMONSQUEEZY_STORE_ID } },
+          store: { data: { type: "stores", id: storeId } },
           variant: { data: { type: "variants", id: variantId } }
         }
       }
     };
 
-    console.log("[checkout] plan=%s variantId=%s userId=%s orgId=%s", plan, variantId, userId, orgId ?? "");
-
     const res = await fetch("https://api.lemonsqueezy.com/v1/checkouts", {
       method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`,
-        Accept: "application/vnd.api+json",
-        "Content-Type": "application/vnd.api+json"
-      },
-      body: JSON.stringify(body)
+      headers: HEADERS,
+      body: JSON.stringify(payload)
     });
 
-    if (!res.ok) return Response.json({ error: "Lemon Squeezy checkout failed", detail: await res.text() }, { status: 502 });
     const json = await res.json();
-    return Response.json({ url: json?.data?.attributes?.url ?? null });
+    const url = json?.data?.attributes?.url as string | undefined;
+
+    if (!res.ok || !url) {
+      return Response.json({ error: "Failed to create checkout", detail: json }, { status: 500 });
+    }
+
+    return Response.json({ url });
   } catch (e: any) {
-    return Response.json({ error: String(e?.message || e) }, { status: 400 });
+    return Response.json({ error: e?.message || String(e) }, { status: 500 });
   }
 }
