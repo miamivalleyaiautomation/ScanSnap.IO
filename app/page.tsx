@@ -57,35 +57,41 @@ export default function Page() {
 
       {/* ===== FEATURES ===== */}
       <section id="features" className="section">
-        <div className="container grid cols-3">
-          <div className="card">
-            <span className="tag">Local &amp; Private</span>
-            <h3>Nothing leaves your device</h3>
-            <ul className="feature">
-              <li>On-device processing (no cloud upload)</li>
-              <li>Fast OCR + cleanup pipeline</li>
-              <li>Works offline after initial load</li>
-            </ul>
+        <div className="container">
+          <div className="section-heading">
+            <h2>Features</h2>
+            <p>Everything you need for professional barcode scanning</p>
           </div>
+          <div className="grid cols-3">
+            <div className="card">
+              <span className="tag">Local &amp; Private</span>
+              <h3>Nothing leaves your device</h3>
+              <ul className="feature">
+                <li>On-device processing (no cloud upload)</li>
+                <li>Fast OCR + cleanup pipeline</li>
+                <li>Works offline after initial load</li>
+              </ul>
+            </div>
 
-          <div className="card">
-            <span className="tag">Barcode Pro</span>
-            <h3>Accurate scanning</h3>
-            <ul className="feature">
-              <li>UPC, EAN, Code-128, Code-39, and more</li>
-              <li>QR &amp; DataMatrix (Pro tier)</li>
-              <li>Laser mark &amp; Dot-Peen matrix (DPMS tier)</li>
-            </ul>
-          </div>
+            <div className="card">
+              <span className="tag">Barcode Pro</span>
+              <h3>Accurate scanning</h3>
+              <ul className="feature">
+                <li>UPC, EAN, Code-128, Code-39, and more</li>
+                <li>QR &amp; DataMatrix (Pro tier)</li>
+                <li>Laser mark &amp; Dot-Peen matrix (DPMS tier)</li>
+              </ul>
+            </div>
 
-          <div className="card">
-            <span className="tag">Team-ready</span>
-            <h3>Seats &amp; roles</h3>
-            <ul className="feature">
-              <li>Per-seat licensing</li>
-              <li>Invite/Remove users anytime</li>
-              <li>Use your company email domain</li>
-            </ul>
+            <div className="card">
+              <span className="tag">Team-ready</span>
+              <h3>Seats &amp; roles</h3>
+              <ul className="feature">
+                <li>Per-seat licensing</li>
+                <li>Invite/Remove users anytime</li>
+                <li>Use your company email domain</li>
+              </ul>
+            </div>
           </div>
         </div>
       </section>
@@ -93,6 +99,10 @@ export default function Page() {
       {/* ===== PRICING ===== */}
       <section id="pricing" className="section">
         <div className="container">
+          <div className="section-heading">
+            <h2>Pricing</h2>
+            <p>Simple, transparent pricing that scales with your team</p>
+          </div>
           <div className="grid" style={{ display: "grid", gap: "1rem", gridTemplateColumns: "repeat(4, minmax(0, 1fr))" }}>
             {/* BASIC */}
             <div className="card">
@@ -165,21 +175,27 @@ export default function Page() {
 
       {/* ===== CONTACT ===== */}
       <section id="contact" className="section">
-        <div className="container grid cols-2">
-          <div className="card">
-            <h3>Contact us</h3>
-            <p className="muted">Questions about pricing, teams, or a custom rollout?</p>
-            <div style={{ height: 8 }} />
-            <a className="btn" href="mailto:hello@scansnap.io">hello@scansnap.io</a>
+        <div className="container">
+          <div className="section-heading">
+            <h2>Contact</h2>
+            <p>Get in touch with our team</p>
           </div>
+          <div className="grid cols-2">
+            <div className="card">
+              <h3>Contact us</h3>
+              <p className="muted">Questions about pricing, teams, or a custom rollout?</p>
+              <div style={{ height: 8 }} />
+              <a className="btn" href="mailto:hello@scansnap.io">hello@scansnap.io</a>
+            </div>
 
-          <div className="card">
-            <h3>Already a customer?</h3>
-            <p className="muted">Manage your subscription, seats, and billing in the portal.</p>
-            <div style={{ height: 8 }} />
-            <div className="actions">
-              <a className="btn" href={appUrl}>Go to App</a>
-              <a className="btn primary" href={`${portalUrl}/login`}>Open Portal</a>
+            <div className="card">
+              <h3>Already a customer?</h3>
+              <p className="muted">Manage your subscription, seats, and billing in the portal.</p>
+              <div style={{ height: 8 }} />
+              <div className="actions">
+                <a className="btn" href={appUrl}>Go to App</a>
+                <a className="btn primary" href={`${portalUrl}/login`}>Open Portal</a>
+              </div>
             </div>
           </div>
         </div>
