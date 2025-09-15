@@ -27,13 +27,11 @@ export default function SiteHeader() {
             <Link className="chip" href="#contact">Contact</Link>
             <a className="chip" href={appUrl}>Go to App</a>
             <Link className="chip primary" href="/login">Login</Link>
+            <ThemeToggle />
           </nav>
 
-          {/* Right controls / mobile */}
+          {/* Right controls / mobile - only hamburger */}
           <div className="right-controls">
-            <a className="btn" href={appUrl}>Go to App</a>
-            <Link className="btn primary" href="/login">Login</Link>
-            <ThemeToggle />
             <button className="hamburger" aria-label="Open menu" data-open-menu>
               <svg width="20" height="20" viewBox="0 0 24 24" role="img" aria-hidden="true">
                 <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -43,7 +41,7 @@ export default function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile drawer */}
+      {/* Mobile drawer - everything goes here */}
       <div className="menu-backdrop" data-menu-backdrop />
       <aside className="menu-sheet" data-menu-sheet>
         <div className="menu-head">
@@ -63,10 +61,9 @@ export default function SiteHeader() {
           <Link className="menu-link" href="#pricing">Pricing</Link>
           <Link className="menu-link" href="#features">Features</Link>
           <Link className="menu-link" href="#contact">Contact</Link>
-          <div className="menu-inline">
-            <a className="btn" href={appUrl}>Go to App</a>
-            <Link className="btn primary" href="/login">Login</Link>
-          </div>
+          <a className="menu-link" href={appUrl}>Go to App</a>
+          <Link className="menu-link" href="/login">Login</Link>
+          <ThemeToggle />
         </div>
       </aside>
 
@@ -92,7 +89,7 @@ export default function SiteHeader() {
   );
 }
 
-// Small helper block so imports elsewhere keep working if you used these before
+// Small helper block so imports elsewhere keep working if you used this before
 export function HeaderRightControls() {
   return (
     <div className="right-controls">
