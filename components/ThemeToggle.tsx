@@ -2,48 +2,52 @@
 
 import { useEffect, useState } from "react";
 
-type Mode = "light" | "dark";
+type Theme = "light" | "dark";
 
-export default function ThemeToggle() {
-  const [mode, setMode] = useState<Mode>("dark");
+export default function ThemeToggle({ className = "" }: { className?: string }) {
+  const [theme, setTheme] = useState<Theme>("dark");
+  const [mounted, setMounted] = useState(false);
 
-  // read saved or system preference on mount
+  // Apply initial theme before interaction
   useEffect(() => {
-    const saved = (localStorage.getItem("theme") as Mode | null);
-    const initial: Mode =
+    const saved = (typeof window !== "undefined"
+      ? (localStorage.getItem("theme") as Theme | null)
+      : null) as Theme | null;
+
+    const initial: Theme =
       saved ??
-      (window.matchMedia("(prefers-color-scheme: light)").matches
-        ? "light"
-        : "dark");
-    apply(initial);
+      (typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light");
+
+    setTheme(initial);
+    document.documentElement.setAttribute("data-theme", initial);
+    setMounted(true);
   }, []);
 
-  function apply(next: Mode) {
+  function toggleTheme() {
+    const next: Theme = theme === "dark" ? "light" : "dark";
+    setTheme(next);
     document.documentElement.setAttribute("data-theme", next);
     localStorage.setItem("theme", next);
-    setMode(next);
   }
 
-  function toggle() {
-    apply(mode === "light" ? "dark" : "light");
-  }
+  // Avoid SSR mismatch by rendering a stable default before mount
+  const icon = !mounted ? "🌙" : theme === "dark" ? "🌞" : "🌙";
+  const nextLabel = !mounted ? "Dark" : theme === "dark" ? "Light" : "Dark";
 
   return (
-    <button className="icon-btn" aria-label="Toggle theme" onClick={toggle} title="Toggle theme">
-      {mode === "light" ? (
-        // Sun
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <path d="M12 4V2M12 22v-2M4 12H2M22 12h-2M5 5l-1.4-1.4M20.4 19.4 19 18M19 5l1.4-1.4M4.6 19.4 6 18"
-            stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
-          <circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="1.5"/>
-        </svg>
-      ) : (
-        // Moon
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-          <path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 1 0 9.8 9.8Z"
-            stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      )}
+    <button
+      type="button"
+      className={`theme-toggle btn ${className}`}
+      onClick={toggleTheme}
+      aria-label={`Switch to ${nextLabel} mode`}
+      title={`Switch to ${nextLabel} mode`}
+    >
+      <span className="emoji" aria-hidden="true">{icon}</span>
+      <span className="sr-only">Toggle theme</span>
     </button>
   );
 }
