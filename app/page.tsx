@@ -1,118 +1,250 @@
 // app/page.tsx
-import Features from "@/components/Features";
-import Pricing from "@/components/Pricing";
-import Link from "next/link";
-import Image from "next/image";
+import Header from "@/components/Header";
 
-export default function Home() {
+export default function Page() {
+  const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL || "https://portal.scansnap.io";
+
   return (
-    <main>
+    <>
+      <Header />
+
       {/* ===== HERO ===== */}
-      <section className="section hero" style={{ paddingTop: "40px" }}>
-        <div className="container">
-          <div className="hero-grid" style={{ display: "grid", gridTemplateColumns: "1.05fr .95fr", gap: "24px", alignItems: "center" }}>
-            {/* Left copy */}
-            <div>
-              <div className="tag">Scan • Verify • Build orders</div>
-              <h1 style={{ margin: "10px 0 6px" }}>
-                Lightning-fast barcode & parts scanning
-              </h1>
-              <p className="lede">
-                Capture barcodes and codes instantly, export to <strong>PDF / CSV / Excel</strong>, verify stock against your catalog, and build error-free orders.
-                <br/> <strong>All processing stays on your device—no uploads.</strong>
-              </p>
-
-              <div className="actions" style={{ display: "flex", gap: 12, marginTop: 14, flexWrap: "wrap" }}>
-                <Link href="/login" className="btn primary">Sign in</Link>
-                <a href="#pricing" className="btn">View pricing</a>
-                <a href="https://app.scansnap.io" className="btn">Open App</a>
-              </div>
+      <section className="section hero">
+        <div className="container hero-grid">
+          <div className="hero-copy">
+            <h1>
+              Most affordable, fast, and accurate{" "}
+              <span className="accent">barcode & matrix code</span> scanner.
+            </h1>
+            <p className="lede">
+              Drag-and-drop or camera capture. OCR & cleanup run locally—{" "}
+              <strong>no customer data uploaded</strong>. Invite teammates and manage seats with
+              role-based controls.
+            </p>
+            <div className="actions">
+              <a className="btn primary" href={`${portalUrl}/login`}>Get Started</a>
+              <a className="btn" href="#features">See features</a>
             </div>
-
-            {/* Right: demo frame */}
-            <div>
-              <div className="card device" style={{ overflow: "hidden" }}>
-                {/* If you add a real GIF later, place it at /public/assets/app-demo.gif */}
-                <div className="device-top" />
-                <div style={{ position: "relative" }}>
-                  {/* Placeholder image block */}
-                  <div
-                    className="demo-skeleton"
-                    style={{
-                      width: "100%",
-                      aspectRatio: "16 / 10",
-                      display: "grid",
-                      placeItems: "center",
-                      border: "1px solid var(--line)",
-                      borderRadius: 12,
-                      background:
-                        "repeating-linear-gradient(135deg, rgba(148,163,184,.06), rgba(148,163,184,.06) 12px, transparent 12px, transparent 24px)",
-                    }}
-                  >
-                    <div style={{ textAlign: "center" }}>
-                      <div style={{ fontWeight: 700, marginBottom: 6 }}>Demo GIF placeholder</div>
-                      <div className="muted" style={{ fontSize: 14 }}>
-                        Drop <code>/public/assets/app-demo.gif</code> to replace this.
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* If you already have a GIF, uncomment this block: */}
-                  {/*
-                  <Image
-                    src="/assets/app-demo.gif"
-                    alt="ScanSnap app in action"
-                    width={1280}
-                    height={800}
-                    style={{ width: "100%", height: "auto", display: "block", borderRadius: 12, border: "1px solid var(--line)" }}
-                  />
-                  */}
-                </div>
-
-                {/* quick pills */}
-                <div className="bar" style={{ display: "flex", gap: 8, position: "absolute", inset: "auto 12px 12px auto" }}>
-                  <span className="pill">Fast</span>
-                  <span className="pill">Secure</span>
-                  <span className="pill">Team-ready</span>
-                </div>
-              </div>
+            <div className="badges">
+              <span className="tag">Fast</span>
+              <span className="tag">Secure</span>
+              <span className="tag">Team-ready</span>
             </div>
           </div>
 
-          {/* Privacy callout */}
-          <div className="card" style={{ marginTop: 16 }}>
-            <strong>Privacy first.</strong> Nothing is uploaded—processing runs locally in your browser. Your catalogs, scans and orders stay on your device.
+          <div className="hero-visual">
+            {/* GIF placeholder — replace /assets/app-preview.gif with your real capture */}
+            <div className="device">
+              <div className="device-top" />
+              <img
+                src="/assets/app-preview.gif"
+                alt="ScanSnap in action"
+                onError={(e) => {
+                  // graceful placeholder if gif not present yet
+                  (e.currentTarget as HTMLImageElement).src =
+                    "data:image/svg+xml;utf8," +
+                    encodeURIComponent(
+                      `<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='800'>
+                        <defs><linearGradient id='g' x1='0' x2='1'><stop offset='0' stop-color='#0ea5e9'/><stop offset='1' stop-color='#60a5fa'/></linearGradient></defs>
+                        <rect width='100%' height='100%' fill='#0f141a'/>
+                        <circle cx='600' cy='400' r='220' fill='url(#g)' opacity='0.35'/>
+                        <text x='50%' y='52%' dominant-baseline='middle' text-anchor='middle'
+                          fill='#9aa3b2' font-family='system-ui, -apple-system, Segoe UI' font-size='20'>
+                          App preview GIF placeholder
+                        </text>
+                      </svg>`
+                    );
+                }}
+              />
+              <div className="bar">
+                <button className="pill" type="button">Preview</button>
+                <button className="pill" type="button">Local-only</button>
+              </div>
+            </div>
           </div>
         </div>
+        <div className="bg-gradient" />
       </section>
 
       {/* ===== FEATURES ===== */}
       <section id="features" className="section">
         <div className="container">
-          <Features />
+          <h2>Everything you need to move fast</h2>
+          <p className="note">No data leaves your device. Export results anywhere.</p>
+
+          <div className="grid cols-3">
+            <article className="card">
+              <h3>Lightning scans ⚡</h3>
+              <ul className="feature">
+                <li>Crystal-clear PDFs</li>
+                <li>Auto-straighten & crop</li>
+                <li>Smart file names</li>
+              </ul>
+            </article>
+
+            <article className="card">
+              <h3>Organize & share 📁</h3>
+              <ul className="feature">
+                <li>Folders, tags & quick links</li>
+                <li>Searchable text</li>
+                <li>One-click share & export</li>
+              </ul>
+            </article>
+
+            <article className="card">
+              <h3>Verify mode ✅</h3>
+              <p className="muted">
+                Upload your catalog/CSV and track codes against the uploaded file with immediate
+                feedback.
+              </p>
+            </article>
+
+            <article className="card">
+              <h3>Order Builder 🧾</h3>
+              <p className="muted">
+                Build accurate order lists for vendors/suppliers or your in-house system—minimize
+                counting errors and manual entry.
+              </p>
+            </article>
+
+            <article className="card">
+              <h3>Advanced codes 📷</h3>
+              <p className="muted">
+                Adds QR and DataMatrix scanning for Pro tier.
+              </p>
+            </article>
+
+            <article className="card">
+              <h3>Industrial DPMS 🏭</h3>
+              <p className="muted">
+                Read laser-mark and dot-peened matrix codes with custom scanning in Pro + DPMS.
+              </p>
+            </article>
+          </div>
         </div>
       </section>
 
       {/* ===== PRICING ===== */}
       <section id="pricing" className="section">
         <div className="container">
-          <Pricing />
+          <h2>Pricing that scales with you</h2>
+
+          <div className="grid pricing-grid">
+            <article className="card plan">
+              <header className="plan-head">
+                <h3>Basic</h3>
+                <div className="price">$0</div>
+                <div className="muted">Scan barcodes & export to PDF/CSV/Excel.</div>
+              </header>
+              <ul className="feature">
+                <li>Local processing (no uploads)</li>
+                <li>Fast exports</li>
+              </ul>
+              <a className="btn primary block" href={`${portalUrl}/login?plan=basic`}>Start free</a>
+            </article>
+
+            <article className="card plan">
+              <header className="plan-head">
+                <h3>Plus</h3>
+                <div className="price">$9.99</div>
+                <div className="muted">Everything in Basic + CSV import, Verify & Order Builder.</div>
+              </header>
+              <ul className="feature">
+                <li>Catalog/CSV import</li>
+                <li>Verify mode (track against file)</li>
+                <li>Order Builder</li>
+              </ul>
+              <a className="btn primary block" href={`${portalUrl}/login?plan=plus`}>Choose Plus</a>
+            </article>
+
+            <article className="card plan">
+              <header className="plan-head">
+                <h3>Pro</h3>
+                <div className="price">$14.99</div>
+                <div className="muted">Plus + QR & DataMatrix scanning.</div>
+              </header>
+              <ul className="feature">
+                <li>QR & DataMatrix support</li>
+                <li>All Plus features</li>
+              </ul>
+              <a className="btn primary block" href={`${portalUrl}/login?plan=pro`}>Choose Pro</a>
+            </article>
+
+            <article className="card plan">
+              <header className="plan-head">
+                <h3>Pro + DPMS</h3>
+                <div className="price">$49.99</div>
+                <div className="muted">Everything in Pro + industrial DPMS.</div>
+              </header>
+              <ul className="feature">
+                <li>Laser-mark & dot-peened code reading</li>
+                <li>All Pro features</li>
+              </ul>
+              <a className="btn primary block" href={`${portalUrl}/login?plan=pro-dpms`}>
+                Choose Pro + DPMS
+              </a>
+            </article>
+          </div>
         </div>
       </section>
 
       {/* ===== CONTACT ===== */}
       <section id="contact" className="section">
         <div className="container">
-          <div className="card">
-            <h2>Contact us</h2>
-            <p className="muted">Questions or a custom workflow? We’d love to help.</p>
-            <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginTop: 10 }}>
-              <a className="btn" href="mailto:support@scansnap.io">Email support@scansnap.io</a>
-              <a className="btn" href="/#pricing">See plans</a>
+          <h2>Contact</h2>
+          <div className="grid cols-2">
+            <div className="card">
+              <p className="muted">
+                Questions or need a tailored workflow? We’re happy to help.
+              </p>
+              <a className="btn" href="mailto:support@scansnap.io">support@scansnap.io</a>
             </div>
+            <form className="card inputs" onSubmit={(e) => e.preventDefault()}>
+              <label>
+                Name
+                <input className="input" placeholder="Your name" />
+              </label>
+              <label>
+                Email
+                <input className="input" placeholder="you@company.com" type="email" />
+              </label>
+              <label>
+                Message
+                <textarea placeholder="How can we help?" />
+              </label>
+              <button className="btn primary" type="submit" disabled>
+                Send (placeholder)
+              </button>
+            </form>
           </div>
         </div>
       </section>
-    </main>
+
+      <footer className="site">
+        <div className="container foot-grid">
+          <div className="brand-row">
+            <div className="brand-badge">
+              <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
+              <img className="mark mark-dark" src="/assets/favicon_1024_dark.png" alt="" />
+              <span className="brand-text">
+                <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
+                <img className="word word-dark" src="/assets/text_1024_dark.png" alt="ScanSnap" />
+              </span>
+            </div>
+            <small className="muted">© {new Date().getFullYear()} ScanSnap</small>
+          </div>
+          <div>
+            <div className="muted">Product</div>
+            <div><a href="#features">Features</a></div>
+            <div><a href="#pricing">Pricing</a></div>
+          </div>
+          <div>
+            <div className="muted">Company</div>
+            <div><a href="#contact">Contact</a></div>
+            <div><a href="https://portal.scansnap.io/login">Login</a></div>
+          </div>
+        </div>
+      </footer>
+    </>
   );
 }
