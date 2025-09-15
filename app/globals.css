@@ -217,10 +217,10 @@ button.btn.theme-toggle {
   margin-top: 10px;
 }
 
-/* Brand in mobile menu header - logo original, text bigger */
+/* Brand in mobile menu header - logo 25% smaller, text bigger */
 .menu-head .brand-inline .mark{ 
-  height: var(--brand-mark-h-header);  /* original size */
-  max-width: 44px; 
+  height: 33px;                        /* 25% smaller than 44px */
+  max-width: 33px; 
 }
 .menu-head .brand-inline .word{ 
   height: 32px;                        /* bigger text in mobile menu */
@@ -300,50 +300,42 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   .grid.cols-3{ grid-template-columns:1fr }
   .pricing-grid{ grid-template-columns:1fr }
   
-  /* Mobile layout: Logo left (original size), Text center (bigger) */
-  .nav-rail .brand-inline,
-  .nav-rail .brand-badge {
-    position: static;            /* reset positioning */
-    transform: none;             /* reset transform */
-    width: auto;                 /* reset width */
-    justify-content: flex-start; /* align left */
-  }
-  
-  /* Logo stays original size on mobile */
-  .nav-rail .mark{ 
-    height: var(--brand-mark-h-header);  /* back to original desktop size */
-    max-width: 44px; 
-  }
-  
-  /* Text gets bigger and centered within its container */
-  .nav-rail .word{ 
-    height: 46px;                /* 30% larger than original 36px */
-    max-width: 140px;
-    margin-left: auto;           /* push text to center-right */
-    margin-right: auto;
-  }
-  
-  /* Adjust nav-rail to handle the layout better */
+  /* Mobile layout: Logo left (25% smaller), Text absolute centered */
   .nav-rail {
-    display: grid;
-    grid-template-columns: 1fr auto;
+    position: relative;
+    display: flex;
     align-items: center;
+    justify-content: space-between;
   }
   
-  /* Brand takes left space */
   .nav-rail .brand-inline,
   .nav-rail .brand-badge {
-    grid-column: 1;
     display: flex;
     align-items: center;
     gap: 10px;
-    justify-self: start;
+    position: relative;
+  }
+  
+  /* Logo 25% smaller on mobile */
+  .nav-rail .mark{ 
+    height: 33px;                /* 25% smaller than 44px */
+    max-width: 33px; 
+  }
+  
+  /* Text positioned absolutely in center */
+  .nav-rail .word{ 
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 46px;                /* 30% larger than original 36px */
+    max-width: 140px;
+    z-index: 1;
   }
   
   /* Right controls stay on right */
   .right-controls {
-    grid-column: 2;
-    justify-self: end;
+    z-index: 2;
   }
 }
 
@@ -351,14 +343,19 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   footer.site .footer-brand .mark{ height:18px }
   footer.site .footer-brand .word{ height:16px }
   
-  /* Small phones: logo original, text even bigger */
+  /* Small phones: logo 25% smaller, text even bigger and centered */
   .nav-rail .mark{ 
-    height: var(--brand-mark-h-header);  /* keep original size */
-    max-width: 44px; 
+    height: 33px;                /* 25% smaller than 44px */
+    max-width: 33px; 
   }   
   .nav-rail .word{ 
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     height: 50px;                /* even bigger for small screens */
-    max-width: 150px; 
+    max-width: 150px;
+    z-index: 1;
   }
   
   /* Stack right controls vertically on very small screens if needed */
