@@ -118,24 +118,38 @@ h3{ font-size:1.15rem; margin:.2rem 0 .4rem; }
 
 /* Theme toggle button - Fixed styling */
 .theme-toggle{
-  display:inline-flex; align-items:center; justify-content:center;
-  height:40px; width:40px; border:1px solid var(--line); border-radius:10px;
-  background:transparent; font-size:18px; line-height:1; cursor:pointer;
+  display:inline-flex !important; 
+  align-items:center; 
+  justify-content:center;
+  height:40px; 
+  width:40px; 
+  min-width: 40px;             /* ensure minimum width */
+  border:1px solid var(--line); 
+  border-radius:10px;
+  background:transparent; 
+  font-size:18px; 
+  line-height:1; 
+  cursor:pointer;
   transition:transform .06s ease, filter .15s ease;
   flex-shrink: 0;
-  padding: 0;                  /* remove default btn padding */
+  padding: 0 !important;       /* force remove padding */
+  gap: 0 !important;           /* force remove gap */
 }
 .theme-toggle:hover{ filter:brightness(1.07) }
 .theme-toggle:active{ transform:translateY(1px) }
-.theme-toggle .emoji{ font-size: 18px; }
+.theme-toggle .emoji{ font-size: 18px; display: block; }
 
-/* Override btn styles for theme-toggle specifically */
-.btn.theme-toggle {
-  padding: 0;
-  gap: 0;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+/* Override btn styles for theme-toggle specifically - more specific selectors */
+button.theme-toggle,
+.btn.theme-toggle,
+button.btn.theme-toggle {
+  padding: 0 !important;
+  gap: 0 !important;
+  width: 40px !important;
+  height: 40px !important;
+  min-width: 40px !important;
+  border-radius: 10px !important;
+  display: inline-flex !important;
 }
 
 /* ===== MOBILE DRAWER ===== */
