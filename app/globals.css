@@ -51,9 +51,9 @@ h3{ font-size:1.15rem; margin:.2rem 0 .4rem; }
 .note{ color: var(--muted); font-size:.95rem; }
 /* Section headings - proper spacing for smooth scroll */
 .section-heading {
-  margin: 0 0 2rem 0;
+  margin: 0 0 1.5rem 0;         /* reduced from 2rem */
   text-align: center;
-  padding-top: 1rem;
+  padding-top: 0.5rem;          /* reduced from 1rem */
 }
 
 .section-heading h2 {
@@ -285,7 +285,9 @@ html[data-theme="light"] .device img{ background:#ffffff }
 .pricing-grid{ 
   display: grid; 
   grid-template-columns: repeat(4, minmax(0, 1fr)); 
-  gap: 1.2rem; 
+  gap: 1rem;                    /* reduced from 1.2rem */
+  max-width: 1000px;            /* constrain width on desktop */
+  margin: 0 auto;               /* center the pricing grid */
 }
 .plan .plan-head{ display:grid; gap:.25rem; margin-bottom:.6rem }
 .plan .price{ font-size:2rem; font-weight:800 }
@@ -295,7 +297,7 @@ html[data-theme="light"] .device img{ background:#ffffff }
 @media (max-width: 1023px) {
   .pricing-grid {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1.2rem;                /* slightly more spacing on mobile */
     max-width: 400px;
     margin: 0 auto;
   }
