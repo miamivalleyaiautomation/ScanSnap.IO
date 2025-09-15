@@ -282,10 +282,31 @@ html[data-theme="light"] .device img{ background:#ffffff }
 .grid.cols-3{ grid-template-columns:repeat(3,minmax(0,1fr)) }
 
 /* ===== PRICING ===== */
-.pricing-grid{ display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1.2rem }
+.pricing-grid{ 
+  display: grid; 
+  grid-template-columns: repeat(4, minmax(0, 1fr)); 
+  gap: 1.2rem; 
+}
 .plan .plan-head{ display:grid; gap:.25rem; margin-bottom:.6rem }
 .plan .price{ font-size:2rem; font-weight:800 }
 .plan .cta{ margin-top:.8rem }
+
+/* Mobile pricing override */
+@media (max-width: 1023px) {
+  .pricing-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    max-width: 400px;
+    margin: 0 auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .pricing-grid {
+    max-width: 350px;
+    gap: 1rem;
+  }
+}
 
 /* ===== FOOTER ===== */
 footer.site{ border-top:1px solid var(--line); background:transparent; padding:1.5rem 0; margin-top:2rem }
@@ -307,15 +328,6 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   .hero-grid{ grid-template-columns:1fr }
   .grid.cols-2{ grid-template-columns:1fr }
   .grid.cols-3{ grid-template-columns:1fr }
-  
-  /* IMPORTANT: Override the 4-column pricing grid for mobile */
-  .pricing-grid,
-  .grid[style*="grid-template-columns: repeat(4, minmax(0, 1fr))"] { 
-    grid-template-columns: 1fr !important; 
-    gap: 1.5rem !important; 
-    max-width: 400px !important; 
-    margin: 0 auto !important; 
-  }
   
   /* Mobile approach: show text image but positioned in center */
   .nav-rail {
