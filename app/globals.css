@@ -300,39 +300,44 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   .grid.cols-3{ grid-template-columns:1fr }
   .pricing-grid{ grid-template-columns:1fr }
   
-  /* Mobile layout: 3-column grid - logo, centered text, hamburger */
+  /* Mobile layout: relative positioning for absolute centering */
   .nav-rail {
-    display: grid;
-    grid-template-columns: auto 1fr auto;
+    position: relative;
+    display: flex;
     align-items: center;
-    gap: 10px;
+    justify-content: space-between;
+    height: 60px;  /* fixed height for consistent centering */
   }
   
   .nav-rail .brand-inline,
   .nav-rail .brand-badge {
     display: flex;
     align-items: center;
-    gap: 10px;
-    grid-column: 1;
+    position: relative;
+    z-index: 3;
   }
   
-  /* Logo 25% smaller on mobile */
+  /* Logo 25% smaller, separate from text */
   .nav-rail .mark{ 
-    height: 33px;                /* 25% smaller than 44px */
+    height: 33px;
     max-width: 33px; 
   }
   
-  /* Text in middle column, perfectly centered */
+  /* Text absolutely centered to entire header width */
   .nav-rail .word{ 
-    grid-column: 2;
-    justify-self: center;
-    height: 46px;                /* 30% larger than original 36px */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 46px;
     max-width: 140px;
+    z-index: 1;  /* behind logo and hamburger */
   }
   
-  /* Right controls in third column */
+  /* Right controls stay on right */
   .right-controls {
-    grid-column: 3;
+    position: relative;
+    z-index: 3;
   }
 }
 
@@ -340,16 +345,23 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   footer.site .footer-brand .mark{ height:18px }
   footer.site .footer-brand .word{ height:16px }
   
-  /* Small phones: same grid layout, bigger text */
+  /* Small phones: same approach, bigger text */
+  .nav-rail {
+    height: 64px;  /* slightly taller for bigger text */
+  }
+  
   .nav-rail .mark{ 
-    height: 33px;                /* 25% smaller than 44px */
+    height: 33px;
     max-width: 33px; 
   }   
   .nav-rail .word{ 
-    grid-column: 2;
-    justify-self: center;
-    height: 50px;                /* even bigger for small screens */
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 50px;
     max-width: 150px;
+    z-index: 1;
   }
   
   /* Stack right controls vertically on very small screens if needed */
