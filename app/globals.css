@@ -202,3 +202,45 @@ html[data-theme="light"] .word-light,
 html[data-theme="light"] .mark-light{ display:none; }
 html[data-theme="light"] .word-dark,
 html[data-theme="light"] .mark-dark{ display:inline-block; }
+
+/* --- Brand: align vertically, no inner pill --- */
+.brand-inline{
+  display:flex;
+  align-items:center;         /* vertical centering */
+  gap:10px;
+  padding:0;                  /* remove inner padding */
+  border:0;                   /* remove inner "pill" */
+  background:transparent;
+  border-radius:0;
+  line-height:0;              /* avoids baseline jitter with images */
+}
+.brand-inline img{ display:block; }
+
+/* Sizes (slightly larger than before) */
+.brand-inline .mark{ width:28px; height:28px; }  /* logo icon */
+.brand-inline .word{ height:24px; width:auto; }  /* wordmark */
+
+/* Mini brand size inside the drawer */
+.brand-inline.mini .mark{ width:22px; height:22px; }
+.brand-inline.mini .word{ height:18px; }
+
+/* Outer nav rail (keep this pill) */
+.nav-rail{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+  background:var(--overlay);
+  backdrop-filter:saturate(180%) blur(14px);
+  border:1px solid var(--line);
+  border-radius:999px;        /* this stays */
+  padding:8px;
+}
+
+/* Theme-driven asset swap (unchanged) */
+.word-light, .mark-light { display:inline-block; }
+.word-dark,  .mark-dark  { display:none; }
+html[data-theme="light"] .word-light,
+html[data-theme="light"] .mark-light { display:none; }
+html[data-theme="light"] .word-dark,
+html[data-theme="light"] .mark-dark  { display:inline-block; }
+
+/* Keep your existing chip-nav / buttons / drawer rules as-is */
+
