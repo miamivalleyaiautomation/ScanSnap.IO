@@ -1,21 +1,25 @@
+// components/SiteHeader.tsx
 "use client";
-
-import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { OrganizationSwitcher, SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
+import {
+  ClerkLoaded,
+  OrganizationSwitcher,
+  SignedIn,
+  SignedOut,
+  SignInButton,
+  UserButton
+} from "@clerk/nextjs";
 
 export default function SiteHeader() {
   const [dark, setDark] = useState(true);
   const [open, setOpen] = useState(false);
   const sheetRef = useRef<HTMLDivElement | null>(null);
 
-  // Theme toggle via <html data-theme="">
   useEffect(() => {
     const html = document.documentElement;
     dark ? html.setAttribute("data-theme", "dark") : html.setAttribute("data-theme", "light");
   }, [dark]);
 
-  // Drawer behavior
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === "Escape") setOpen(false); }
     function onClick(e: MouseEvent) {
@@ -35,7 +39,9 @@ export default function SiteHeader() {
   return (
     <>
       <div className="right-controls">
-        <button className="icon-btn" onClick={() => setDark(v => !v)} aria-label="Toggle theme">{dark ? "🌙" : "🌞"}</button>
+        <button className="icon-btn" onClick={() => setDark(v => !v)} aria-label="Toggle theme">
+          {dark ? "🌙" : "🌞"}
+        </button>
         <button className="hamburger" aria-label="Open menu" aria-controls="site-menu" aria-expanded={open} onClick={() => setOpen(true)}>
           <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>
             <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
@@ -43,10 +49,8 @@ export default function SiteHeader() {
         </button>
       </div>
 
-      {/* Backdrop */}
       <div className={`menu-backdrop${open ? " show" : ""}`} />
 
-      {/* Drawer */}
       <aside id="site-menu" role="dialog" aria-modal="true" className={`menu-sheet${open ? " open" : ""}`} ref={sheetRef}>
         <div className="menu-head">
           <span className="brand mini" aria-hidden>
@@ -64,19 +68,22 @@ export default function SiteHeader() {
           <a className="menu-link" href="#contact">Contact</a>
           <a className="menu-link" href="https://app.scansnap.io/app">Go to App</a>
 
-          <div className="menu-inline">
-            <SignedOut>
-              <SignInButton mode="modal">
-                <button className="btn primary" onClick={() => setOpen(false)}>Login</button>
-              </SignInButton>
-            </SignedOut>
-            <SignedIn>
-              <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-                <OrganizationSwitcher appearance={{ elements:{ organizationSwitcherTrigger:{ borderRadius:10 } } }} />
-                <UserButton appearance={{ elements:{ userButtonAvatarBox:{ width:32, height:32 } } }} />
-              </div>
-            </SignedIn>
-          </div>
+          {/* Render auth controls only after Clerk has loaded */}
+          <ClerkLoaded>
+            <div className="menu-inline">
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="btn primary" onClick={() => setOpen(false)}>Login</button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+                  <OrganizationSwitcher appearance={{ elements:{ organizationSwitcherTrigger:{ borderRadius:10 } } }} />
+                  <UserButton appearance={{ elements:{ userButtonAvatarBox:{ width:32, height:32 } } }} />
+                </div>
+              </SignedIn>
+            </div>
+          </ClerkLoaded>
 
           <button className="btn" onClick={() => setDark(v => !v)}>
             Switch to {dark ? "Light" : "Dark"} theme
