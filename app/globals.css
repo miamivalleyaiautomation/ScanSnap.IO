@@ -103,7 +103,7 @@ h3{ font-size:1.15rem; margin:.2rem 0 .4rem; }
 .chip:hover{ background:rgba(148,163,184,.08) }
 .chip.primary{ background:var(--brand-grad); border-color:transparent; color:#00131c }
 
-/* Right controls (mobile) - improved layout */
+/* Right controls - improved layout */
 .right-controls{ 
   display:flex; 
   align-items:center; 
@@ -245,7 +245,7 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
 /* ===== RESPONSIVE ===== */
 @media (min-width:1024px){
   .chip-nav{ display:flex }      /* show desktop nav chips */
-  .right-controls{ display:none }/* hide hamburger on desktop */
+  .hamburger{ display:none }     /* hide only hamburger on desktop, keep theme toggle */
 }
 
 @media (max-width:1023px){
