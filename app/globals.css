@@ -276,7 +276,17 @@ html[data-theme="light"] .device img{ background:#ffffff }
 .pill{ background:transparent; border:1px solid var(--line); border-radius:var(--radius-pill); padding:.4rem .7rem; color:var(--fg); font-size:.85rem }
 
 /* ===== CARDS & GRIDS ===== */
-.card{ background:var(--card); border:1px solid var(--line); border-radius:var(--radius-lg); padding:1.1rem; box-shadow:var(--shadow) }
+.card{ 
+  background:var(--card); 
+  border:1px solid var(--line); 
+  border-radius:var(--radius-lg); 
+  padding:1.1rem; 
+  box-shadow:var(--shadow);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;  /* distribute space evenly */
+}
+
 .grid{ display:grid; gap:1rem }
 .grid.cols-2{ grid-template-columns:repeat(2,minmax(0,1fr)) }
 .grid.cols-3{ grid-template-columns:repeat(3,minmax(0,1fr)) }
@@ -285,8 +295,14 @@ html[data-theme="light"] .device img{ background:#ffffff }
 .pricing-grid{ 
   display: grid; 
   grid-template-columns: repeat(4, minmax(0, 1fr)); 
-  gap: 1rem;                    /* reduced spacing */
+  gap: 1rem;
 }
+
+/* Ensure pricing cards have equal height */
+.pricing-grid .card {
+  height: 100%;
+}
+
 .plan .plan-head{ display:grid; gap:.25rem; margin-bottom:.6rem }
 .plan .price{ font-size:2rem; font-weight:800 }
 .plan .cta{ margin-top:.8rem }
