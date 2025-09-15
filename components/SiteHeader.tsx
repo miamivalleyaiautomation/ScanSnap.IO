@@ -22,8 +22,8 @@ export default function SiteHeader() {
 
           {/* Desktop inline nav chips */}
           <nav className="chip-nav" aria-label="Primary">
-            <Link className="chip" href="#pricing">Pricing</Link>
             <Link className="chip" href="#features">Features</Link>
+            <Link className="chip" href="#pricing">Pricing</Link>
             <Link className="chip" href="#contact">Contact</Link>
             <a className="chip" href={appUrl}>Go to App</a>
             <Link className="chip primary" href="/login">Login</Link>
@@ -58,8 +58,8 @@ export default function SiteHeader() {
           </button>
         </div>
         <div className="menu-body">
-          <Link className="menu-link" href="#pricing">Pricing</Link>
           <Link className="menu-link" href="#features">Features</Link>
+          <Link className="menu-link" href="#pricing">Pricing</Link>
           <Link className="menu-link" href="#contact">Contact</Link>
           <a className="menu-link" href={appUrl}>Go to App</a>
           <Link className="menu-link" href="/login">Login</Link>
