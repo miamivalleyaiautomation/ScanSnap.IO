@@ -1,156 +1,108 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import {
-  ClerkLoaded,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-  OrganizationSwitcher,
-} from "@clerk/nextjs";
-
-function applyFavicon(isDark: boolean) {
-  const light = "/assets/favicon_1024_light.png";
-  const dark  = "/assets/favicon_1024_dark.png";
-  let link = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
-  if (!link) {
-    link = document.createElement("link");
-    link.rel = "icon";
-    document.head.appendChild(link);
-  }
-  link.href = isDark ? light : dark;
-}
+import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
 export default function SiteHeader() {
-  const [dark, setDark] = useState(true);
   const [open, setOpen] = useState(false);
-  const sheetRef = useRef<HTMLDivElement | null>(null);
-
-  // theme + favicon
-  useEffect(() => {
-    const html = document.documentElement;
-    dark ? html.setAttribute("data-theme", "dark") : html.setAttribute("data-theme", "light");
-    applyFavicon(dark);
-  }, [dark]);
-
-  // drawer close
-  useEffect(() => {
-    function onKey(e: KeyboardEvent) { if (e.key === "Escape") setOpen(false); }
-    function onClick(e: MouseEvent) {
-      if (!open) return;
-      if (sheetRef.current && !sheetRef.current.contains(e.target as Node)) setOpen(false);
-    }
-    document.addEventListener("keydown", onKey);
-    document.addEventListener("mousedown", onClick);
-    document.body.style.overflow = open ? "hidden" : "";
-    return () => {
-      document.removeEventListener("keydown", onKey);
-      document.removeEventListener("mousedown", onClick);
-      document.body.style.overflow = "";
-    };
-  }, [open]);
 
   return (
-    <header className="site-header glass">
+    <header className="site-header">
       <div className="container">
         <div className="nav-rail">
+          {/* left brand badge */}
+          <Link href="/" className="brand-badge" aria-label="ScanSnap home">
+            {/* Icon (theme swap handled in CSS) */}
+            <Image
+              src="/assets/favicon_1024_light.png"
+              alt=""
+              width={20}
+              height={20}
+              className="mark mark-light"
+              priority
+            />
+            <Image
+              src="/assets/favicon_1024_dark.png"
+              alt=""
+              width={20}
+              height={20}
+              className="mark mark-dark"
+              priority
+            />
 
-          {/* LEFT: brand badge (icon + word) */}
-          <a href="/" className="brand-badge" aria-label="ScanSnap Home">
-            <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" width={20} height={20}/>
-            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" width={20} height={20}/>
+            {/* Wordmark (explicit size so it never explodes) */}
             <span className="brand-text">
-              <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
-              <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
+              <Image
+                src="/assets/text_1024_light.png"
+                alt="ScanSnap"
+                width={176}
+                height={34}
+                className="word word-light"
+                priority
+              />
+              <Image
+                src="/assets/text_1024_dark.png"
+                alt="ScanSnap"
+                width={176}
+                height={34}
+                className="word word-dark"
+                priority
+              />
             </span>
-          </a>
+          </Link>
 
-          {/* RIGHT: nav chips (desktop) */}
+          {/* desktop chips */}
           <nav className="chip-nav" aria-label="Primary">
-            <a className="chip" href="#pricing">Pricing</a>
-            <a className="chip" href="#features">Features</a>
-            <a className="chip" href="#contact">Contact</a>
-            <a className="chip" href="https://app.scansnap.io/app">Go to App</a>
-
-            <ClerkLoaded>
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="chip primary">Login</button>
-                </SignInButton>
-              </SignedOut>
-              <SignedIn>
-                <OrganizationSwitcher
-                  appearance={{ elements: { organizationSwitcherTrigger: { borderRadius: 999 } } }}
-                />
-                <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 28, height: 28 } } }} />
-              </SignedIn>
-            </ClerkLoaded>
+            <Link href="/#pricing" className="chip">Pricing</Link>
+            <Link href="/#features" className="chip">Features</Link>
+            <Link href="/#contact" className="chip">Contact</Link>
+            <Link href="https://app.scansnap.io" className="chip">Go to App</Link>
+            <Link href="/login" className="chip primary">Login</Link>
           </nav>
 
-          {/* RIGHT: hamburger (mobile) */}
+          {/* mobile controls */}
           <div className="right-controls">
             <button
               className="hamburger"
               aria-label="Open menu"
-              aria-controls="site-menu"
-              aria-expanded={open}
               onClick={() => setOpen(true)}
             >
-              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>
-                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
               </svg>
             </button>
           </div>
         </div>
       </div>
 
-      {/* MOBILE DRAWER */}
-      <div className={`menu-backdrop${open ? " show" : ""}`} />
-      <aside
-        id="site-menu"
-        role="dialog"
-        aria-modal="true"
-        className={`menu-sheet${open ? " open" : ""}`}
-        ref={sheetRef}
-      >
+      {/* mobile drawer */}
+      <div className={`menu-backdrop ${open ? "show" : ""}`} onClick={() => setOpen(false)} />
+      <aside className={`menu-sheet ${open ? "open" : ""}`} aria-hidden={!open}>
         <div className="menu-head">
-          <span className="brand mini" aria-hidden>
-            <img className="mark mark-light" src="/assets/favicon_1024_light.png"  alt="" width={18} height={18}/>
-            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"   alt="" width={18} height={18}/>
-            <img className="word word-light" src="/assets/text_1024_light.png"     alt="ScanSnap" />
-            <img className="word word-dark"  src="/assets/text_1024_dark.png"      alt="ScanSnap" />
+          <span className="brand-badge">
+            <Image src="/assets/favicon_1024_light.png" alt="" width={18} height={18} className="mark mark-light" />
+            <Image src="/assets/favicon_1024_dark.png"  alt="" width={18} height={18} className="mark mark-dark" />
+            <span className="brand-text">
+              <Image src="/assets/text_1024_light.png" alt="ScanSnap" width={136} height={26} className="word word-light" />
+              <Image src="/assets/text_1024_dark.png"  alt="ScanSnap" width={136} height={26} className="word word-dark" />
+            </span>
           </span>
-          <button className="icon-btn" onClick={() => setOpen(false)} aria-label="Close menu">✕</button>
+          <button className="icon-btn" aria-label="Close" onClick={() => setOpen(false)}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
+            </svg>
+          </button>
         </div>
 
-        <nav className="menu-body">
-          <a className="menu-link" href="#pricing"  onClick={()=>setOpen(false)}>Pricing</a>
-          <a className="menu-link" href="#features" onClick={()=>setOpen(false)}>Features</a>
-          <a className="menu-link" href="#contact"  onClick={()=>setOpen(false)}>Contact</a>
-          <a className="menu-link" href="https://app.scansnap.io/app" onClick={()=>setOpen(false)}>Go to App</a>
-
+        <nav className="menu-body" onClick={() => setOpen(false)}>
+          <Link href="/#pricing"  className="menu-link">Pricing</Link>
+          <Link href="/#features" className="menu-link">Features</Link>
+          <Link href="/#contact"  className="menu-link">Contact</Link>
           <div className="menu-inline">
-            <button className="btn" onClick={() => setDark(d => !d)}>
-              Switch to {dark ? "Light" : "Dark"} theme
-            </button>
+            <Link href="https://app.scansnap.io" className="btn">Go to App</Link>
+            <Link href="/login" className="btn primary">Login</Link>
           </div>
-
-          <ClerkLoaded>
-            <div className="menu-inline">
-              <SignedOut>
-                <SignInButton mode="modal">
-                  <button className="btn primary" onClick={()=>setOpen(false)}>Login</button>
-                </SignInButton>
-              </SignedOut>
-              <SignedIn>
-                <OrganizationSwitcher
-                  appearance={{ elements: { organizationSwitcherTrigger: { borderRadius: 10 } } }}
-                />
-                <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 32, height: 32 } } }} />
-              </SignedIn>
-            </div>
-          </ClerkLoaded>
         </nav>
       </aside>
     </header>
