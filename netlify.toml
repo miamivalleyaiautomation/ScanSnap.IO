@@ -5,6 +5,8 @@
 [[plugins]]
   package = "@netlify/plugin-nextjs"
 
-# (Optional) relax peer deps if a third-party package complains during install
-# [build.environment]
-#   NPM_FLAGS = "--legacy-peer-deps"
+[build.environment]
+  NODE_VERSION = "20"
+  NPM_VERSION  = "10"
+  # If you still see peer-dep install issues, temporarily enable:
+  # NPM_FLAGS = "--legacy-peer-deps"
