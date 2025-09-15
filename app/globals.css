@@ -172,9 +172,18 @@ button.btn.theme-toggle {
 .menu-body{ 
   padding:14px; display:flex; flex-direction:column; gap:10px; overflow:auto;
 }
-.menu-link{ padding:10px 12px; border:1px solid var(--line); border-radius:10px; }
+.menu-link{ 
+  padding:10px 12px; border:1px solid var(--line); border-radius:10px; 
+  display: block; text-align: center;
+}
 .menu-inline{ 
   display: flex; gap: 8px; margin-top: 10px; 
+}
+
+/* Theme toggle in mobile menu */
+.menu-body .theme-toggle {
+  align-self: center;
+  margin-top: 10px;
 }
 
 /* Brand in mobile menu header - smaller */
@@ -188,10 +197,13 @@ button.btn.theme-toggle {
 }
 
 /* ===== THEME ASSET SWAP (icon/wordmark) =====
-   - DARK theme shows LIGHT assets
-   - LIGHT theme shows DARK assets */
-.word-light, .mark-light { display:inline-block; }
-.word-dark,  .mark-dark  { display:none; }
+   - DARK theme shows LIGHT assets (white icons on dark background)
+   - LIGHT theme shows DARK assets (dark icons on light background) */
+html[data-theme="dark"] .word-light, 
+html[data-theme="dark"] .mark-light { display:inline-block; }
+html[data-theme="dark"] .word-dark,  
+html[data-theme="dark"] .mark-dark  { display:none; }
+
 html[data-theme="light"] .word-light,
 html[data-theme="light"] .mark-light { display:none; }
 html[data-theme="light"] .word-dark,
@@ -245,10 +257,13 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
 /* ===== RESPONSIVE ===== */
 @media (min-width:1024px){
   .chip-nav{ display:flex }      /* show desktop nav chips */
-  .hamburger{ display:none }     /* hide only hamburger on desktop, keep theme toggle */
+  .right-controls{ display:none }/* hide right controls on desktop */
 }
 
 @media (max-width:1023px){
+  .chip-nav{ display:none }      /* hide desktop nav on mobile */
+  .right-controls{ display:flex }/* show only hamburger + theme toggle on mobile */
+  
   .hero-grid{ grid-template-columns:1fr }
   .grid.cols-2{ grid-template-columns:1fr }
   .grid.cols-3{ grid-template-columns:1fr }
