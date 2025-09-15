@@ -141,6 +141,16 @@ h3{ font-size:1.15rem; margin:.2rem 0 .4rem; }
   border:1px solid var(--line); background:transparent; border-radius:10px;
   padding:8px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
   flex-shrink: 0;
+  color: var(--fg);            /* ensure icon color follows theme */
+}
+.hamburger:hover {
+  background: rgba(148,163,184,.08);
+}
+
+/* Hamburger SVG inherits color */
+.hamburger svg {
+  color: inherit;
+  stroke: currentColor;
 }
 
 /* Theme toggle button - Fixed styling */
@@ -300,38 +310,46 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   .grid.cols-3{ grid-template-columns:1fr }
   .pricing-grid{ grid-template-columns:1fr }
   
-  /* Mobile layout: relative positioning for absolute centering */
+  /* Simple mobile approach: separate logo and text completely */
   .nav-rail {
     position: relative;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    height: 60px;  /* fixed height for consistent centering */
+    height: 60px;
   }
   
+  /* Logo container - only shows the icon */
   .nav-rail .brand-inline,
   .nav-rail .brand-badge {
     display: flex;
     align-items: center;
-    position: relative;
-    z-index: 3;
   }
   
-  /* Logo 25% smaller, separate from text */
+  /* Hide text inside brand container on mobile */
+  .nav-rail .brand-inline .word,
+  .nav-rail .brand-badge .word {
+    display: none;
+  }
+  
+  /* Logo 25% smaller */
   .nav-rail .mark{ 
     height: 33px;
     max-width: 33px; 
   }
   
-  /* Text absolutely centered to entire header width */
-  .nav-rail .word{ 
+  /* Create standalone text element that's perfectly centered */
+  .nav-rail::after {
+    content: "ScanSnap";
     position: absolute;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    height: 46px;
-    max-width: 140px;
-    z-index: 1;  /* behind logo and hamburger */
+    font-size: 20px;  /* equivalent to ~46px image height */
+    font-weight: 600;
+    color: var(--brand0);  /* use the brand blue color */
+    z-index: 1;
+    pointer-events: none;
   }
   
   /* Right controls stay on right */
@@ -345,23 +363,18 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   footer.site .footer-brand .mark{ height:18px }
   footer.site .footer-brand .word{ height:16px }
   
-  /* Small phones: same approach, bigger text */
+  /* Small phones: bigger text */
   .nav-rail {
-    height: 64px;  /* slightly taller for bigger text */
+    height: 64px;
   }
   
   .nav-rail .mark{ 
     height: 33px;
     max-width: 33px; 
   }   
-  .nav-rail .word{ 
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    height: 50px;
-    max-width: 150px;
-    z-index: 1;
+  
+  .nav-rail::after {
+    font-size: 22px;  /* bigger on small screens */
   }
   
   /* Stack right controls vertically on very small screens if needed */
