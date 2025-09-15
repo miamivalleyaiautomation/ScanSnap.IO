@@ -7,5 +7,18 @@
     "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "allowJs": true,
+    "strict": false,
     "skipLibCheck": true,
-    "
+    "noEmit": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "incremental": true,
+
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  },
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "exclude": ["node_modules"]
+}
