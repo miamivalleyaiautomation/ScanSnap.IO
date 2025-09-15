@@ -11,7 +11,6 @@ import {
 } from "@clerk/nextjs";
 
 function applyFavicon(isDark: boolean) {
-  // Light icon on dark theme; dark icon on light theme
   const light = "/assets/favicon_1024_light.png";
   const dark  = "/assets/favicon_1024_dark.png";
   let link = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
@@ -28,14 +27,14 @@ export default function SiteHeader() {
   const [open, setOpen] = useState(false);
   const sheetRef = useRef<HTMLDivElement | null>(null);
 
-  // Apply theme + favicon
+  // theme + favicon
   useEffect(() => {
     const html = document.documentElement;
     dark ? html.setAttribute("data-theme", "dark") : html.setAttribute("data-theme", "light");
     applyFavicon(dark);
   }, [dark]);
 
-  // Drawer behavior
+  // drawer close
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === "Escape") setOpen(false); }
     function onClick(e: MouseEvent) {
@@ -53,49 +52,57 @@ export default function SiteHeader() {
   }, [open]);
 
   return (
-    <>
-      {/* DESKTOP NAV (centered area is the wordmark; this nav sits on the right cluster) */}
-      <nav className="nav-inline" aria-label="Primary">
-        <a href="#features">Features</a>
-        <a href="#pricing">Pricing</a>
-        <a href="#contact">Contact</a>
-        <a href="https://app.scansnap.io/app">Go to App</a>
-      </nav>
+    <header className="site-header glass">
+      <div className="container">
+        <div className="nav-rail">
 
-      {/* RIGHT CONTROLS */}
-      <div className="right-controls">
-        {/* Mobile hamburger (hidden on desktop by CSS) */}
-        <button
-          className="hamburger"
-          aria-label="Open menu"
-          aria-controls="site-menu"
-          aria-expanded={open}
-          onClick={() => setOpen(true)}
-        >
-          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>
-            <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-          </svg>
-        </button>
+          {/* LEFT: brand badge (icon + word) */}
+          <a href="/" className="brand-badge" aria-label="ScanSnap Home">
+            <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" width={20} height={20}/>
+            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" width={20} height={20}/>
+            <span className="brand-text">
+              <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
+              <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
+            </span>
+          </a>
 
-        {/* Theme toggle */}
-        <button className="icon-btn" onClick={() => setDark(v => !v)} aria-label="Toggle theme">
-          {dark ? "🌙" : "🌞"}
-        </button>
+          {/* RIGHT: nav chips (desktop) */}
+          <nav className="chip-nav" aria-label="Primary">
+            <a className="chip" href="#pricing">Pricing</a>
+            <a className="chip" href="#features">Features</a>
+            <a className="chip" href="#contact">Contact</a>
+            <a className="chip" href="https://app.scansnap.io/app">Go to App</a>
 
-        {/* Desktop auth (hidden on mobile via CSS if you want; we leave it visible) */}
-        <ClerkLoaded>
-          <SignedOut>
-            <SignInButton mode="modal">
-              <button className="btn primary">Login</button>
-            </SignInButton>
-          </SignedOut>
-          <SignedIn>
-            <OrganizationSwitcher
-              appearance={{ elements: { organizationSwitcherTrigger: { borderRadius: 10 } } }}
-            />
-            <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 32, height: 32 } } }} />
-          </SignedIn>
-        </ClerkLoaded>
+            <ClerkLoaded>
+              <SignedOut>
+                <SignInButton mode="modal">
+                  <button className="chip primary">Login</button>
+                </SignInButton>
+              </SignedOut>
+              <SignedIn>
+                <OrganizationSwitcher
+                  appearance={{ elements: { organizationSwitcherTrigger: { borderRadius: 999 } } }}
+                />
+                <UserButton appearance={{ elements: { userButtonAvatarBox: { width: 28, height: 28 } } }} />
+              </SignedIn>
+            </ClerkLoaded>
+          </nav>
+
+          {/* RIGHT: hamburger (mobile) */}
+          <div className="right-controls">
+            <button
+              className="hamburger"
+              aria-label="Open menu"
+              aria-controls="site-menu"
+              aria-expanded={open}
+              onClick={() => setOpen(true)}
+            >
+              <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>
+                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* MOBILE DRAWER */}
@@ -109,8 +116,8 @@ export default function SiteHeader() {
       >
         <div className="menu-head">
           <span className="brand mini" aria-hidden>
-            <img className="mark mark-light" src="/assets/favicon_1024_light.png"  alt="" width={22} height={22}/>
-            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"   alt="" width={22} height={22}/>
+            <img className="mark mark-light" src="/assets/favicon_1024_light.png"  alt="" width={18} height={18}/>
+            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"   alt="" width={18} height={18}/>
             <img className="word word-light" src="/assets/text_1024_light.png"     alt="ScanSnap" />
             <img className="word word-dark"  src="/assets/text_1024_dark.png"      alt="ScanSnap" />
           </span>
@@ -118,13 +125,19 @@ export default function SiteHeader() {
         </div>
 
         <nav className="menu-body">
-          <a className="menu-link" href="#features" onClick={()=>setOpen(false)}>Features</a>
           <a className="menu-link" href="#pricing"  onClick={()=>setOpen(false)}>Pricing</a>
+          <a className="menu-link" href="#features" onClick={()=>setOpen(false)}>Features</a>
           <a className="menu-link" href="#contact"  onClick={()=>setOpen(false)}>Contact</a>
           <a className="menu-link" href="https://app.scansnap.io/app" onClick={()=>setOpen(false)}>Go to App</a>
 
+          <div className="menu-inline">
+            <button className="btn" onClick={() => setDark(d => !d)}>
+              Switch to {dark ? "Light" : "Dark"} theme
+            </button>
+          </div>
+
           <ClerkLoaded>
-            <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
+            <div className="menu-inline">
               <SignedOut>
                 <SignInButton mode="modal">
                   <button className="btn primary" onClick={()=>setOpen(false)}>Login</button>
@@ -138,12 +151,8 @@ export default function SiteHeader() {
               </SignedIn>
             </div>
           </ClerkLoaded>
-
-          <button className="btn" onClick={() => setDark(d => !d)}>
-            Switch to {dark ? "Light" : "Dark"} theme
-          </button>
         </nav>
       </aside>
-    </>
+    </header>
   );
 }
