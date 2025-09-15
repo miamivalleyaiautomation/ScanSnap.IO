@@ -174,11 +174,11 @@ footer.site{border-top:1px solid var(--line);background:transparent;padding:1.5r
 .word-light, .mark-light { display:none; }
 
 /* In DARK: show light assets; hide dark assets */
-html[data-theme="dark"] .word-dark,
-html[data-theme="dark"] .mark-dark { display:none; }
-
 html[data-theme="dark"] .word-light,
-html[data-theme="dark"] .mark-light { display:inline-block; }
+html[data-theme="dark"] .mark-light { display:none; }
+
+html[data-theme="dark"] .word-dark,
+html[data-theme="dark"] .mark-dark { display:inline-block; }
 
 /* ===========================
    RESPONSIVE
