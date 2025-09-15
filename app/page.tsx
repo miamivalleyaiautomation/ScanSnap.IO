@@ -103,7 +103,9 @@ export default function Page() {
             <h2>Pricing</h2>
             <p>Simple, transparent pricing that scales with your team</p>
           </div>
-           <div className="card">
+          <div className="pricing-grid">
+            {/* BASIC */}
+            <div className="card">
               <span className="tag">BASIC</span>
               <h3>Free</h3>
               <p className="muted">Scan barcodes and export to PDF, CSV, or Excel.</p>
