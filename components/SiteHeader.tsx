@@ -1,27 +1,21 @@
 "use client";
 
 import Link from "next/link";
-import {
-  OrganizationSwitcher,
-  SignedIn,
-  SignedOut,
-  SignInButton,
-  UserButton,
-} from "@clerk/nextjs";
 import { useEffect, useRef, useState } from "react";
+import { OrganizationSwitcher, SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/nextjs";
 
 export default function SiteHeader() {
   const [dark, setDark] = useState(true);
   const [open, setOpen] = useState(false);
   const sheetRef = useRef<HTMLDivElement | null>(null);
 
-  // Theme toggle
+  // Theme toggle via <html data-theme="">
   useEffect(() => {
     const html = document.documentElement;
     dark ? html.setAttribute("data-theme", "dark") : html.setAttribute("data-theme", "light");
   }, [dark]);
 
-  // Drawer behaviors
+  // Drawer behavior
   useEffect(() => {
     function onKey(e: KeyboardEvent) { if (e.key === "Escape") setOpen(false); }
     function onClick(e: MouseEvent) {
@@ -39,82 +33,37 @@ export default function SiteHeader() {
   }, [open]);
 
   return (
-    <header className="site-header">
-      {/* 3-col: [icon-left] [center wordmark] [controls-right] */}
-      <div className="container header-row header-3col">
-        {/* LEFT: icon only */}
-        <Link className="brand-left" href="/" aria-label="ScanSnap home">
-          <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" width={42} height={42} />
-          <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" width={42} height={42} />
-        </Link>
-
-        {/* CENTER: wordmark only */}
-        <Link className="brand-center" href="/" aria-label="ScanSnap">
-          <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
-          <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
-        </Link>
-
-        {/* RIGHT: theme + hamburger */}
-        <div className="right-controls">
-          <button
-            className="icon-btn"
-            onClick={() => setDark((v) => !v)}
-            aria-label="Toggle theme"
-            title="Toggle theme"
-          >
-            {dark ? "🌙" : "🌞"}
-          </button>
-
-          <button
-            className="hamburger"
-            aria-label="Open menu"
-            aria-controls="site-menu"
-            aria-expanded={open}
-            onClick={() => setOpen(true)}
-          >
-            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>
-              <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-            </svg>
-          </button>
-        </div>
+    <>
+      <div className="right-controls">
+        <button className="icon-btn" onClick={() => setDark(v => !v)} aria-label="Toggle theme">{dark ? "🌙" : "🌞"}</button>
+        <button className="hamburger" aria-label="Open menu" aria-controls="site-menu" aria-expanded={open} onClick={() => setOpen(true)}>
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden>
+            <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+        </button>
       </div>
 
       {/* Backdrop */}
       <div className={`menu-backdrop${open ? " show" : ""}`} />
 
-      {/* Slide-over menu (right) */}
-      <aside
-        id="site-menu"
-        role="dialog"
-        aria-modal="true"
-        className={`menu-sheet${open ? " open" : ""}`}
-        ref={sheetRef}
-      >
+      {/* Drawer */}
+      <aside id="site-menu" role="dialog" aria-modal="true" className={`menu-sheet${open ? " open" : ""}`} ref={sheetRef}>
         <div className="menu-head">
-          <span className="brand mini">
-            <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" width={22} height={22} />
-            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" width={22} height={22} />
-            <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
-            <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
+          <span className="brand mini" aria-hidden>
+            <img className="mark mark-light" src="/assets/favicon_1024_dark.png"  alt="" width={22} height={22} />
+            <img className="mark mark-dark"  src="/assets/favicon_1024_light.png" alt="" width={22} height={22} />
+            <img className="word word-light" src="/assets/text_1024_dark.png"  alt="ScanSnap" />
+            <img className="word word-dark"  src="/assets/text_1024_light.png" alt="ScanSnap" />
           </span>
           <button className="icon-btn" onClick={() => setOpen(false)} aria-label="Close menu">✕</button>
         </div>
 
         <nav className="menu-body">
-          {/* Marketing / product */}
-          <a className="menu-link" href="/app/">Free Scanner</a>
-          <a className="menu-link" href="/app/pro/">Pro Workspace</a>
-          <Link className="menu-link" href="/pricing">Pricing</Link>
-
-          {/* Account / team / billing */}
-          <Link className="menu-link" href="/billing">Billing</Link>
-          <Link className="menu-link" href="/account">Account</Link>
-          <Link className="menu-link" href="/org">Team</Link>
-
-          {/* App */}
+          <a className="menu-link" href="#features">Features</a>
+          <a className="menu-link" href="#pricing">Pricing</a>
+          <a className="menu-link" href="#contact">Contact</a>
           <a className="menu-link" href="https://app.scansnap.io/app">Go to App</a>
 
-          {/* Auth / user */}
           <div className="menu-inline">
             <SignedOut>
               <SignInButton mode="modal">
@@ -129,12 +78,11 @@ export default function SiteHeader() {
             </SignedIn>
           </div>
 
-          {/* Theme toggle inside menu too */}
-          <button className="btn" onClick={() => setDark((v) => !v)}>
+          <button className="btn" onClick={() => setDark(v => !v)}>
             Switch to {dark ? "Light" : "Dark"} theme
           </button>
         </nav>
       </aside>
-    </header>
+    </>
   );
 }
