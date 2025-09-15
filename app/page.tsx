@@ -106,60 +106,68 @@ export default function Page() {
           <div className="pricing-grid">
             {/* BASIC */}
             <div className="card">
-              <span className="tag">BASIC</span>
-              <h3>Free</h3>
-              <p className="muted">Scan barcodes and export to PDF, CSV, or Excel.</p>
-              <ul className="feature">
-                <li>Core barcode scanning</li>
-                <li>Export: PDF / CSV / XLSX</li>
-                <li>Personal use</li>
-              </ul>
+              <div>
+                <span className="tag">BASIC</span>
+                <h3>Free</h3>
+                <p className="muted">Scan barcodes and export to PDF, CSV, or Excel.</p>
+                <ul className="feature">
+                  <li>Core barcode scanning</li>
+                  <li>Export: PDF / CSV / XLSX</li>
+                  <li>Personal use</li>
+                </ul>
+              </div>
               <div style={{ height: 8 }} />
               <a className="btn block" href={`${portalUrl}/login`}>Start free</a>
             </div>
 
             {/* PLUS */}
             <div className="card">
-              <span className="tag">PLUS</span>
-              <h3>$9.99 <span className="muted">/ user / mo</span></h3>
-              <p className="muted">
-                Everything in Basic + import your catalog CSV and run two modes.
-              </p>
-              <ul className="feature">
-                <li><strong>Verify</strong>: track scans against uploaded file</li>
-                <li><strong>Order Builder</strong>: create vendor/in-house orders</li>
-                <li>Reduce manual errors</li>
-              </ul>
+              <div>
+                <span className="tag">PLUS</span>
+                <h3>$9.99 <span className="muted">/ user / mo</span></h3>
+                <p className="muted">
+                  Everything in Basic + import your catalog CSV and run two modes.
+                </p>
+                <ul className="feature">
+                  <li><strong>Verify</strong>: track scans against uploaded file</li>
+                  <li><strong>Order Builder</strong>: create vendor/in-house orders</li>
+                  <li>Reduce manual errors</li>
+                </ul>
+              </div>
               <div style={{ height: 8 }} />
               <a className="btn primary block" href={LS_PLUS}>Choose Plus</a>
             </div>
 
             {/* PRO */}
             <div className="card">
-              <span className="tag">PRO</span>
-              <h3>$14.99 <span className="muted">/ user / mo</span></h3>
-              <p className="muted">Everything in Plus + QR &amp; DataMatrix support.</p>
-              <ul className="feature">
-                <li>All Plus features</li>
-                <li>QR code reading</li>
-                <li>DataMatrix reading</li>
-              </ul>
+              <div>
+                <span className="tag">PRO</span>
+                <h3>$14.99 <span className="muted">/ user / mo</span></h3>
+                <p className="muted">Everything in Plus + QR &amp; DataMatrix support.</p>
+                <ul className="feature">
+                  <li>All Plus features</li>
+                  <li>QR code reading</li>
+                  <li>DataMatrix reading</li>
+                </ul>
+              </div>
               <div style={{ height: 8 }} />
               <a className="btn primary block" href={LS_PRO}>Choose Pro</a>
             </div>
 
             {/* PRO + DPMS */}
             <div className="card">
-              <span className="tag">PRO + DPMS</span>
-              <h3>$49.99 <span className="muted">/ user / mo</span></h3>
-              <p className="muted">
-                Pro + specialized reader for laser-mark &amp; Dot-Peen matrix codes.
-              </p>
-              <ul className="feature">
-                <li>All Pro features</li>
-                <li>Custom scanning pipeline</li>
-                <li>Designed for tough marks</li>
-              </ul>
+              <div>
+                <span className="tag">PRO + DPMS</span>
+                <h3>$49.99 <span className="muted">/ user / mo</span></h3>
+                <p className="muted">
+                  Pro + specialized reader for laser-mark &amp; Dot-Peen matrix codes.
+                </p>
+                <ul className="feature">
+                  <li>All Pro features</li>
+                  <li>Custom scanning pipeline</li>
+                  <li>Designed for tough marks</li>
+                </ul>
+              </div>
               <div style={{ height: 8 }} />
               <a className="btn primary block" href={LS_DPMS}>Choose Pro + DPMS</a>
             </div>
