@@ -1,129 +1,108 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
-import ThemeToggle from "./ThemeToggle";
+import { useMemo, useState } from "react";
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function SiteHeader() {
   const [open, setOpen] = useState(false);
 
+  const portalUrl = useMemo(
+    () => process.env.NEXT_PUBLIC_PORTAL_URL || "https://portal.scansnap.io",
+    []
+  );
+  const appUrl = useMemo(
+    () => process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io",
+    []
+  );
+
   return (
-    <header className="site-header">
-      <div className="container">
-        <div className="nav-rail">
-          {/* Brand badge (left) */}
-          <Link href="/" className="brand-badge" aria-label="ScanSnap home">
-            {/* Icon (theme swap handled in CSS) */}
-            <Image
-              src="/assets/favicon_1024_dark.png"  /* dark icon for dark theme */
-              alt=""
-              width={20}
-              height={20}
-              className="mark mark-dark"
-              priority
-            />
-            <Image
-              src="/assets/favicon_1024_light.png" /* light icon for light theme */
-              alt=""
-              width={20}
-              height={20}
-              className="mark mark-light"
-              priority
-            />
+    <>
+      <header className="site-header">
+        <div className="container">
+          <div className="nav-rail">
+            {/* Brand */}
+            <a className="brand-badge" href="/" aria-label="ScanSnap home">
+              <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
+              <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
+              <span className="brand-text">
+                <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
+                <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
+              </span>
+            </a>
 
-            {/* Wordmark (never stretch) */}
-            <span className="brand-text">
-              <Image
-                src="/assets/text_1024_dark.png"   /* dark wordmark for dark theme */
-                alt="ScanSnap"
-                width={200}
-                height={40}
-                className="word word-dark"
-                priority
-                style={{ height: 26, width: "auto" }}
-              />
-              <Image
-                src="/assets/text_1024_light.png"  /* light wordmark for light theme */
-                alt="ScanSnap"
-                width={200}
-                height={40}
-                className="word word-light"
-                priority
-                style={{ height: 26, width: "auto" }}
-              />
-            </span>
-          </Link>
+            {/* Desktop nav */}
+            <nav className="chip-nav" aria-label="Primary">
+              <a className="chip" href="#pricing">Pricing</a>
+              <a className="chip" href="#features">Features</a>
+              <a className="chip" href="#contact">Contact</a>
+              <a className="chip" href={appUrl}>Go to App</a>
+              <a className="chip primary" href={`${portalUrl}/login`}>Login</a>
+              <ThemeToggle />
+            </nav>
 
-          {/* Desktop chips */}
-          <nav className="chip-nav" aria-label="Primary">
-            <Link href="/#pricing" className="chip">Pricing</Link>
-            <Link href="/#features" className="chip">Features</Link>
-            <Link href="/#contact" className="chip">Contact</Link>
-            <Link href="https://app.scansnap.io" className="chip">Go to App</Link>
-            <Link href="/login" className="chip primary">Login</Link>
-            import ThemeToggle from "@/components/ThemeToggle";
+            {/* Mobile controls */}
+            <div className="right-controls">
+              <a className="chip" href={appUrl}>Go to App</a>
+              <a className="chip primary" href={`${portalUrl}/login`}>Login</a>
+              <ThemeToggle />
+              <button
+                className="hamburger"
+                onClick={() => setOpen(true)}
+                aria-label="Open menu"
+                type="button"
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.6" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
 
+      {/* Drawer */}
+      <div
+        className={`menu-backdrop ${open ? "show" : ""}`}
+        onClick={() => setOpen(false)}
+        aria-hidden={!open}
+      />
+      <aside className={`menu-sheet ${open ? "open" : ""}`} aria-hidden={!open}>
+        <div className="menu-head">
+          <div className="brand mini" style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
+            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
+            <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
+            <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
+          </div>
+          <button
+            className="hamburger"
+            onClick={() => setOpen(false)}
+            aria-label="Close menu"
+            type="button"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="menu-body">
+          <a className="menu-link" href="#pricing"  onClick={() => setOpen(false)}>Pricing</a>
+          <a className="menu-link" href="#features" onClick={() => setOpen(false)}>Features</a>
+          <a className="menu-link" href="#contact"  onClick={() => setOpen(false)}>Contact</a>
+          <div className="menu-inline">
+            <a className="chip" href={appUrl}>Go to App</a>
+            <a className="chip primary" href={`${portalUrl}/login`}>Login</a>
+          </div>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+/** Optional: separate right-controls if you want to import/use it elsewhere */
 export function HeaderRightControls() {
   return (
     <div className="right-controls">
       <a href="/login" className="btn primary">Login</a>
       <ThemeToggle />
-      {/* keep your hamburger / other controls here */}
     </div>
-  );
-}
-
-            <ThemeToggle />
-          </nav>
-
-          {/* Mobile controls */}
-          <div className="right-controls">
-            <button
-              className="hamburger"
-              aria-label="Open menu"
-              onClick={() => setOpen(true)}
-            >
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-                <path d="M4 7h16M4 12h16M4 17h16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile drawer */}
-      <div className={`menu-backdrop ${open ? "show" : ""}`} onClick={() => setOpen(false)} />
-      <aside className={`menu-sheet ${open ? "open" : ""}`} aria-hidden={!open}>
-        <div className="menu-head">
-          <span className="brand-badge" aria-hidden>
-            <Image src="/assets/favicon_1024_dark.png" alt="" width={18} height={18} className="mark mark-dark" />
-            <Image src="/assets/favicon_1024_light.png" alt="" width={18} height={18} className="mark mark-light" />
-            <span className="brand-text">
-              <Image src="/assets/text_1024_dark.png"  alt="ScanSnap" width={160} height={30} className="word word-dark"  style={{ height: 22, width: "auto" }}/>
-              <Image src="/assets/text_1024_light.png" alt="ScanSnap" width={160} height={30} className="word word-light" style={{ height: 22, width: "auto" }}/>
-            </span>
-          </span>
-          <div style={{display:"flex", gap:8}}>
-            <ThemeToggle />
-            <button className="icon-btn" aria-label="Close" onClick={() => setOpen(false)}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        <nav className="menu-body" onClick={() => setOpen(false)}>
-          <Link href="/#pricing"  className="menu-link">Pricing</Link>
-          <Link href="/#features" className="menu-link">Features</Link>
-          <Link href="/#contact"  className="menu-link">Contact</Link>
-          <div className="menu-inline">
-            <Link href="https://app.scansnap.io" className="btn">Go to App</Link>
-            <Link href="/login" className="btn primary">Login</Link>
-          </div>
-        </nav>
-      </aside>
-    </header>
   );
 }
