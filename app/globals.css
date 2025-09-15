@@ -285,9 +285,7 @@ html[data-theme="light"] .device img{ background:#ffffff }
 .pricing-grid{ 
   display: grid; 
   grid-template-columns: repeat(4, minmax(0, 1fr)); 
-  gap: 1rem;                    /* reduced from 1.2rem */
-  max-width: 1000px;            /* constrain width on desktop */
-  margin: 0 auto;               /* center the pricing grid */
+  gap: 1rem;                    /* reduced spacing */
 }
 .plan .plan-head{ display:grid; gap:.25rem; margin-bottom:.6rem }
 .plan .price{ font-size:2rem; font-weight:800 }
@@ -297,7 +295,7 @@ html[data-theme="light"] .device img{ background:#ffffff }
 @media (max-width: 1023px) {
   .pricing-grid {
     grid-template-columns: 1fr;
-    gap: 1.2rem;                /* slightly more spacing on mobile */
+    gap: 1.2rem;
     max-width: 400px;
     margin: 0 auto;
   }
