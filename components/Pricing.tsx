@@ -135,4 +135,53 @@ export default function Pricing() {
                 </ul>
               </div>
 
-              {/* C
+              {/* CTA */}
+              {p.sku === "BASIC" ? (
+                <div style={{ display: "grid", gap: 10 }}>
+                  {isSignedIn ? (
+                    <button 
+                      className="btn primary"
+                      onClick={() => window.location.href = '/dashboard'}
+                    >
+                      Go to Dashboard
+                    </button>
+                  ) : (
+                    <LoginButton />
+                  )}
+                </div>
+              ) : (
+                <div style={{ display: "grid", gap: 10 }}>
+                  {isSignedIn ? (
+                    <button
+                      className="btn primary"
+                      onClick={() => handlePlanSelect(p)}
+                      {...(!variantId ? { "aria-disabled": true } : {})}
+                    >
+                      {variantId ? 'Start subscription' : 'Coming soon'}
+                    </button>
+                  ) : (
+                    <div>
+                      <LoginButton />
+                      <p className="note" style={{ marginTop: 8, textAlign: 'center' }}>
+                        Sign in required
+                      </p>
+                    </div>
+                  )}
+                  {!variantId && (
+                    <div className="note">
+                      <em>Set {p.variantEnv} in env to enable checkout.</em>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="note" style={{ marginTop: 14 }}>
+        Need a quote, PO, or have volume requirements? <a href="#contact" className="link">Contact us</a>.
+      </div>
+    </div>
+  );
+}
