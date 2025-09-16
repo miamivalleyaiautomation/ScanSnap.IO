@@ -1,22 +1,16 @@
-import { authMiddleware } from "@clerk/nextjs";
+import { NextRequest, NextResponse } from "next/server";
 
-export default authMiddleware({
-  // Routes that don't require authentication
-  publicRoutes: [
-    "/",
-    "/api/webhooks/(.*)",
-    "/sign-in(.*)",
-    "/sign-up(.*)",
-    "/pricing",
-    "/about",
-    "/contact"
-  ],
-  // Routes that require authentication
-  ignoredRoutes: [
-    "/((?!api|trpc))(_next|.+\\.[\\w]+$)",
-  ],
-});
+export function middleware(req: NextRequest) {
+  const host = req.headers.get("host") || "";
+  const url = req.nextUrl;
 
-export const config = {
-  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
-};
+  // Serve portal.scansnap.io/* from /portal/*
+  if (host.startsWith("portal.") && !url.pathname.startsWith("/portal")) {
+    url.pathname = `/portal${url.pathname}`;
+    return NextResponse.rewrite(url);
+  }
+
+  return NextResponse.next();
+}
+
+export const config = { matcher: ["/((?!_next|.*\\..*).*)"] };
