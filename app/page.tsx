@@ -22,7 +22,6 @@ return (
 <SiteHeader />
 
 ```
-  {/* ===== HERO ===== */}
   <section className="hero section">
     <div className="bg-gradient" />
     <div className="container hero-grid">
@@ -56,7 +55,6 @@ return (
     </div>
   </section>
 
-  {/* ===== FEATURES ===== */}
   <section id="features" className="section">
     <div className="container">
       <div className="section-heading">
@@ -97,7 +95,6 @@ return (
     </div>
   </section>
 
-  {/* ===== PRICING ===== */}
   <section id="pricing" className="section">
     <div className="container">
       <div className="section-heading">
@@ -105,7 +102,6 @@ return (
         <p>Simple, transparent pricing that scales with your team</p>
       </div>
       <div className="pricing-grid">
-        {/* BASIC */}
         <div className="card">
           <div>
             <span className="tag">BASIC</span>
@@ -121,7 +117,6 @@ return (
           <a className="btn block" href={`${portalUrl}/login`}>Start free</a>
         </div>
 
-        {/* PLUS */}
         <div className="card">
           <div>
             <span className="tag">PLUS</span>
@@ -139,7 +134,6 @@ return (
           <a className="btn primary block" href={LS_PLUS}>Choose Plus</a>
         </div>
 
-        {/* PRO */}
         <div className="card">
           <div>
             <span className="tag">PRO</span>
@@ -155,7 +149,6 @@ return (
           <a className="btn primary block" href={LS_PRO}>Choose Pro</a>
         </div>
 
-        {/* PRO + DPMS */}
         <div className="card">
           <div>
             <span className="tag">PRO + DPMS</span>
@@ -183,7 +176,6 @@ return (
     </div>
   </section>
 
-  {/* ===== CONTACT ===== */}
   <section id="contact" className="section">
     <div className="container">
       <div className="section-heading">
@@ -211,7 +203,6 @@ return (
     </div>
   </section>
 
-  {/* ===== FOOTER ===== */}
   <footer className="site">
     <div className="container foot-grid">
       <div className="brand-row">
