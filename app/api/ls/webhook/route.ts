@@ -1,26 +1,25 @@
 import crypto from "node:crypto";
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { env } from "@/lib/env";
+import { publicEnv, serverEnv } from "@/lib/env";
 
 
-export const runtime = "nodejs"; // Node required for crypto HMAC
+export const runtime = "nodejs"; // required for crypto HMAC on some hosts
 
 
 function verifySignature(rawBody: string, signature: string) {
-const hmac = crypto.createHmac("sha256", env.LEMONSQUEEZY_WEBHOOK_SECRET);
+const secret = serverEnv.LEMONSQUEEZY_WEBHOOK_SECRET();
+const hmac = crypto.createHmac("sha256", secret);
 hmac.update(rawBody, "utf8");
 const digest = hmac.digest("hex");
-return crypto.timingSafeEqual(Buffer.from(signature, "hex"), Buffer.from(digest, "hex"));
+return signature && crypto.timingSafeEqual(Buffer.from(signature, "hex"), Buffer.from(digest, "hex"));
 }
 
 
 export async function POST(req: Request) {
 const raw = await req.text();
-const signature = req.headers.get("x-signature");
-if (!signature || !verifySignature(raw, signature)) {
-return new NextResponse("Invalid signature", { status: 400 });
-}
+const signature = req.headers.get("x-signature") ?? "";
+if (!verifySignature(raw, signature)) return new NextResponse("Invalid signature", { status: 400 });
 
 
 const evt = JSON.parse(raw);
@@ -29,8 +28,7 @@ const clerkUserId: string | undefined = evt?.meta?.custom_data?.clerk_user_id;
 if (!clerkUserId) return new NextResponse("missing custom id", { status: 200 });
 
 
-// Service role bypasses RLS for machine writes
-const admin = createClient(env.NEXT_PUBLIC_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY, {
+const admin = createClient(publicEnv.NEXT_PUBLIC_SUPABASE_URL(), serverEnv.SUPABASE_SERVICE_ROLE_KEY(), {
 auth: { persistSession: false },
 });
 
