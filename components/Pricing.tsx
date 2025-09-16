@@ -1,27 +1,18 @@
 "use client";
 
 import { useEffect } from "react";
+import { useUser } from "@clerk/nextjs";
+import LoginButton from "./LoginButton";
 
 type Plan = {
   sku: "BASIC" | "PLUS" | "PRO" | "PRO_DPMS";
   name: string;
-  price: string;   // display only
+  price: string;
   blurb: string;
   bullets: string[];
-  variantEnv: string; // env var name that stores the LS variant id
+  variantEnv: string;
 };
 
-const LS_BASE =
-  process.env.NEXT_PUBLIC_LS_CHECKOUT_BASE || "https://app.lemonsqueezy.com/buy";
-
-/**
- * You set these in Netlify env:
- *  - NEXT_PUBLIC_LS_CHECKOUT_BASE = https://pay.scansnap.io/buy (your LS custom domain)
- *  - NEXT_PUBLIC_LS_VARIANT_BASIC
- *  - NEXT_PUBLIC_LS_VARIANT_PLUS
- *  - NEXT_PUBLIC_LS_VARIANT_PRO
- *  - NEXT_PUBLIC_LS_VARIANT_PRO_DPMS
- */
 const PLANS: Plan[] = [
   {
     sku: "BASIC",
@@ -31,6 +22,7 @@ const PLANS: Plan[] = [
     bullets: [
       "Scan barcodes",
       "Export to PDF / CSV / Excel",
+      "Single user",
     ],
     variantEnv: "NEXT_PUBLIC_LS_VARIANT_BASIC",
   },
@@ -70,14 +62,28 @@ const PLANS: Plan[] = [
   },
 ];
 
-function buyHref(variantId: string | undefined) {
-  // Lemon Squeezy overlay links—works with your custom domain when provided.
-  // Example result: https://pay.scansnap.io/buy/VARIANT_ID?embed=1&media=0
+function getBuyHref(plan: Plan, user: any) {
+  const variantId = process.env[plan.variantEnv as keyof typeof process.env] as string | undefined;
   if (!variantId) return "#";
-  return `${LS_BASE}/${variantId}?embed=1&media=0`;
+  
+  const baseUrl = `https://app.lemonsqueezy.com/checkout/buy/${variantId}`;
+  
+  if (user) {
+    // Add user data to checkout URL
+    const params = new URLSearchParams({
+      'checkout[email]': user.emailAddresses[0].emailAddress,
+      'checkout[custom][clerk_user_id]': user.id,
+      'checkout[custom][user_name]': `${user.firstName || ''} ${user.lastName || ''}`.trim()
+    });
+    return `${baseUrl}?${params.toString()}`;
+  }
+  
+  return baseUrl;
 }
 
 export default function Pricing() {
+  const { user, isSignedIn } = useUser();
+
   // Ensure overlay attaches to links with class="lemonsqueezy-button"
   useEffect(() => {
     // @ts-ignore
@@ -87,11 +93,28 @@ export default function Pricing() {
     }
   }, []);
 
+  const handlePlanSelect = (plan: Plan) => {
+    if (!isSignedIn) {
+      alert('Please sign in first to purchase a subscription');
+      return;
+    }
+    
+    if (plan.sku === 'BASIC') {
+      // Basic is free - redirect to app
+      window.location.href = '/dashboard';
+      return;
+    }
+    
+    // Open Lemon Squeezy checkout
+    const checkoutUrl = getBuyHref(plan, user);
+    window.open(checkoutUrl, '_blank');
+  };
+
   return (
     <div>
       <h2 style={{ marginBottom: 6 }}>Simple, seat-based pricing</h2>
       <p className="muted" style={{ marginBottom: 18 }}>
-        Start on Basic, upgrade anytime. Seat count is managed by your team admin.
+        Start on Basic, upgrade anytime. {!isSignedIn && 'Sign in to purchase subscriptions.'}
       </p>
 
       {/* Overlay script once on the page */}
@@ -112,35 +135,4 @@ export default function Pricing() {
                 </ul>
               </div>
 
-              {/* CTA */}
-              {p.sku === "BASIC" ? (
-                <div style={{ display: "grid", gap: 10 }}>
-                  <a className="btn primary" href="/login">Start free</a>
-                </div>
-              ) : (
-                <div style={{ display: "grid", gap: 10 }}>
-                  <a
-                    className={`btn primary ${variantId ? "lemonsqueezy-button" : ""}`}
-                    href={buyHref(variantId)}
-                    {...(!variantId ? { "aria-disabled": true } : {})}
-                  >
-                    Start subscription
-                  </a>
-                  {!variantId && (
-                    <div className="note">
-                      <em>Set {p.variantEnv} in Netlify env to enable checkout.</em>
-                    </div>
-                  )}
-                </div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="note" style={{ marginTop: 14 }}>
-        Need a quote, PO, or have volume requirements? <a href="#contact" className="link">Contact us</a>.
-      </div>
-    </div>
-  );
-}
+              {/* C
