@@ -20,7 +20,7 @@ export const createClerkSupabaseClient = () => {
   return createClient(supabaseUrl, supabaseAnonKey, {
     global: {
       // Get the custom Supabase token from Clerk
-      fetch: async (url, options = {}) => {
+      fetch: async (url: RequestInfo | URL, options: RequestInit = {}) => {
         let clerkToken = null
         
         // Only try to get Clerk token if we're in browser and Clerk is available
@@ -35,7 +35,7 @@ export const createClerkSupabaseClient = () => {
         }
 
         // Insert the Clerk Supabase token into the headers if available
-        const headers = new Headers(options?.headers)
+        const headers = new Headers(options.headers)
         if (clerkToken) {
           headers.set('Authorization', `Bearer ${clerkToken}`)
         }
