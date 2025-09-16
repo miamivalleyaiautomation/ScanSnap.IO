@@ -4,19 +4,41 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
+// Extend Window type to include Clerk
+declare global {
+  interface Window {
+    Clerk?: {
+      session?: {
+        getToken: (options: { template: string }) => Promise<string | null>
+      }
+    }
+  }
+}
+
 // Client for browser usage with Clerk integration
 export const createClerkSupabaseClient = () => {
   return createClient(supabaseUrl, supabaseAnonKey, {
     global: {
       // Get the custom Supabase token from Clerk
       fetch: async (url, options = {}) => {
-        const clerkToken = await window.Clerk?.session?.getToken({
-          template: 'supabase',
-        })
+        let clerkToken = null
+        
+        // Only try to get Clerk token if we're in browser and Clerk is available
+        if (typeof window !== 'undefined' && window.Clerk?.session?.getToken) {
+          try {
+            clerkToken = await window.Clerk.session.getToken({
+              template: 'supabase',
+            })
+          } catch (error) {
+            console.warn('Failed to get Clerk token:', error)
+          }
+        }
 
-        // Insert the Clerk Supabase token into the headers
+        // Insert the Clerk Supabase token into the headers if available
         const headers = new Headers(options?.headers)
-        headers.set('Authorization', `Bearer ${clerkToken}`)
+        if (clerkToken) {
+          headers.set('Authorization', `Bearer ${clerkToken}`)
+        }
 
         // Now call the default fetch
         return fetch(url, {
