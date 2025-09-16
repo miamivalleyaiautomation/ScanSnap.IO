@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { env } from "@/lib/env";
+import { publicEnv } from "@/lib/env";
 
 
 type Plan = "basic" | "plus" | "pro" | "pro-dpms";
@@ -28,10 +28,14 @@ const variantId = variantMap[plan];
 if (!variantId) return NextResponse.json({ error: "Unknown plan" }, { status: 400 });
 
 
+// Access only the single required var at runtime
+const site = publicEnv.NEXT_PUBLIC_SITE_URL();
+
+
 const params = new URLSearchParams({
 "checkout[custom][clerk_user_id]": userId,
-"checkout[success_url]": `${env.NEXT_PUBLIC_SITE_URL}/success`,
-"checkout[cancel_url]": `${env.NEXT_PUBLIC_SITE_URL}/#pricing`,
+"checkout[success_url]": `${site}/success`,
+"checkout[cancel_url]": `${site}/#pricing`,
 });
 if (email) params.set("checkout[email]", String(email));
 
