@@ -293,8 +293,7 @@ export default function Page() {
     </>
   );
 }// app/page.tsx
-import SiteHeader from "@/components/SiteHeader";
-import HeroPreview from "@/components/HeroPreview";
+
 
 export const metadata = {
   title: "ScanSnap — Fast, accurate barcode & matrix code scanning",
