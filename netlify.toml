@@ -9,11 +9,9 @@
 [build.environment]
   NODE_VERSION = "20"
   NPM_VERSION  = "10"
-  # This key is intentionally public and appears in the client bundle.
-  # Allow it so the build doesn't fail.
-  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY"
-
-  # (optional) If you still get hits, you can also omit webpack cache paths:
-  # SECRETS_SCAN_OMIT_PATHS = ".next/**,.netlify/.next/**"
-  # (last resort only) Disable scanning entirely:
-  # SECRETS_SCAN_ENABLED = "false"
+  
+  # Allow these public keys (they're meant to be public)
+  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,NEXT_PUBLIC_LS_VARIANT_BASIC,NEXT_PUBLIC_LS_VARIANT_PLUS,NEXT_PUBLIC_LS_VARIANT_PRO,NEXT_PUBLIC_LS_VARIANT_PRO_DPMS,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY"
+  
+  # Exclude cache and build directories from secrets scanning
+  SECRETS_SCAN_OMIT_PATHS = ".next/**,.netlify/.next/**,node_modules/**"
