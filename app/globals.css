@@ -59,8 +59,47 @@ margin-inline: auto;
 h1{ font-size:clamp(2.2rem,3.8vw + .4rem,3.4rem); line-height:1.08; margin:.2rem 0 .6rem; }
 h2{ font-size:clamp(1.6rem,1.5vw + .6rem,2.2rem); margin:0 0 .6rem; }
 h3{ font-size:1.15rem; margin:.2rem 0 .4rem; }
+h4{ font-size:1rem; margin:.4rem 0 .3rem; font-weight:600; }
+
 .muted{ color: var(–muted); }
 .note{ color: var(–muted); font-size:.95rem; }
+.accent{ color: var(–brand0); }
+.lede{ font-size:1.25rem; line-height:1.6; margin:.8rem 0; }
+.fine{ font-size:.9rem; color:var(–muted); line-height:1.5; }
+.link{ color:var(–muted); transition:color .15s ease; }
+.link:hover{ color:var(–fg); }
+
+.tag{
+display:inline-block;
+background:var(–brand-grad);
+color:#00131c;
+font-size:.75rem;
+font-weight:700;
+padding:.3rem .6rem;
+border-radius:var(–radius-pill);
+text-transform:uppercase;
+letter-spacing:.5px;
+}
+
+.feature{
+list-style:none;
+padding:0;
+margin:.8rem 0;
+}
+.feature li{
+padding:.4rem 0;
+border-bottom:1px solid var(–line);
+}
+.feature li:last-child{
+border-bottom:none;
+}
+
+.brand-row{
+display:flex;
+flex-direction:column;
+gap:.5rem;
+}
+
 .sr-only{
 position:absolute!important;
 width:1px;
