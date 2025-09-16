@@ -1,13 +1,22 @@
-import { clerkMiddleware } from "@clerk/nextjs/server";
+import { authMiddleware } from "@clerk/nextjs";
 
-
-export default clerkMiddleware();
-
+export default authMiddleware({
+  // Routes that don't require authentication
+  publicRoutes: [
+    "/",
+    "/api/webhooks/(.*)",
+    "/sign-in(.*)",
+    "/sign-up(.*)",
+    "/pricing",
+    "/about",
+    "/contact"
+  ],
+  // Routes that require authentication
+  ignoredRoutes: [
+    "/((?!api|trpc))(_next|.+\\.[\\w]+$)",
+  ],
+});
 
 export const config = {
-// Covers all pages + API routes; excludes _next/static and file assets
-matcher: [
-"/((?!.+\\.[\\w]+$|_next).*)",
-"/(api|trpc)(.*)",
-],
+  matcher: ["/((?!.+\\.[\\w]+$|_next).*)", "/", "/(api|trpc)(.*)"],
 };
