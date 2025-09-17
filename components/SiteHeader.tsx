@@ -40,7 +40,12 @@ export default function SiteHeader() {
                 afterSignOutUrl="/"
                 appearance={{
                   elements: {
-                    avatarBox: "w-8 h-8"
+                    avatarBox: "w-8 h-8",
+                    userButtonPopoverCard: {
+                      pointerEvents: "initial",
+                      zIndex: 50
+                    },
+                    userButtonPopoverActionButton: "hover:bg-gray-100 dark:hover:bg-gray-800"
                   }
                 }}
               />
@@ -49,7 +54,7 @@ export default function SiteHeader() {
             <ThemeToggle />
           </nav>
 
-          {/* Right controls / mobile - NO theme toggle here */}
+          {/* Right controls / mobile - REMOVED ThemeToggle from here */}
           <div className="right-controls">
             <SignedOut>
               <LoginButton />
@@ -59,7 +64,12 @@ export default function SiteHeader() {
                 afterSignOutUrl="/"
                 appearance={{
                   elements: {
-                    avatarBox: "w-8 h-8"
+                    avatarBox: "w-8 h-8",
+                    userButtonPopoverCard: {
+                      pointerEvents: "initial",
+                      zIndex: 9999
+                    },
+                    userButtonPopoverActionButton: "hover:bg-gray-100 dark:hover:bg-gray-800"
                   }
                 }}
               />
@@ -74,7 +84,7 @@ export default function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile drawer - everything goes here */}
+      {/* Mobile drawer - Theme toggle ONLY appears here on mobile */}
       <div className="menu-backdrop" data-menu-backdrop />
       <aside className="menu-sheet" data-menu-sheet>
         <div className="menu-head">

@@ -492,3 +492,77 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
     display: none !important;
   }
 }
+/* Add this to your globals.css file to fix Clerk UserButton issues */
+
+/* Hide theme toggle in right controls on mobile */
+@media (max-width:1023px){
+  .right-controls .theme-toggle {
+    display: none !important;
+  }
+  
+  /* Ensure mobile menu theme toggle is centered and properly styled */
+  .menu-body .theme-toggle {
+    margin: 1rem auto 0 auto;
+    display: inline-flex !important;
+  }
+}
+
+/* Ensure desktop shows theme toggle in nav */
+@media (min-width:1024px){
+  .chip-nav .theme-toggle {
+    display: inline-flex !important;
+  }
+  
+  /* Hide right controls completely on desktop */
+  .right-controls {
+    display: none !important;
+  }
+}
+
+/* Fix Clerk UserButton popover issues */
+.cl-userButtonPopoverCard {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+.cl-userButtonPopoverActionButton:hover {
+  background-color: rgba(156, 163, 175, 0.1) !important;
+}
+
+/* Fix Clerk UserButton on mobile devices */
+@media (max-width: 1023px) {
+  .cl-userButtonPopoverCard {
+    position: fixed !important;
+    z-index: 9999 !important;
+    max-width: 90vw !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    top: auto !important;
+    bottom: 10px !important;
+  }
+  
+  .cl-userButtonPopoverRootBox {
+    position: relative !important;
+    z-index: 9999 !important;
+  }
+}
+
+/* Ensure no checkbox-like appearance */
+.cl-avatarBox {
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.cl-avatarBox::before,
+.cl-avatarBox::after {
+  display: none !important;
+}
+
+/* Remove any unwanted pseudo-elements that might cause checkbox appearance */
+.cl-userButton *::before,
+.cl-userButton *::after {
+  content: none !important;
+}
