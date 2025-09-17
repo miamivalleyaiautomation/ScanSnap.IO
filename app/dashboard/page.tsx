@@ -1,11 +1,10 @@
-‘use client’
+“use client”
 
 import { useUser } from “@clerk/nextjs”
 import { useEffect, useState } from “react”
 import { UserButton } from “@clerk/nextjs”
 import Link from “next/link”
 
-// Simple types for now
 interface UserProfile {
 id: string
 clerk_user_id: string
@@ -32,38 +31,37 @@ fetchUserProfile()
 
 const fetchUserProfile = async () => {
 try {
-console.log(‘Fetching user profile for:’, user?.id)
+console.log(“Fetching user profile for:”, user?.id)
 
 ```
-  // Try to import Supabase client
-  const { createClient } = await import('@supabase/supabase-js')
+  const { createClient } = await import("@supabase/supabase-js")
   
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   
-  console.log('Supabase URL:', supabaseUrl)
-  console.log('Supabase Key exists:', !!supabaseAnonKey)
+  console.log("Supabase URL:", supabaseUrl)
+  console.log("Supabase Key exists:", !!supabaseAnonKey)
   
   const supabase = createClient(supabaseUrl, supabaseAnonKey)
   
   const { data, error } = await supabase
-    .from('user_profiles')
-    .select('*')
-    .eq('clerk_user_id', user?.id)
+    .from("user_profiles")
+    .select("*")
+    .eq("clerk_user_id", user?.id)
     .single()
 
-  console.log('Supabase response - data:', data)
-  console.log('Supabase response - error:', error)
+  console.log("Supabase response - data:", data)
+  console.log("Supabase response - error:", error)
 
   if (error) {
-    console.error('Error fetching user profile:', error)
+    console.error("Error fetching user profile:", error)
     setError(`Database error: ${error.message}`)
   } else {
     setUserProfile(data)
-    console.log('User profile loaded successfully:', data)
+    console.log("User profile loaded successfully:", data)
   }
 } catch (err) {
-  console.error('Error in fetchUserProfile:', err)
+  console.error("Error in fetchUserProfile:", err)
   setError(`Failed to load profile: ${err}`)
 } finally {
   setLoading(false)
@@ -76,7 +74,6 @@ const handleLaunchApp = () => {
 if (!userProfile) return;
 
 ```
-// Pass user data to app.scansnap.io via localStorage
 const userData = {
   clerk_user_id: userProfile.clerk_user_id,
   subscription_status: userProfile.subscription_status,
@@ -86,23 +83,20 @@ const userData = {
   last_name: userProfile.last_name
 };
 
-// Store in localStorage for app to read
-localStorage.setItem('scansnap_user_data', JSON.stringify(userData));
-
-// Open app
-window.open(appUrl, '_blank');
+localStorage.setItem("scansnap_user_data", JSON.stringify(userData));
+window.open(appUrl, "_blank");
 ```
 
 }
 
 const getSubscriptionDisplayName = (status: string): string => {
 switch (status) {
-case ‘basic’: return ‘Basic (Free)’;
-case ‘plus’: return ‘Plus’;
-case ‘pro’: return ‘Pro’;
-case ‘pro_dpms’: return ‘Pro + DPMS’;
-case ‘cancelled’: return ‘Cancelled’;
-case ‘expired’: return ‘Expired’;
+case “basic”: return “Basic (Free)”;
+case “plus”: return “Plus”;
+case “pro”: return “Pro”;
+case “pro_dpms”: return “Pro + DPMS”;
+case “cancelled”: return “Cancelled”;
+case “expired”: return “Expired”;
 default: return status;
 }
 }
@@ -151,14 +145,13 @@ Retry
 
 return (
 <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
-{/* Header */}
 <header className="bg-white dark:bg-gray-800 shadow">
 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 <div className="flex justify-between h-16">
 <div className="flex items-center">
 <Link href="/" className="flex items-center gap-3">
-<img className=“mark mark-light” src=”/assets/favicon_1024_light.png” alt=”” style={{ height: ‘32px’ }} />
-<img className=“mark mark-dark” src=”/assets/favicon_1024_dark.png” alt=”” style={{ height: ‘32px’ }} />
+<img className=“mark mark-light” src=”/assets/favicon_1024_light.png” alt=”” style={{ height: “32px” }} />
+<img className=“mark mark-dark” src=”/assets/favicon_1024_dark.png” alt=”” style={{ height: “32px” }} />
 <span className="text-xl font-semibold text-gray-900 dark:text-white">
 ScanSnap Dashboard
 </span>
@@ -175,15 +168,13 @@ ScanSnap Dashboard
 </header>
 
 ```
-  {/* Main Content */}
   <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
     <div className="px-4 py-6 sm:px-0">
       
-      {/* Welcome Section */}
       <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg mb-8">
         <div className="px-4 py-5 sm:p-6">
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-            Welcome back, {user.firstName || 'there'}!
+            Welcome back, {user.firstName || "there"}!
           </h1>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
             Your ScanSnap account is ready to go. Launch the app to start scanning.
@@ -197,22 +188,20 @@ ScanSnap Dashboard
         </div>
       </div>
 
-      {/* User Profile Info */}
       {userProfile ? (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           
-          {/* Subscription Status */}
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                    userProfile.subscription_status === 'basic' ? 'bg-gray-100 dark:bg-gray-700' : 'bg-green-100 dark:bg-green-900'
+                    userProfile.subscription_status === "basic" ? "bg-gray-100 dark:bg-gray-700" : "bg-green-100 dark:bg-green-900"
                   }`}>
                     <span className={`text-sm font-medium ${
-                      userProfile.subscription_status === 'basic' ? 'text-gray-600 dark:text-gray-400' : 'text-green-800 dark:text-green-200'
+                      userProfile.subscription_status === "basic" ? "text-gray-600 dark:text-gray-400" : "text-green-800 dark:text-green-200"
                     }`}>
-                      {userProfile.subscription_status === 'basic' ? 'O' : 'Y'}
+                      {userProfile.subscription_status === "basic" ? "O" : "Y"}
                     </span>
                   </div>
                 </div>
@@ -230,7 +219,6 @@ ScanSnap Dashboard
             </div>
           </div>
 
-          {/* Account Status */}
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
@@ -253,7 +241,6 @@ ScanSnap Dashboard
             </div>
           </div>
 
-          {/* Join Date */}
           <div className="bg-white dark:bg-gray-800 overflow-hidden shadow rounded-lg">
             <div className="p-5">
               <div className="flex items-center">
@@ -284,7 +271,6 @@ ScanSnap Dashboard
         </div>
       )}
 
-      {/* Quick Actions */}
       <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
         <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-medium text-gray-900 dark:text-white">Quick Actions</h3>
@@ -322,8 +308,7 @@ ScanSnap Dashboard
         </div>
       </div>
 
-      {/* Upgrade Prompt for Basic Users */}
-      {userProfile?.subscription_status === 'basic' && (
+      {userProfile?.subscription_status === "basic" && (
         <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
           <div className="flex items-start">
             <div className="flex-shrink-0">
