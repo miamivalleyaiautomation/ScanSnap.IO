@@ -96,21 +96,13 @@ export default function LoginButton() {
               </div>
 
               <div className="space-y-4">
-                <SignInButton 
-                  mode="modal"
-                  afterSignInUrl="/dashboard"
-                  afterSignUpUrl="/dashboard"
-                >
+                <SignInButton mode="modal">
                   <button className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors">
                     Sign In
                   </button>
                 </SignInButton>
 
-                <SignUpButton 
-                  mode="modal"
-                  afterSignInUrl="/dashboard"
-                  afterSignUpUrl="/dashboard"
-                >
+                <SignUpButton mode="modal">
                   <button className="w-full border border-gray-300 hover:border-gray-400 dark:border-gray-600 dark:hover:border-gray-500 text-gray-700 dark:text-gray-200 font-semibold py-3 px-6 rounded-lg transition-colors">
                     Create Account
                   </button>
