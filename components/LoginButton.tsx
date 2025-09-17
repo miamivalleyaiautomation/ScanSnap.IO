@@ -1,22 +1,75 @@
 'use client'
 
 import { SignInButton, SignUpButton } from "@clerk/nextjs"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 export default function LoginButton() {
   const [showModal, setShowModal] = useState(false)
+
+  // Handle body class and header glass effect when modal opens/closes
+  useEffect(() => {
+    if (showModal) {
+      // Add class to disable header glass effect
+      document.body.classList.add('modal-open')
+      const header = document.querySelector('.site-header')
+      if (header) {
+        header.classList.add('glass-disable')
+      }
+    } else {
+      // Remove classes when modal closes
+      document.body.classList.remove('modal-open')
+      const header = document.querySelector('.site-header')
+      if (header) {
+        header.classList.remove('glass-disable')
+      }
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('modal-open')
+      const header = document.querySelector('.site-header')
+      if (header) {
+        header.classList.remove('glass-disable')
+      }
+    }
+  }, [showModal])
+
+  // Also listen for Clerk modal state changes
+  useEffect(() => {
+    const handleClerkModalChange = () => {
+      const clerkModal = document.querySelector('.cl-modal, .cl-signIn, .cl-signUp')
+      const header = document.querySelector('.site-header')
+      
+      if (clerkModal && header) {
+        header.classList.add('glass-disable')
+      } else if (header) {
+        header.classList.remove('glass-disable')
+      }
+    }
+
+    // Watch for DOM changes that might indicate Clerk modal appearance
+    const observer = new MutationObserver(handleClerkModalChange)
+    observer.observe(document.body, { 
+      childList: true, 
+      subtree: true, 
+      attributes: true,
+      attributeFilter: ['class', 'role']
+    })
+
+    return () => observer.disconnect()
+  }, [])
 
   if (showModal) {
     return (
       <>
         {/* Backdrop */}
         <div 
-          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center"
+          className="fixed inset-0 bg-black bg-opacity-50 z-[999] flex items-center justify-center"
           onClick={() => setShowModal(false)}
         >
           {/* Modal */}
           <div 
-            className="bg-white dark:bg-gray-900 rounded-lg p-8 max-w-md w-full mx-4 relative"
+            className="bg-white dark:bg-gray-900 rounded-lg p-8 max-w-md w-full mx-4 relative z-[1000]"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Close button */}
@@ -70,6 +123,7 @@ export default function LoginButton() {
     <button 
       className="chip primary" 
       onClick={() => setShowModal(true)}
+      type="button"
     >
       Login
     </button>

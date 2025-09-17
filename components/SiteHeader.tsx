@@ -8,7 +8,6 @@ import LoginButton from "@/components/LoginButton";
 
 export default function SiteHeader() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
-  const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL ?? "https://portal.scansnap.io";
 
   return (
     <header className="site-header glass">
@@ -41,7 +40,12 @@ export default function SiteHeader() {
                 afterSignOutUrl="/"
                 appearance={{
                   elements: {
-                    avatarBox: "w-8 h-8"
+                    avatarBox: "w-8 h-8",
+                    userButtonPopoverCard: {
+                      pointerEvents: "initial",
+                      zIndex: 50
+                    },
+                    userButtonPopoverActionButton: "hover:bg-gray-100 dark:hover:bg-gray-800"
                   }
                 }}
               />
@@ -50,7 +54,7 @@ export default function SiteHeader() {
             <ThemeToggle />
           </nav>
 
-          {/* Right controls / mobile - only hamburger */}
+          {/* Right controls / mobile - REMOVED ThemeToggle from here */}
           <div className="right-controls">
             <SignedOut>
               <LoginButton />
@@ -60,12 +64,17 @@ export default function SiteHeader() {
                 afterSignOutUrl="/"
                 appearance={{
                   elements: {
-                    avatarBox: "w-8 h-8"
+                    avatarBox: "w-8 h-8",
+                    userButtonPopoverCard: {
+                      pointerEvents: "initial",
+                      zIndex: 9999
+                    },
+                    userButtonPopoverActionButton: "hover:bg-gray-100 dark:hover:bg-gray-800"
                   }
                 }}
               />
             </SignedIn>
-            <ThemeToggle />
+            
             <button className="hamburger" aria-label="Open menu" data-open-menu>
               <svg width="20" height="20" viewBox="0 0 24 24" role="img" aria-hidden="true">
                 <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -75,7 +84,7 @@ export default function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile drawer - everything goes here */}
+      {/* Mobile drawer - Theme toggle ONLY appears here on mobile */}
       <div className="menu-backdrop" data-menu-backdrop />
       <aside className="menu-sheet" data-menu-sheet>
         <div className="menu-head">
@@ -105,7 +114,10 @@ export default function SiteHeader() {
             <Link className="menu-link" href="/dashboard">Dashboard</Link>
           </SignedIn>
           
-          <ThemeToggle />
+          {/* Theme toggle ONLY in mobile menu */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+            <ThemeToggle />
+          </div>
         </div>
       </aside>
 
