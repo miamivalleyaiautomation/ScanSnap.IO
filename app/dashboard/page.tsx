@@ -1,4 +1,4 @@
-'use client'
+‘use client’
 
 import { useUser } from “@clerk/nextjs”
 import { useEffect, useState } from “react”
@@ -192,7 +192,7 @@ ScanSnap Dashboard
             onClick={handleLaunchApp}
             className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors"
           >
-            🚀 Launch ScanSnap App
+            Launch ScanSnap App
           </button>
         </div>
       </div>
@@ -212,7 +212,7 @@ ScanSnap Dashboard
                     <span className={`text-sm font-medium ${
                       userProfile.subscription_status === 'basic' ? 'text-gray-600 dark:text-gray-400' : 'text-green-800 dark:text-green-200'
                     }`}>
-                      {userProfile.subscription_status === 'basic' ? '○' : '✓'}
+                      {userProfile.subscription_status === 'basic' ? 'O' : 'Y'}
                     </span>
                   </div>
                 </div>
@@ -236,7 +236,7 @@ ScanSnap Dashboard
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <div className="h-8 w-8 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-blue-800 dark:text-blue-200">👤</span>
+                    <span className="text-sm font-medium text-blue-800 dark:text-blue-200">U</span>
                   </div>
                 </div>
                 <div className="ml-5 w-0 flex-1">
@@ -259,7 +259,7 @@ ScanSnap Dashboard
               <div className="flex items-center">
                 <div className="flex-shrink-0">
                   <div className="h-8 w-8 bg-purple-100 dark:bg-purple-900 rounded-full flex items-center justify-center">
-                    <span className="text-sm font-medium text-purple-800 dark:text-purple-200">📅</span>
+                    <span className="text-sm font-medium text-purple-800 dark:text-purple-200">D</span>
                   </div>
                 </div>
                 <div className="ml-5 w-0 flex-1">
@@ -295,28 +295,28 @@ ScanSnap Dashboard
               onClick={handleLaunchApp}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
-              <span>🚀</span> Launch App
+              <span>App</span> Launch App
             </button>
             
             <Link
               href="/subscription"
               className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
-              <span>⚡</span> Manage Subscription
+              <span>Sub</span> Manage Subscription
             </Link>
             
             <Link
               href="/purchases"
               className="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
-              <span>📄</span> View Purchases
+              <span>Buy</span> View Purchases
             </Link>
             
             <Link
               href="/#pricing"
               className="w-full border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-200 font-semibold py-3 px-4 rounded-lg transition-colors flex items-center justify-center gap-2"
             >
-              <span>💎</span> Upgrade Plan
+              <span>Up</span> Upgrade Plan
             </Link>
           </div>
         </div>
@@ -337,7 +337,7 @@ ScanSnap Dashboard
               </h3>
               <div className="mt-2 text-sm text-blue-800 dark:text-blue-300">
                 <p>
-                  You're on the Basic plan. Upgrade to Plus or Pro to unlock catalog import, verify mode, order builder, and advanced scanning features.
+                  You are on the Basic plan. Upgrade to Plus or Pro to unlock catalog import, verify mode, order builder, and advanced scanning features.
                 </p>
               </div>
               <div className="mt-4">
