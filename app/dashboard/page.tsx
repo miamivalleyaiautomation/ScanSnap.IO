@@ -30,23 +30,15 @@ export default function Dashboard() {
 
   const fetchUserProfile = async () => {
     try {
-      console.log("Fetching user profile for:", user?.id)
-      
       const { createClient } = await import("@supabase/supabase-js")
-      
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
       const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      
       const supabase = createClient(supabaseUrl, supabaseAnonKey)
       
-      // First, let's see what's in the database
       const { data: allProfiles, error: listError } = await supabase
         .from("user_profiles")
         .select("*")
         .eq("clerk_user_id", user?.id)
-
-      console.log("All matching profiles:", allProfiles)
-      console.log("List error:", listError)
 
       if (listError) {
         setError(`Query error: ${listError.message}`)
@@ -54,24 +46,12 @@ export default function Dashboard() {
       }
 
       if (!allProfiles || allProfiles.length === 0) {
-        // No profile found - this means the webhook hasn't created it yet
         setError("User profile not found. Please wait a moment and refresh.")
         return
       }
 
-      if (allProfiles.length > 1) {
-        // Multiple profiles found - use the first one
-        console.warn("Multiple profiles found, using the first one")
-        setUserProfile(allProfiles[0])
-      } else {
-        // Exactly one profile found
-        setUserProfile(allProfiles[0])
-      }
-
-      console.log("User profile loaded successfully:", allProfiles[0])
-      
+      setUserProfile(allProfiles[0])
     } catch (err) {
-      console.error("Error in fetchUserProfile:", err)
       setError(`Failed to load profile: ${err}`)
     } finally {
       setLoading(false)
@@ -92,46 +72,38 @@ export default function Dashboard() {
     window.open("https://app.scansnap.io", "_blank");
   }
 
-  const createUserProfile = async () => {
-    try {
-      setLoading(true)
-      
-      const { createClient } = await import("@supabase/supabase-js")
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      const supabase = createClient(supabaseUrl, supabaseAnonKey)
-
-      const { data, error } = await supabase
-        .from("user_profiles")
-        .insert({
-          clerk_user_id: user?.id,
-          email: user?.emailAddresses[0]?.emailAddress,
-          first_name: user?.firstName,
-          last_name: user?.lastName,
-          subscription_status: "basic",
-          subscription_plan: "basic"
-        })
-        .select()
-        .single()
-
-      if (error) {
-        setError(`Failed to create profile: ${error.message}`)
-      } else {
-        setUserProfile(data)
-        setError(null)
-      }
-    } catch (err) {
-      setError(`Error creating profile: ${err}`)
-    } finally {
-      setLoading(false)
+  const getSubscriptionDisplayName = (status: string): string => {
+    switch (status) {
+      case 'basic': return 'Basic (Free)';
+      case 'plus': return 'Plus';
+      case 'pro': return 'Pro';
+      case 'pro_dpms': return 'Pro + DPMS';
+      case 'cancelled': return 'Cancelled';
+      case 'expired': return 'Expired';
+      default: return status;
     }
   }
 
   if (!isLoaded || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: 'var(--bg)',
+        color: 'var(--fg)'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ 
+            width: '48px', 
+            height: '48px', 
+            border: '3px solid var(--brand0)', 
+            borderTop: '3px solid transparent', 
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px'
+          }}></div>
           <p>Loading dashboard...</p>
         </div>
       </div>
@@ -140,10 +112,17 @@ export default function Dashboard() {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Please sign in</h1>
-          <Link href="/" className="bg-blue-600 text-white px-4 py-2 rounded">Go Home</Link>
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: 'var(--bg)',
+        color: 'var(--fg)'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Please sign in</h1>
+          <Link href="/" className="btn primary">Go Home</Link>
         </div>
       </div>
     )
@@ -151,26 +130,24 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center max-w-md">
-          <h1 className="text-2xl font-bold mb-4 text-red-600">Error Loading Dashboard</h1>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <div className="space-x-4">
-            <button 
-              onClick={() => window.location.reload()} 
-              className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-              Retry
-            </button>
-            {error.includes("not found") && (
-              <button 
-                onClick={createUserProfile} 
-                className="bg-green-600 text-white px-4 py-2 rounded"
-              >
-                Create Profile
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: 'var(--bg)',
+        color: 'var(--fg)'
+      }}>
+        <div className="container" style={{ maxWidth: '600px', textAlign: 'center' }}>
+          <div className="card">
+            <h1 style={{ color: '#ef4444', marginBottom: '1rem' }}>Error Loading Dashboard</h1>
+            <p style={{ color: 'var(--muted)', marginBottom: '1.5rem' }}>{error}</p>
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+              <button onClick={() => window.location.reload()} className="btn primary">
+                Retry
               </button>
-            )}
-            <Link href="/" className="bg-gray-600 text-white px-4 py-2 rounded">Go Home</Link>
+              <Link href="/" className="btn">Go Home</Link>
+            </div>
           </div>
         </div>
       </div>
@@ -178,153 +155,205 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center gap-3">
-                <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" style={{ height: "32px" }} />
-                <img className="mark mark-dark" src="/assets/favicon_1024_dark.png" alt="" style={{ height: "32px" }} />
-                <span className="text-xl font-semibold text-gray-900">
-                  ScanSnap Dashboard
-                </span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
-                {user.firstName || user.emailAddresses[0].emailAddress}
-              </span>
-              <UserButton afterSignOutUrl="/" />
-            </div>
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
+      {/* Header */}
+      <header style={{ 
+        background: 'var(--card)', 
+        borderBottom: '1px solid var(--line)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50
+      }}>
+        <div className="container" style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          height: '64px'
+        }}>
+          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img 
+              className="mark mark-light" 
+              src="/assets/favicon_1024_light.png" 
+              alt="" 
+              style={{ height: '32px' }} 
+            />
+            <img 
+              className="mark mark-dark" 
+              src="/assets/favicon_1024_dark.png" 
+              alt="" 
+              style={{ height: '32px' }} 
+            />
+            <span style={{ fontSize: '1.25rem', fontWeight: '600' }}>
+              ScanSnap Dashboard
+            </span>
+          </Link>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <span style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>
+              {user.firstName || user.emailAddresses[0].emailAddress}
+            </span>
+            <UserButton afterSignOutUrl="/" />
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          
-          <div className="bg-white overflow-hidden shadow rounded-lg mb-8">
-            <div className="px-4 py-5 sm:p-6">
-              <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Welcome back, {user.firstName || "there"}!
-              </h1>
-              <p className="text-gray-600 mb-6">
-                Your ScanSnap account is ready to go. Launch the app to start scanning.
-              </p>
-              <button
-                onClick={handleLaunchApp}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg text-lg transition-colors"
-              >
-                Launch ScanSnap App
-              </button>
-            </div>
-          </div>
-
-          {userProfile ? (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="p-5">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Current Plan</h3>
-                  <p className="text-2xl font-bold text-blue-600">
-                    {userProfile.subscription_status === "basic" ? "Basic (Free)" : userProfile.subscription_status}
-                  </p>
-                </div>
-              </div>
-
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="p-5">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Account Status</h3>
-                  <p className="text-2xl font-bold text-green-600">Active</p>
-                </div>
-              </div>
-
-              <div className="bg-white overflow-hidden shadow rounded-lg">
-                <div className="p-5">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Member Since</h3>
-                  <p className="text-lg font-medium text-gray-900">
-                    {new Date(userProfile.created_at).toLocaleDateString()}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ) : (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4 mb-8">
-              <p className="text-yellow-800">
-                Setting up your profile... This may take a moment for new accounts.
-              </p>
-            </div>
-          )}
-
-          <div className="bg-white shadow rounded-lg">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
-            </div>
-            <div className="p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <button
-                  onClick={handleLaunchApp}
-                  className="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
-                >
-                  Launch App
-                </button>
-                
-                <Link
-                  href="/subscription"
-                  className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors text-center"
-                >
-                  Manage Subscription
-                </Link>
-                
-                <Link
-                  href="/purchases"
-                  className="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors text-center"
-                >
-                  View Purchases
-                </Link>
-                
-                <Link
-                  href="/#pricing"
-                  className="w-full border border-gray-300 hover:border-gray-400 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-colors text-center"
-                >
-                  Upgrade Plan
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {userProfile?.subscription_status === "basic" && (
-            <div className="mt-8 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-6">
-              <div className="flex items-start">
-                <div className="flex-shrink-0">
-                  <svg className="h-6 w-6 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="ml-3 flex-1">
-                  <h3 className="text-sm font-medium text-blue-900">
-                    Unlock More Features
-                  </h3>
-                  <div className="mt-2 text-sm text-blue-800">
-                    <p>
-                      You are on the Basic plan. Upgrade to Plus or Pro to unlock catalog import, verify mode, order builder, and advanced scanning features.
-                    </p>
-                  </div>
-                  <div className="mt-4">
-                    <Link
-                      href="/#pricing"
-                      className="bg-blue-100 px-3 py-2 rounded-md text-sm font-medium text-blue-900 hover:bg-blue-200"
-                    >
-                      View Plans
-                    </Link>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+      {/* Main Content */}
+      <main className="container section">
+        
+        {/* Welcome Section */}
+        <div className="card" style={{ marginBottom: '2rem' }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+            Welcome back, {user.firstName || 'there'}!
+          </h1>
+          <p className="muted" style={{ marginBottom: '1.5rem' }}>
+            Your ScanSnap account is ready to go. Launch the app to start scanning.
+          </p>
+          <button onClick={handleLaunchApp} className="btn primary" style={{ fontSize: '1.125rem' }}>
+            🚀 Launch ScanSnap App
+          </button>
         </div>
+
+        {/* Stats Grid */}
+        {userProfile && (
+          <div className="grid cols-3" style={{ marginBottom: '2rem' }}>
+            
+            {/* Current Plan */}
+            <div className="card">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <div style={{ 
+                  width: '32px', 
+                  height: '32px', 
+                  borderRadius: '50%',
+                  background: userProfile.subscription_status === 'basic' ? 'var(--muted)' : 'var(--brand0)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: userProfile.subscription_status === 'basic' ? 'var(--bg)' : '#fff',
+                  fontSize: '0.875rem',
+                  fontWeight: '600'
+                }}>
+                  {userProfile.subscription_status === 'basic' ? '○' : '✓'}
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>Current Plan</div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: '600' }}>
+                    {getSubscriptionDisplayName(userProfile.subscription_status)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Account Status */}
+            <div className="card">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <div style={{ 
+                  width: '32px', 
+                  height: '32px', 
+                  borderRadius: '50%',
+                  background: 'var(--brand1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  fontSize: '0.875rem',
+                  fontWeight: '600'
+                }}>
+                  👤
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>Account Status</div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: '600', color: '#10b981' }}>Active</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Member Since */}
+            <div className="card">
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
+                <div style={{ 
+                  width: '32px', 
+                  height: '32px', 
+                  borderRadius: '50%',
+                  background: '#8b5cf6',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: '#fff',
+                  fontSize: '0.875rem',
+                  fontWeight: '600'
+                }}>
+                  📅
+                </div>
+                <div>
+                  <div style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>Member Since</div>
+                  <div style={{ fontSize: '1.125rem', fontWeight: '600' }}>
+                    {new Date(userProfile.created_at).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Quick Actions */}
+        <div className="card" style={{ marginBottom: '2rem' }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>Quick Actions</h3>
+          <div className="grid cols-2" style={{ gap: '1rem' }}>
+            <button onClick={handleLaunchApp} className="btn primary block">
+              🚀 Launch App
+            </button>
+            <Link href="/subscription" className="btn block">
+              ⚡ Manage Subscription
+            </Link>
+            <Link href="/purchases" className="btn block">
+              📄 View Purchases
+            </Link>
+            <Link href="/#pricing" className="btn block">
+              💎 Upgrade Plan
+            </Link>
+          </div>
+        </div>
+
+        {/* Upgrade Prompt for Basic Users */}
+        {userProfile?.subscription_status === 'basic' && (
+          <div style={{
+            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
+            border: '1px solid var(--brand0)',
+            borderRadius: 'var(--radius-lg)',
+            padding: '1.5rem'
+          }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
+              <div style={{ 
+                width: '24px', 
+                height: '24px', 
+                color: 'var(--brand0)',
+                flexShrink: 0,
+                marginTop: '2px'
+              }}>
+                💡
+              </div>
+              <div style={{ flex: 1 }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--brand0)' }}>
+                  Unlock More Features
+                </h3>
+                <p className="muted" style={{ marginBottom: '1rem' }}>
+                  You're on the Basic plan. Upgrade to Plus or Pro to unlock catalog import, verify mode, order builder, and advanced scanning features.
+                </p>
+                <Link href="/#pricing" className="btn primary">
+                  View Plans
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
+
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   )
 }

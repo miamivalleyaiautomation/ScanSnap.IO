@@ -1,12 +1,22 @@
-'use client'
+"use client"
 
 import { useUser } from "@clerk/nextjs"
 import { useEffect, useState } from "react"
-import { createClerkSupabaseClient, UserProfile, getSubscriptionDisplayName } from "@/lib/supabase"
-import Link from "next/link"
 import { UserButton } from "@clerk/nextjs"
+import Link from "next/link"
 
-// Plan configurations matching your existing structure
+interface UserProfile {
+  id: string
+  clerk_user_id: string
+  email: string
+  first_name?: string
+  last_name?: string
+  subscription_status: string
+  subscription_plan: string
+  subscription_expires_at?: string
+  created_at: string
+}
+
 const PLANS = [
   {
     id: 'basic',
@@ -79,20 +89,25 @@ export default function SubscriptionPage() {
   }, [isLoaded, user])
 
   const fetchUserProfile = async () => {
-    const supabase = createClerkSupabaseClient()
-    
-    const { data, error } = await supabase
-      .from('user_profiles')
-      .select('*')
-      .eq('clerk_user_id', user?.id)
-      .single()
+    try {
+      const { createClient } = await import("@supabase/supabase-js")
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      const supabase = createClient(supabaseUrl, supabaseAnonKey)
+      
+      const { data: allProfiles, error } = await supabase
+        .from("user_profiles")
+        .select("*")
+        .eq("clerk_user_id", user?.id)
 
-    if (error) {
-      console.error('Error fetching user profile:', error)
-    } else {
-      setUserProfile(data)
+      if (!error && allProfiles && allProfiles.length > 0) {
+        setUserProfile(allProfiles[0])
+      }
+    } catch (err) {
+      console.error('Error fetching user profile:', err)
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }
 
   const handleUpgrade = (plan: typeof PLANS[0]) => {
@@ -112,7 +127,6 @@ export default function SubscriptionPage() {
       return
     }
 
-    // Construct Lemon Squeezy checkout URL with user data
     const checkoutUrl = `https://app.lemonsqueezy.com/checkout/buy/${variantId}?` + 
       new URLSearchParams({
         'checkout[email]': user.emailAddresses[0].emailAddress,
@@ -123,19 +137,56 @@ export default function SubscriptionPage() {
     window.open(checkoutUrl, '_blank')
   }
 
+  const getSubscriptionDisplayName = (status: string): string => {
+    switch (status) {
+      case 'basic': return 'Basic (Free)';
+      case 'plus': return 'Plus';
+      case 'pro': return 'Pro';
+      case 'pro_dpms': return 'Pro + DPMS';
+      case 'cancelled': return 'Cancelled';
+      case 'expired': return 'Expired';
+      default: return status;
+    }
+  }
+
   if (!isLoaded || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: 'var(--bg)',
+        color: 'var(--fg)'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ 
+            width: '48px', 
+            height: '48px', 
+            border: '3px solid var(--brand0)', 
+            borderTop: '3px solid transparent', 
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px'
+          }}></div>
+          <p>Loading subscription...</p>
+        </div>
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Please sign in</h1>
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: 'var(--bg)',
+        color: 'var(--fg)'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Please sign in</h1>
           <Link href="/" className="btn primary">Go Home</Link>
         </div>
       </div>
@@ -143,188 +194,261 @@ export default function SubscriptionPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/dashboard" className="flex items-center gap-3">
-                <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" style={{ height: '32px' }} />
-                <img className="mark mark-dark" src="/assets/favicon_1024_dark.png" alt="" style={{ height: '32px' }} />
-                <span className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Subscription
-                </span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link 
-                href="/dashboard"
-                className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                ← Back to Dashboard
-              </Link>
-              <UserButton afterSignOutUrl="/" />
-            </div>
+      <header style={{ 
+        background: 'var(--card)', 
+        borderBottom: '1px solid var(--line)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50
+      }}>
+        <div className="container" style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          height: '64px'
+        }}>
+          <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img 
+              className="mark mark-light" 
+              src="/assets/favicon_1024_light.png" 
+              alt="" 
+              style={{ height: '32px' }} 
+            />
+            <img 
+              className="mark mark-dark" 
+              src="/assets/favicon_1024_dark.png" 
+              alt="" 
+              style={{ height: '32px' }} 
+            />
+            <span style={{ fontSize: '1.25rem', fontWeight: '600' }}>
+              Subscription
+            </span>
+          </Link>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <Link href="/dashboard" className="link">
+              ← Back to Dashboard
+            </Link>
+            <UserButton afterSignOutUrl="/" />
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
-          
-          {/* Current Plan Status */}
-          {userProfile && (
-            <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-8">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                Current Plan
-              </h2>
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-                    {getSubscriptionDisplayName(userProfile.subscription_status)}
-                  </h3>
-                  <p className="text-gray-600 dark:text-gray-300">
-                    Status: <span className="capitalize">{userProfile.subscription_status}</span>
+      <main className="container section">
+        
+        {/* Current Plan Status */}
+        {userProfile && (
+          <div className="card" style={{ marginBottom: '2rem' }}>
+            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+              Current Plan
+            </h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+              <div>
+                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                  {getSubscriptionDisplayName(userProfile.subscription_status)}
+                </h3>
+                <p className="muted" style={{ marginBottom: '0.5rem' }}>
+                  Status: <span style={{ textTransform: 'capitalize' }}>{userProfile.subscription_status}</span>
+                </p>
+                {userProfile.subscription_expires_at && (
+                  <p className="muted">
+                    {userProfile.subscription_status === 'cancelled' ? 'Expires' : 'Renews'}: {' '}
+                    {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
                   </p>
-                  {userProfile.subscription_expires_at && (
-                    <p className="text-gray-600 dark:text-gray-300">
-                      {userProfile.subscription_status === 'cancelled' ? 'Expires' : 'Renews'}: {' '}
-                      {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
-                    </p>
-                  )}
-                </div>
-                {userProfile.subscription_status !== 'basic' && userProfile.lemon_squeezy_subscription_id && (
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                      Manage your subscription directly with Lemon Squeezy
-                    </p>
-                    <a
-                      href={`https://app.lemonsqueezy.com/my-orders`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-                    >
-                      Manage Subscription
-                    </a>
-                  </div>
                 )}
               </div>
-            </div>
-          )}
-
-          {/* Available Plans */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">
-              Choose Your Plan
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {PLANS.map((plan) => (
-                <div
-                  key={plan.id}
-                  className={`bg-white dark:bg-gray-800 rounded-lg shadow-md border-2 ${
-                    plan.popular 
-                      ? 'border-blue-500' 
-                      : userProfile?.subscription_status === plan.id
-                      ? 'border-green-500'
-                      : 'border-gray-200 dark:border-gray-700'
-                  } relative`}
-                >
-                  {plan.popular && (
-                    <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                      <span className="bg-blue-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                        Most Popular
-                      </span>
-                    </div>
-                  )}
-                  
-                  {userProfile?.subscription_status === plan.id && (
-                    <div className="absolute top-0 right-0 transform translate-x-1/2 -translate-y-1/2">
-                      <span className="bg-green-500 text-white px-3 py-1 rounded-full text-xs font-semibold">
-                        Current
-                      </span>
-                    </div>
-                  )}
-                  
-                  <div className="p-6">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                      {plan.name}
-                    </h3>
-                    <div className="mb-4">
-                      <span className="text-3xl font-bold text-gray-900 dark:text-white">
-                        {plan.price}
-                      </span>
-                      {plan.interval !== 'forever' && (
-                        <span className="text-gray-600 dark:text-gray-300">
-                          /{plan.interval}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-gray-600 dark:text-gray-300 mb-6">
-                      {plan.description}
-                    </p>
-                    
-                    <ul className="space-y-2 mb-6">
-                      {plan.features.map((feature, index) => (
-                        <li key={index} className="flex items-center text-sm">
-                          <svg className="h-4 w-4 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                          </svg>
-                          <span className="text-gray-600 dark:text-gray-300">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    
-                    {userProfile?.subscription_status === plan.id ? (
-                      <button
-                        disabled
-                        className="w-full bg-gray-200 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-2 px-4 rounded-lg cursor-not-allowed"
-                      >
-                        Current Plan
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => handleUpgrade(plan)}
-                        className={`w-full py-2 px-4 rounded-lg font-semibold transition-colors ${
-                          plan.popular
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                            : 'bg-gray-800 hover:bg-gray-900 text-white dark:bg-gray-600 dark:hover:bg-gray-500'
-                        }`}
-                      >
-                        {plan.id === 'basic' ? 'Downgrade' : 'Upgrade'}
-                      </button>
-                    )}
-                  </div>
+              {userProfile.subscription_status !== 'basic' && (
+                <div style={{ textAlign: 'right' }}>
+                  <p className="muted" style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                    Manage your subscription directly with Lemon Squeezy
+                  </p>
+                  <a
+                    href="https://app.lemonsqueezy.com/my-orders"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn"
+                    style={{ background: '#ffd700', color: '#000' }}
+                  >
+                    Manage Subscription
+                  </a>
                 </div>
-              ))}
+              )}
             </div>
           </div>
+        )}
 
-          {/* Additional Info */}
-          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-200 mb-2">
-              Need Help?
-            </h3>
-            <p className="text-blue-800 dark:text-blue-300 mb-4">
-              Have questions about which plan is right for you? Contact our sales team for personalized recommendations.
-            </p>
-            <div className="flex gap-4">
-              <a
-                href="mailto:hello@scansnap.io"
-                className="bg-blue-100 dark:bg-blue-800 text-blue-900 dark:text-blue-200 px-4 py-2 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-700 transition-colors"
+        {/* Available Plans */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', textAlign: 'center' }}>
+            Choose Your Plan
+          </h2>
+          <div className="grid" style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
+            gap: '1.5rem',
+            maxWidth: '1200px',
+            margin: '0 auto'
+          }}>
+            {PLANS.map((plan) => (
+              <div
+                key={plan.id}
+                className="card"
+                style={{
+                  position: 'relative',
+                  border: plan.popular 
+                    ? '2px solid var(--brand0)' 
+                    : userProfile?.subscription_status === plan.id
+                    ? '2px solid #10b981'
+                    : '1px solid var(--line)',
+                  background: 'var(--card)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between'
+                }}
               >
-                Contact Sales
-              </a>
-              <Link
-                href="/purchases"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                View Purchase History
-              </Link>
-            </div>
+                {plan.popular && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '-12px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: 'var(--brand0)',
+                    color: '#fff',
+                    padding: '4px 16px',
+                    borderRadius: 'var(--radius-pill)',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    textTransform: 'uppercase'
+                  }}>
+                    Most Popular
+                  </div>
+                )}
+                
+                {userProfile?.subscription_status === plan.id && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '-12px',
+                    right: '16px',
+                    background: '#10b981',
+                    color: '#fff',
+                    padding: '4px 12px',
+                    borderRadius: 'var(--radius-pill)',
+                    fontSize: '0.75rem',
+                    fontWeight: '600'
+                  }}>
+                    Current
+                  </div>
+                )}
+                
+                <div>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                    {plan.name}
+                  </h3>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
+                      {plan.price}
+                    </span>
+                    {plan.interval !== 'forever' && (
+                      <span className="muted">
+                        /{plan.interval}
+                      </span>
+                    )}
+                  </div>
+                  <p className="muted" style={{ marginBottom: '1.5rem' }}>
+                    {plan.description}
+                  </p>
+                  
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0' }}>
+                    {plan.features.map((feature, index) => (
+                      <li key={index} style={{ 
+                        display: 'flex', 
+                        alignItems: 'flex-start', 
+                        gap: '8px',
+                        marginBottom: '8px'
+                      }}>
+                        <span style={{ color: '#10b981', flexShrink: 0, marginTop: '2px' }}>✓</span>
+                        <span style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                {userProfile?.subscription_status === plan.id ? (
+                  <button
+                    disabled
+                    className="btn block"
+                    style={{ 
+                      opacity: 0.5,
+                      cursor: 'not-allowed',
+                      background: 'var(--muted)',
+                      color: 'var(--bg)'
+                    }}
+                  >
+                    Current Plan
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => handleUpgrade(plan)}
+                    className="btn block"
+                    style={{
+                      background: plan.popular 
+                        ? 'var(--brand-grad)' 
+                        : 'var(--card)',
+                      border: plan.popular 
+                        ? 'none' 
+                        : '1px solid var(--line)',
+                      color: plan.popular 
+                        ? '#fff' 
+                        : 'var(--fg)'
+                    }}
+                  >
+                    {plan.id === 'basic' ? 'Downgrade' : 'Upgrade'}
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Help Section */}
+        <div style={{
+          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
+          border: '1px solid var(--brand0)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.5rem'
+        }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--brand0)' }}>
+            Need Help?
+          </h3>
+          <p className="muted" style={{ marginBottom: '1rem' }}>
+            Have questions about which plan is right for you? Contact our sales team for personalized recommendations.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <a
+              href="mailto:hello@scansnap.io"
+              className="btn"
+              style={{ background: 'var(--brand0)', color: '#fff' }}
+            >
+              Contact Sales
+            </a>
+            <Link
+              href="/purchases"
+              className="btn primary"
+            >
+              View Purchase History
+            </Link>
           </div>
         </div>
       </main>
+
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   )
 }

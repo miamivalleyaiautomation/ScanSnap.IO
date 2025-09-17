@@ -1,10 +1,29 @@
-'use client'
+"use client"
 
 import { useUser } from "@clerk/nextjs"
 import { useEffect, useState } from "react"
-import { createClerkSupabaseClient, Purchase, UserProfile } from "@/lib/supabase"
-import Link from "next/link"
 import { UserButton } from "@clerk/nextjs"
+import Link from "next/link"
+
+interface Purchase {
+  id: string
+  user_id: string
+  lemon_squeezy_order_id: string
+  product_name: string
+  variant_name?: string
+  amount: number
+  currency: string
+  status: string
+  purchase_date: string
+}
+
+interface UserProfile {
+  id: string
+  clerk_user_id: string
+  email: string
+  subscription_status: string
+  subscription_plan: string
+}
 
 export default function PurchasesPage() {
   const { user, isLoaded } = useUser()
@@ -19,31 +38,30 @@ export default function PurchasesPage() {
   }, [isLoaded, user])
 
   const fetchData = async () => {
-    const supabase = createClerkSupabaseClient()
-    
     try {
+      const { createClient } = await import("@supabase/supabase-js")
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      const supabase = createClient(supabaseUrl, supabaseAnonKey)
+      
       // Get user profile first
       const { data: profile, error: profileError } = await supabase
-        .from('user_profiles')
-        .select('*')
-        .eq('clerk_user_id', user?.id)
+        .from("user_profiles")
+        .select("*")
+        .eq("clerk_user_id", user?.id)
         .single()
 
-      if (profileError) {
-        console.error('Error fetching user profile:', profileError)
-      } else {
+      if (!profileError && profile) {
         setUserProfile(profile)
         
         // Get purchases
         const { data: purchaseData, error: purchaseError } = await supabase
-          .from('purchases')
-          .select('*')
-          .eq('user_id', profile.id)
-          .order('purchase_date', { ascending: false })
+          .from("purchases")
+          .select("*")
+          .eq("user_id", profile.id)
+          .order("purchase_date", { ascending: false })
 
-        if (purchaseError) {
-          console.error('Error fetching purchases:', purchaseError)
-        } else {
+        if (!purchaseError) {
           setPurchases(purchaseData || [])
         }
       }
@@ -68,38 +86,63 @@ export default function PurchasesPage() {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: currency
-    }).format(amount / 100) // Convert cents to dollars
+    }).format(amount / 100)
   }
 
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'paid':
       case 'completed':
-        return 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900/30'
+        return { bg: '#dcfce7', color: '#166534' }
       case 'pending':
-        return 'text-yellow-600 bg-yellow-100 dark:text-yellow-400 dark:bg-yellow-900/30'
+        return { bg: '#fef3c7', color: '#92400e' }
       case 'refunded':
-        return 'text-red-600 bg-red-100 dark:text-red-400 dark:bg-red-900/30'
+        return { bg: '#fee2e2', color: '#991b1b' }
       case 'cancelled':
-        return 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30'
+        return { bg: '#f3f4f6', color: '#374151' }
       default:
-        return 'text-gray-600 bg-gray-100 dark:text-gray-400 dark:bg-gray-900/30'
+        return { bg: '#f3f4f6', color: '#374151' }
     }
   }
 
   if (!isLoaded || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: 'var(--bg)',
+        color: 'var(--fg)'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{ 
+            width: '48px', 
+            height: '48px', 
+            border: '3px solid var(--brand0)', 
+            borderTop: '3px solid transparent', 
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite',
+            margin: '0 auto 16px'
+          }}></div>
+          <p>Loading purchases...</p>
+        </div>
       </div>
     )
   }
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold mb-4">Please sign in</h1>
+      <div style={{ 
+        minHeight: '100vh', 
+        display: 'flex', 
+        alignItems: 'center', 
+        justifyContent: 'center',
+        background: 'var(--bg)',
+        color: 'var(--fg)'
+      }}>
+        <div style={{ textAlign: 'center' }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Please sign in</h1>
           <Link href="/" className="btn primary">Go Home</Link>
         </div>
       </div>
@@ -107,195 +150,261 @@ export default function PurchasesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
       {/* Header */}
-      <header className="bg-white dark:bg-gray-800 shadow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/dashboard" className="flex items-center gap-3">
-                <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" style={{ height: '32px' }} />
-                <img className="mark mark-dark" src="/assets/favicon_1024_dark.png" alt="" style={{ height: '32px' }} />
-                <span className="text-xl font-semibold text-gray-900 dark:text-white">
-                  Purchase History
-                </span>
-              </Link>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link 
-                href="/dashboard"
-                className="text-sm text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white"
-              >
-                ← Back to Dashboard
-              </Link>
-              <UserButton afterSignOutUrl="/" />
-            </div>
+      <header style={{ 
+        background: 'var(--card)', 
+        borderBottom: '1px solid var(--line)',
+        position: 'sticky',
+        top: 0,
+        zIndex: 50
+      }}>
+        <div className="container" style={{ 
+          display: 'flex', 
+          justifyContent: 'space-between', 
+          alignItems: 'center',
+          height: '64px'
+        }}>
+          <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <img 
+              className="mark mark-light" 
+              src="/assets/favicon_1024_light.png" 
+              alt="" 
+              style={{ height: '32px' }} 
+            />
+            <img 
+              className="mark mark-dark" 
+              src="/assets/favicon_1024_dark.png" 
+              alt="" 
+              style={{ height: '32px' }} 
+            />
+            <span style={{ fontSize: '1.25rem', fontWeight: '600' }}>
+              Purchase History
+            </span>
+          </Link>
+          
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <Link href="/dashboard" className="link">
+              ← Back to Dashboard
+            </Link>
+            <UserButton afterSignOutUrl="/" />
           </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <div className="px-4 py-6 sm:px-0">
+      <main className="container section">
+        
+        {/* Page Header */}
+        <div style={{ marginBottom: '2rem' }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>Purchase History</h1>
+          <p className="muted">
+            View all your ScanSnap subscription purchases and transactions
+          </p>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="card" style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>Quick Actions</h2>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <Link href="/subscription" className="btn primary">
+              Manage Subscription
+            </Link>
+            <a
+              href="https://app.lemonsqueezy.com/my-orders"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn"
+              style={{ background: '#ffd700', color: '#000' }}
+            >
+              Lemon Squeezy Portal
+            </a>
+            <Link href="/#pricing" className="btn">
+              View Plans
+            </Link>
+          </div>
+        </div>
+
+        {/* Purchases Table */}
+        <div className="card">
+          <div style={{ 
+            padding: '1.5rem 1.5rem 1rem 1.5rem',
+            borderBottom: '1px solid var(--line)'
+          }}>
+            <h2 style={{ fontSize: '1.125rem', fontWeight: '600' }}>
+              All Purchases ({purchases.length})
+            </h2>
+          </div>
           
-          {/* Page Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Purchase History</h1>
-            <p className="mt-2 text-gray-600 dark:text-gray-300">
-              View all your ScanSnap subscription purchases and transactions
-            </p>
-          </div>
-
-          {/* Quick Actions */}
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg p-6 mb-8">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Quick Actions</h2>
-            <div className="flex flex-wrap gap-4">
-              <Link
-                href="/subscription"
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-              >
-                Manage Subscription
-              </Link>
-              <a
-                href="https://app.lemonsqueezy.com/my-orders"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-yellow-500 hover:bg-yellow-600 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-              >
-                Lemon Squeezy Portal
-              </a>
-              <Link
-                href="/#pricing"
-                className="border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500 text-gray-700 dark:text-gray-200 font-semibold py-2 px-4 rounded-lg transition-colors"
-              >
-                View Plans
-              </Link>
-            </div>
-          </div>
-
-          {/* Purchases Table */}
-          <div className="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
-            <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                All Purchases ({purchases.length})
-              </h2>
-            </div>
-            
-            {purchases.length === 0 ? (
-              <div className="px-6 py-12 text-center">
-                <svg
-                  className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-600"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1}
-                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                  />
-                </svg>
-                <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-white">No purchases yet</h3>
-                <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-                  When you upgrade your plan, your purchases will appear here.
-                </p>
-                <div className="mt-6">
-                  <Link
-                    href="/subscription"
-                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-                  >
-                    Choose a Plan
-                  </Link>
-                </div>
+          {purchases.length === 0 ? (
+            <div style={{ padding: '3rem 1.5rem', textAlign: 'center' }}>
+              <div style={{ 
+                width: '48px', 
+                height: '48px', 
+                margin: '0 auto 1rem',
+                color: 'var(--muted)',
+                fontSize: '2rem'
+              }}>
+                📄
               </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                  <thead className="bg-gray-50 dark:bg-gray-900">
-                    <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Product
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Order ID
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {purchases.map((purchase) => (
-                      <tr key={purchase.id}>
-                        <td className="px-6 py-4 whitespace-nowrap">
+              <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem' }}>No purchases yet</h3>
+              <p className="muted" style={{ marginBottom: '1.5rem' }}>
+                When you upgrade your plan, your purchases will appear here.
+              </p>
+              <Link href="/subscription" className="btn primary">
+                Choose a Plan
+              </Link>
+            </div>
+          ) : (
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead style={{ background: 'var(--card)', borderBottom: '1px solid var(--line)' }}>
+                  <tr>
+                    <th style={{ 
+                      padding: '0.75rem 1rem', 
+                      textAlign: 'left', 
+                      fontSize: '0.75rem', 
+                      fontWeight: '600',
+                      color: 'var(--muted)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>
+                      Product
+                    </th>
+                    <th style={{ 
+                      padding: '0.75rem 1rem', 
+                      textAlign: 'left', 
+                      fontSize: '0.75rem', 
+                      fontWeight: '600',
+                      color: 'var(--muted)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>
+                      Amount
+                    </th>
+                    <th style={{ 
+                      padding: '0.75rem 1rem', 
+                      textAlign: 'left', 
+                      fontSize: '0.75rem', 
+                      fontWeight: '600',
+                      color: 'var(--muted)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>
+                      Status
+                    </th>
+                    <th style={{ 
+                      padding: '0.75rem 1rem', 
+                      textAlign: 'left', 
+                      fontSize: '0.75rem', 
+                      fontWeight: '600',
+                      color: 'var(--muted)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>
+                      Date
+                    </th>
+                    <th style={{ 
+                      padding: '0.75rem 1rem', 
+                      textAlign: 'left', 
+                      fontSize: '0.75rem', 
+                      fontWeight: '600',
+                      color: 'var(--muted)',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.05em'
+                    }}>
+                      Order ID
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {purchases.map((purchase) => {
+                    const statusStyles = getStatusColor(purchase.status)
+                    return (
+                      <tr key={purchase.id} style={{ borderBottom: '1px solid var(--line)' }}>
+                        <td style={{ padding: '1rem' }}>
                           <div>
-                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            <div style={{ fontSize: '0.875rem', fontWeight: '600', marginBottom: '2px' }}>
                               {purchase.product_name}
                             </div>
                             {purchase.variant_name && (
-                              <div className="text-sm text-gray-500 dark:text-gray-400">
+                              <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
                                 {purchase.variant_name}
                               </div>
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
+                        <td style={{ padding: '1rem', fontSize: '0.875rem', fontWeight: '600' }}>
                           {formatAmount(purchase.amount, purchase.currency)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(purchase.status)}`}
-                          >
+                        <td style={{ padding: '1rem' }}>
+                          <span style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            padding: '4px 8px',
+                            borderRadius: '9999px',
+                            fontSize: '0.75rem',
+                            fontWeight: '600',
+                            backgroundColor: statusStyles.bg,
+                            color: statusStyles.color
+                          }}>
                             {purchase.status.charAt(0).toUpperCase() + purchase.status.slice(1)}
                           </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                        <td style={{ padding: '1rem', fontSize: '0.875rem', color: 'var(--muted)' }}>
                           {formatDate(purchase.purchase_date)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-500 dark:text-gray-400">
+                        <td style={{ padding: '1rem', fontSize: '0.875rem', fontFamily: 'monospace', color: 'var(--muted)' }}>
                           #{purchase.lemon_squeezy_order_id.slice(-8)}
                         </td>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-
-          {/* Help Section */}
-          <div className="mt-8 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-6">
-            <h3 className="text-lg font-semibold text-blue-900 dark:text-blue-200 mb-2">
-              Need Help with a Purchase?
-            </h3>
-            <p className="text-blue-800 dark:text-blue-300 mb-4">
-              If you have questions about a specific purchase or need to request a refund, please contact our support team or access your Lemon Squeezy account directly.
-            </p>
-            <div className="flex flex-wrap gap-4">
-              <a
-                href="mailto:hello@scansnap.io?subject=Purchase Support"
-                className="bg-blue-100 dark:bg-blue-800 text-blue-900 dark:text-blue-200 px-4 py-2 rounded-lg hover:bg-blue-200 dark:hover:bg-blue-700 transition-colors"
-              >
-                Contact Support
-              </a>
-              <a
-                href="https://app.lemonsqueezy.com/my-orders"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Lemon Squeezy Account
-              </a>
+                    )
+                  })}
+                </tbody>
+              </table>
             </div>
+          )}
+        </div>
+
+        {/* Help Section */}
+        <div style={{
+          marginTop: '2rem',
+          background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
+          border: '1px solid var(--brand0)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '1.5rem'
+        }}>
+          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--brand0)' }}>
+            Need Help with a Purchase?
+          </h3>
+          <p className="muted" style={{ marginBottom: '1rem' }}>
+            If you have questions about a specific purchase or need to request a refund, please contact our support team or access your Lemon Squeezy account directly.
+          </p>
+          <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+            <a
+              href="mailto:hello@scansnap.io?subject=Purchase Support"
+              className="btn"
+              style={{ background: 'var(--brand0)', color: '#fff' }}
+            >
+              Contact Support
+            </a>
+            <a
+              href="https://app.lemonsqueezy.com/my-orders"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="btn primary"
+            >
+              Lemon Squeezy Account
+            </a>
           </div>
         </div>
       </main>
+
+      <style jsx>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
     </div>
   )
 }
