@@ -641,3 +641,35 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
     display: inline-flex !important;
   }
 }
+
+/* ===== MINIMAL CLERK MODAL HEADER FIX ===== 
+   Add this to the END of your existing globals.css - don't replace anything */
+
+/* Disable backdrop-filter when Clerk modals are present to prevent header corruption */
+body:has([role="dialog"]) .nav-rail,
+body:has(.cl-modal) .nav-rail,
+body:has(.cl-modalBackdrop) .nav-rail,
+.cl-modal-open .nav-rail {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--card) !important;
+}
+
+/* Ensure Clerk modals have proper z-index */
+.cl-modalBackdrop {
+  z-index: 999 !important;
+}
+
+.cl-modal,
+.cl-signIn,
+.cl-signUp {
+  z-index: 1000 !important;
+}
+
+/* Prevent backdrop-filter inheritance in Clerk elements */
+.cl-modal *,
+.cl-signIn *,
+.cl-signUp * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
