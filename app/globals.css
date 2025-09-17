@@ -566,3 +566,57 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
 .cl-userButton *::after {
   content: none !important;
 }
+/* Fix for Clerk modal interference with header backdrop-filter */
+
+/* Disable backdrop-filter when Clerk modals are active */
+.cl-modal-open .site-header .nav-rail,
+.cl-signIn-start .site-header .nav-rail,
+.cl-signUp-start .site-header .nav-rail {
+  backdrop-filter: none !important;
+  background: var(--card) !important; /* Use solid background instead */
+  border: 1px solid var(--line) !important;
+}
+
+/* Alternative: Add higher z-index and isolation to header */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 100 !important; /* Higher than default */
+  isolation: isolate; /* Create new stacking context */
+}
+
+.nav-rail {
+  position: relative;
+  z-index: 101;
+}
+
+/* Ensure Clerk components don't interfere with header */
+.cl-modalBackdrop {
+  z-index: 999 !important;
+}
+
+.cl-modal,
+.cl-signIn-start,
+.cl-signUp-start {
+  z-index: 1000 !important;
+}
+
+/* Fix for any Clerk overlay elements */
+[data-clerk-modal] {
+  z-index: 1000 !important;
+}
+
+/* Prevent backdrop-filter inheritance issues */
+.cl-modal *,
+.cl-signIn-start *,
+.cl-signUp-start * {
+  backdrop-filter: none !important;
+}
+
+/* Additional safety: Hide any pseudo-elements that might cause issues */
+.cl-modal::before,
+.cl-modal::after,
+.cl-signIn-start::before,
+.cl-signIn-start::after {
+  display: none !important;
+}
