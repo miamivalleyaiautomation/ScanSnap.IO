@@ -81,9 +81,9 @@ export default function LoginButton({ className = "", isMobile = false }: { clas
             ref={modalRef}
             style={{
               position: 'fixed',
-              top: '50%',
+              top: '120px',  // Fixed distance from top instead of centering
               left: '50%',
-              transform: 'translate(-50%, -50%)',
+              transform: 'translateX(-50%)',
               backgroundColor: 'var(--card)',
               border: '1px solid var(--line)',
               borderRadius: 'var(--radius-lg)',
@@ -93,7 +93,9 @@ export default function LoginButton({ className = "", isMobile = false }: { clas
               maxWidth: '400px',
               width: '90vw',
               zIndex: 9999,
-              animation: 'slideIn 0.3s ease'
+              animation: 'slideIn 0.3s ease',
+              maxHeight: 'calc(100vh - 140px)',  // Ensure it doesn't go off screen
+              overflowY: 'auto'  // Add scroll if needed on small screens
             }}
           >
             {/* Close button */}
@@ -253,11 +255,11 @@ export default function LoginButton({ className = "", isMobile = false }: { clas
         @keyframes slideIn {
           from {
             opacity: 0;
-            transform: translate(-50%, -48%);
+            transform: translateX(-50%) translateY(-20px);
           }
           to {
             opacity: 1;
-            transform: translate(-50%, -50%);
+            transform: translateX(-50%) translateY(0);
           }
         }
       `}</style>
