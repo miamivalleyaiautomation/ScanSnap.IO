@@ -8,7 +8,6 @@ import LoginButton from "@/components/LoginButton";
 
 export default function SiteHeader() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
-  const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL ?? "https://portal.scansnap.io";
 
   return (
     <header className="site-header glass">
@@ -29,19 +28,20 @@ export default function SiteHeader() {
             <Link className="chip" href="#contact">Contact</Link>
             <a className="chip" href={appUrl}>Go to App</a>
             
-            {/* Signed out: show login */}
+            {/* Signed out: show login button */}
             <SignedOut>
               <LoginButton />
             </SignedOut>
             
-            {/* Signed in: show user button */}
+            {/* Signed in: show dashboard link and user button */}
             <SignedIn>
               <Link className="chip" href="/dashboard">Dashboard</Link>
               <UserButton 
                 afterSignOutUrl="/"
                 appearance={{
                   elements: {
-                    avatarBox: "w-8 h-8"
+                    avatarBox: "w-8 h-8",
+                    userButtonPopoverCard: "z-50", // Ensure user menu appears above other elements
                   }
                 }}
               />
@@ -60,7 +60,8 @@ export default function SiteHeader() {
                 afterSignOutUrl="/"
                 appearance={{
                   elements: {
-                    avatarBox: "w-8 h-8"
+                    avatarBox: "w-8 h-8",
+                    userButtonPopoverCard: "z-50",
                   }
                 }}
               />
