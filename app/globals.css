@@ -1,6 +1,6 @@
 /* ==========================================================================
    ScanSnap — globals.css
-   Modern glass UI + responsive sections
+   Modern glass UI + responsive sections + Clerk modal fixes
    ========================================================================== */
 
 /* ===== THEME TOKENS ===== */
@@ -98,6 +98,7 @@ h4{ font-size:1rem; margin:.4rem 0 .3rem; font-weight:600; }
   white-space:nowrap; 
   border:0; 
 }
+
 /* Section headings - proper spacing for smooth scroll */
 .section-heading {
   margin: 0 0 1.5rem 0;         /* reduced from 2rem */
@@ -130,11 +131,38 @@ h4{ font-size:1rem; margin:.4rem 0 .3rem; font-weight:600; }
 .btn.block{ width:100%; justify-content:center }
 
 /* ===== SUPERU-STYLE GLASS HEADER ===== */
-.site-header{ position:sticky; top:0; z-index:50; padding:12px 0; background:transparent; }
+.site-header{ 
+  position:sticky; 
+  top:0; 
+  z-index:100; 
+  padding:12px 0; 
+  background:transparent;
+  /* Create new stacking context for better isolation */
+  isolation: isolate;
+  /* Force hardware acceleration */
+  transform: translateZ(0);
+  will-change: transform;
+}
+
 .nav-rail{
-  display:flex; align-items:center; justify-content:space-between; gap:12px;
-  background:var(--overlay); backdrop-filter:saturate(180%) blur(14px);
-  border:1px solid var(--line); border-radius:var(--radius-pill); padding:8px;
+  display:flex; 
+  align-items:center; 
+  justify-content:space-between; 
+  gap:12px;
+  border:1px solid var(--line); 
+  border-radius:var(--radius-pill); 
+  padding:8px;
+  position: relative;
+  z-index: 101;
+  
+  /* Glass effect with improved performance */
+  background:var(--overlay); 
+  backdrop-filter:saturate(180%) blur(14px);
+  -webkit-backdrop-filter:saturate(180%) blur(14px);
+  
+  /* Force hardware acceleration for smooth rendering */
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 /* --- Brand: icon + text centered vertically, NO inner pill ---------------- */
@@ -240,6 +268,85 @@ button.btn.theme-toggle {
   min-width: 40px !important;
   border-radius: 10px !important;
   display: inline-flex !important;
+}
+
+/* ===== CLERK MODAL HEADER INTERFERENCE FIX ===== */
+
+/* Disable backdrop-filter when Clerk modals are present to prevent visual corruption */
+body:has([role="dialog"]) .nav-rail,
+body:has(.cl-modal) .nav-rail,
+body:has(.cl-modalBackdrop) .nav-rail,
+body:has(.cl-signIn) .nav-rail,
+body:has(.cl-signUp) .nav-rail,
+.cl-modal-open .nav-rail,
+.site-header.glass-disable .nav-rail,
+body.modal-open .nav-rail {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  background: var(--card) !important;
+  box-shadow: var(--shadow) !important;
+}
+
+/* Fallback for browsers that don't support :has() selector */
+@supports not selector(:has(*)) {
+  .nav-rail {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--card);
+    box-shadow: var(--shadow);
+  }
+}
+
+/* Fix Clerk modal z-index hierarchy */
+.cl-modalBackdrop {
+  z-index: 999 !important;
+}
+
+.cl-modal,
+.cl-signIn,
+.cl-signUp,
+[role="dialog"][data-clerk-modal] {
+  z-index: 1000 !important;
+}
+
+/* Prevent Clerk from creating overlapping fixed elements */
+.cl-modal .right-controls,
+.cl-signIn .right-controls,
+.cl-signUp .right-controls {
+  display: none !important;
+}
+
+/* Ensure Clerk modals are properly positioned */
+.cl-modal {
+  position: fixed !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  z-index: 1000 !important;
+}
+
+/* Prevent any Clerk elements from inheriting backdrop-filter */
+.cl-modal *,
+.cl-signIn *,
+.cl-signUp *,
+[data-clerk-modal] * {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Remove any pseudo-elements that might cause visual issues */
+.cl-modal::before,
+.cl-modal::after,
+.cl-signIn::before,
+.cl-signIn::after,
+.cl-signUp::before,
+.cl-signUp::after {
+  display: none !important;
+}
+
+/* Fix any fixed positioning conflicts with header */
+div[style*="position: fixed"][style*="inset: 0px"] {
+  z-index: 999 !important;
 }
 
 /* ===== MOBILE DRAWER ===== */
@@ -380,15 +487,76 @@ footer.site{ border-top:1px solid var(--line); background:transparent; padding:1
 footer.site .footer-brand .mark{ height:var(--brand-mark-h-footer); width:auto }
 footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
 
+/* ===== CLERK USERBUTTON FIXES ===== */
+
+/* Fix Clerk UserButton popover issues */
+.cl-userButtonPopoverCard {
+  z-index: 9999 !important;
+  pointer-events: auto !important;
+}
+
+.cl-userButtonPopoverActionButton:hover {
+  background-color: rgba(156, 163, 175, 0.1) !important;
+}
+
+/* Fix Clerk UserButton on mobile devices */
+@media (max-width: 1023px) {
+  .cl-userButtonPopoverCard {
+    position: fixed !important;
+    z-index: 9999 !important;
+    max-width: 90vw !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    top: auto !important;
+    bottom: 10px !important;
+  }
+  
+  .cl-userButtonPopoverRootBox {
+    position: relative !important;
+    z-index: 9999 !important;
+  }
+}
+
+/* Ensure no checkbox-like appearance */
+.cl-avatarBox {
+  border-radius: 50% !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.cl-avatarBox::before,
+.cl-avatarBox::after {
+  display: none !important;
+}
+
+/* Remove any unwanted pseudo-elements that might cause checkbox appearance */
+.cl-userButton *::before,
+.cl-userButton *::after {
+  content: none !important;
+}
+
 /* ===== RESPONSIVE ===== */
 @media (min-width:1024px){
   .chip-nav{ display:flex }      /* show desktop nav chips */
-  .right-controls{ display:none }/* hide right controls on desktop */
+  .right-controls{ display:none !important }/* hide right controls on desktop */
 }
 
 @media (max-width:1023px){
   .chip-nav{ display:none }      /* hide desktop nav on mobile */
   .right-controls{ display:flex }/* show only hamburger + theme toggle on mobile */
+  
+  /* Hide theme toggle in right controls on mobile */
+  .right-controls .theme-toggle {
+    display: none !important;
+  }
+  
+  /* Ensure mobile menu theme toggle is centered and properly styled */
+  .menu-body .theme-toggle {
+    margin: 1rem auto 0 auto;
+    display: inline-flex !important;
+  }
   
   .hero-grid{ grid-template-columns:1fr }
   .grid.cols-2{ grid-template-columns:1fr }
@@ -466,214 +634,10 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
     gap: 6px; 
   }
 }
-/* Add this to your globals.css file */
-
-/* Hide theme toggle in right controls on mobile */
-@media (max-width:1023px){
-  .right-controls .theme-toggle {
-    display: none !important;
-  }
-  
-  /* Ensure mobile menu theme toggle is centered and properly styled */
-  .menu-body .theme-toggle {
-    margin: 1rem auto 0 auto;
-    display: inline-flex !important;
-  }
-}
 
 /* Ensure desktop shows theme toggle in nav */
 @media (min-width:1024px){
   .chip-nav .theme-toggle {
     display: inline-flex !important;
   }
-  
-  /* Hide right controls completely on desktop */
-  .right-controls {
-    display: none !important;
-  }
-}
-/* Add this to your globals.css file to fix Clerk UserButton issues */
-
-/* Hide theme toggle in right controls on mobile */
-@media (max-width:1023px){
-  .right-controls .theme-toggle {
-    display: none !important;
-  }
-  
-  /* Ensure mobile menu theme toggle is centered and properly styled */
-  .menu-body .theme-toggle {
-    margin: 1rem auto 0 auto;
-    display: inline-flex !important;
-  }
-}
-
-/* Ensure desktop shows theme toggle in nav */
-@media (min-width:1024px){
-  .chip-nav .theme-toggle {
-    display: inline-flex !important;
-  }
-  
-  /* Hide right controls completely on desktop */
-  .right-controls {
-    display: none !important;
-  }
-}
-
-/* Fix Clerk UserButton popover issues */
-.cl-userButtonPopoverCard {
-  z-index: 9999 !important;
-  pointer-events: auto !important;
-}
-
-.cl-userButtonPopoverActionButton:hover {
-  background-color: rgba(156, 163, 175, 0.1) !important;
-}
-
-/* Fix Clerk UserButton on mobile devices */
-@media (max-width: 1023px) {
-  .cl-userButtonPopoverCard {
-    position: fixed !important;
-    z-index: 9999 !important;
-    max-width: 90vw !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-    top: auto !important;
-    bottom: 10px !important;
-  }
-  
-  .cl-userButtonPopoverRootBox {
-    position: relative !important;
-    z-index: 9999 !important;
-  }
-}
-
-/* Ensure no checkbox-like appearance */
-.cl-avatarBox {
-  border-radius: 50% !important;
-  overflow: hidden !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.cl-avatarBox::before,
-.cl-avatarBox::after {
-  display: none !important;
-}
-
-/* Remove any unwanted pseudo-elements that might cause checkbox appearance */
-.cl-userButton *::before,
-.cl-userButton *::after {
-  content: none !important;
-}
-/* Fix for Clerk modal interference with header backdrop-filter */
-
-/* Disable backdrop-filter when Clerk modals are active */
-.cl-modal-open .site-header .nav-rail,
-.cl-signIn-start .site-header .nav-rail,
-.cl-signUp-start .site-header .nav-rail {
-  backdrop-filter: none !important;
-  background: var(--card) !important; /* Use solid background instead */
-  border: 1px solid var(--line) !important;
-}
-
-/* Alternative: Add higher z-index and isolation to header */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 100 !important; /* Higher than default */
-  isolation: isolate; /* Create new stacking context */
-}
-
-.nav-rail {
-  position: relative;
-  z-index: 101;
-}
-
-/* Ensure Clerk components don't interfere with header */
-.cl-modalBackdrop {
-  z-index: 999 !important;
-}
-
-.cl-modal,
-.cl-signIn-start,
-.cl-signUp-start {
-  z-index: 1000 !important;
-}
-
-/* Fix for any Clerk overlay elements */
-[data-clerk-modal] {
-  z-index: 1000 !important;
-}
-
-/* Prevent backdrop-filter inheritance issues */
-.cl-modal *,
-.cl-signIn-start *,
-.cl-signUp-start * {
-  backdrop-filter: none !important;
-}
-
-/* Additional safety: Hide any pseudo-elements that might cause issues */
-.cl-modal::before,
-.cl-modal::after,
-.cl-signIn-start::before,
-.cl-signIn-start::after {
-  display: none !important;
-}
-/* Replace your existing .site-header and .nav-rail styles with these improved versions */
-
-.site-header { 
-  position: sticky; 
-  top: 0; 
-  z-index: 100; 
-  padding: 12px 0; 
-  background: transparent;
-  /* Add isolation to prevent filter inheritance issues */
-  isolation: isolate;
-  /* Add will-change for better performance */
-  will-change: transform;
-}
-
-.nav-rail {
-  display: flex; 
-  align-items: center; 
-  justify-content: space-between; 
-  gap: 12px;
-  border: 1px solid var(--line); 
-  border-radius: var(--radius-pill); 
-  padding: 8px;
-  position: relative;
-  z-index: 101;
-  
-  /* Improved glass effect */
-  background: var(--overlay);
-  
-  /* Use supports query for backdrop-filter to provide fallback */
-  backdrop-filter: saturate(180%) blur(14px);
-  -webkit-backdrop-filter: saturate(180%) blur(14px);
-}
-
-/* Fallback for browsers that don't support backdrop-filter */
-@supports not (backdrop-filter: blur(14px)) {
-  .nav-rail {
-    background: var(--card);
-    box-shadow: var(--shadow);
-  }
-}
-
-/* Disable backdrop-filter when modals are present */
-@supports (backdrop-filter: blur(14px)) {
-  .cl-modal-open .nav-rail,
-  body:has(.cl-modal) .nav-rail,
-  body:has([data-clerk-modal]) .nav-rail {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-    background: var(--card);
-  }
-}
-
-/* Force hardware acceleration for smooth rendering */
-.nav-rail {
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
 }
