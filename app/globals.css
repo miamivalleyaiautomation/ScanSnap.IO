@@ -620,3 +620,60 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
 .cl-signIn-start::after {
   display: none !important;
 }
+/* Replace your existing .site-header and .nav-rail styles with these improved versions */
+
+.site-header { 
+  position: sticky; 
+  top: 0; 
+  z-index: 100; 
+  padding: 12px 0; 
+  background: transparent;
+  /* Add isolation to prevent filter inheritance issues */
+  isolation: isolate;
+  /* Add will-change for better performance */
+  will-change: transform;
+}
+
+.nav-rail {
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  gap: 12px;
+  border: 1px solid var(--line); 
+  border-radius: var(--radius-pill); 
+  padding: 8px;
+  position: relative;
+  z-index: 101;
+  
+  /* Improved glass effect */
+  background: var(--overlay);
+  
+  /* Use supports query for backdrop-filter to provide fallback */
+  backdrop-filter: saturate(180%) blur(14px);
+  -webkit-backdrop-filter: saturate(180%) blur(14px);
+}
+
+/* Fallback for browsers that don't support backdrop-filter */
+@supports not (backdrop-filter: blur(14px)) {
+  .nav-rail {
+    background: var(--card);
+    box-shadow: var(--shadow);
+  }
+}
+
+/* Disable backdrop-filter when modals are present */
+@supports (backdrop-filter: blur(14px)) {
+  .cl-modal-open .nav-rail,
+  body:has(.cl-modal) .nav-rail,
+  body:has([data-clerk-modal]) .nav-rail {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--card);
+  }
+}
+
+/* Force hardware acceleration for smooth rendering */
+.nav-rail {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+}
