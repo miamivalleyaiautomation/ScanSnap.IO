@@ -8,7 +8,6 @@ import LoginButton from "@/components/LoginButton";
 
 export default function SiteHeader() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
-  const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL ?? "https://portal.scansnap.io";
 
   return (
     <header className="site-header glass">
@@ -50,7 +49,7 @@ export default function SiteHeader() {
             <ThemeToggle />
           </nav>
 
-          {/* Right controls / mobile - only hamburger */}
+          {/* Right controls / mobile - NO theme toggle here */}
           <div className="right-controls">
             <SignedOut>
               <LoginButton />
@@ -65,7 +64,7 @@ export default function SiteHeader() {
                 }}
               />
             </SignedIn>
-            <ThemeToggle />
+            
             <button className="hamburger" aria-label="Open menu" data-open-menu>
               <svg width="20" height="20" viewBox="0 0 24 24" role="img" aria-hidden="true">
                 <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
@@ -105,7 +104,10 @@ export default function SiteHeader() {
             <Link className="menu-link" href="/dashboard">Dashboard</Link>
           </SignedIn>
           
-          <ThemeToggle />
+          {/* Theme toggle ONLY in mobile menu */}
+          <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+            <ThemeToggle />
+          </div>
         </div>
       </aside>
 
