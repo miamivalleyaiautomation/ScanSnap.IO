@@ -62,51 +62,50 @@ const PLANS: Plan[] = [
   },
 ];
 
-function getBuyHref(plan: Plan, user: any) {
-  const variantId = process.env[plan.variantEnv as keyof typeof process.env] as string | undefined;
-  if (!variantId) return "#";
-  
-  const baseUrl = `https://app.lemonsqueezy.com/checkout/buy/${variantId}`;
-  
-  if (user) {
-    // Add user data to checkout URL
-    const params = new URLSearchParams({
-      'checkout[email]': user.emailAddresses[0].emailAddress,
-      'checkout[custom][clerk_user_id]': user.id,
-      'checkout[custom][user_name]': `${user.firstName || ''} ${user.lastName || ''}`.trim()
-    });
-    return `${baseUrl}?${params.toString()}`;
-  }
-  
-  return baseUrl;
-}
-
 export default function Pricing() {
   const { user, isSignedIn } = useUser();
 
-  // Ensure overlay attaches to links with class="lemonsqueezy-button"
-  useEffect(() => {
-    // @ts-ignore
-    if (typeof window !== "undefined" && window.createLemonSqueezy) {
-      // @ts-ignore
-      window.createLemonSqueezy();
-    }
-  }, []);
-
   const handlePlanSelect = (plan: Plan) => {
+    console.log("Plan selected:", plan.name);
+    console.log("User signed in:", isSignedIn);
+    console.log("User:", user);
+
     if (!isSignedIn) {
       alert('Please sign in first to purchase a subscription');
       return;
     }
     
     if (plan.sku === 'BASIC') {
-      // Basic is free - redirect to app
+      // Basic is free - redirect to dashboard
       window.location.href = '/dashboard';
       return;
     }
     
+    // Get the variant ID from environment variables
+    const variantId = process.env[plan.variantEnv as keyof typeof process.env] as string | undefined;
+    
+    console.log("Variant ID for", plan.name, ":", variantId);
+    
+    if (!variantId) {
+      alert(`Checkout not configured for ${plan.name} plan. Please set ${plan.variantEnv} environment variable.`);
+      return;
+    }
+
+    // Construct the checkout URL with your custom domain
+    const baseUrl = `https://pay.scansnap.io/checkout/buy/${variantId}`;
+    
+    // Add user data as URL parameters
+    const params = new URLSearchParams({
+      'checkout[email]': user.emailAddresses[0].emailAddress,
+      'checkout[custom][clerk_user_id]': user.id,
+      'checkout[custom][user_name]': `${user.firstName || ''} ${user.lastName || ''}`.trim()
+    });
+    
+    const checkoutUrl = `${baseUrl}?${params.toString()}`;
+    
+    console.log("Opening checkout URL:", checkoutUrl);
+    
     // Open Lemon Squeezy checkout
-    const checkoutUrl = getBuyHref(plan, user);
     window.open(checkoutUrl, '_blank');
   };
 
@@ -116,9 +115,6 @@ export default function Pricing() {
       <p className="muted" style={{ marginBottom: 18 }}>
         Start on Basic, upgrade anytime. {!isSignedIn && 'Sign in to purchase subscriptions.'}
       </p>
-
-      {/* Overlay script once on the page */}
-      <script src="https://app.lemonsqueezy.com/js/lemon.js" defer />
 
       <div className="grid cols-4" style={{ display: "grid", gap: 16, gridTemplateColumns: "repeat(4, minmax(0,1fr))" }}>
         {PLANS.map((p) => {
@@ -155,7 +151,10 @@ export default function Pricing() {
                     <button
                       className="btn primary"
                       onClick={() => handlePlanSelect(p)}
-                      {...(!variantId ? { "aria-disabled": true } : {})}
+                      style={{ 
+                        opacity: variantId ? 1 : 0.5,
+                        cursor: variantId ? 'pointer' : 'not-allowed'
+                      }}
                     >
                       {variantId ? 'Start subscription' : 'Coming soon'}
                     </button>
@@ -169,7 +168,7 @@ export default function Pricing() {
                   )}
                   {!variantId && (
                     <div className="note">
-                      <em>Set {p.variantEnv} in env to enable checkout.</em>
+                      <em>Variant ID not set</em>
                     </div>
                   )}
                 </div>
@@ -182,6 +181,18 @@ export default function Pricing() {
       <div className="note" style={{ marginTop: 14 }}>
         Need a quote, PO, or have volume requirements? <a href="#contact" className="link">Contact us</a>.
       </div>
+      
+      {/* Debug info - remove in production */}
+      {isSignedIn && (
+        <div style={{ marginTop: 20, padding: 10, backgroundColor: '#f5f5f5', fontSize: '12px' }}>
+          <strong>Debug Info:</strong><br/>
+          User ID: {user?.id}<br/>
+          Email: {user?.emailAddresses[0]?.emailAddress}<br/>
+          Plus Variant: {process.env.NEXT_PUBLIC_LS_VARIANT_PLUS || 'Not set'}<br/>
+          Pro Variant: {process.env.NEXT_PUBLIC_LS_VARIANT_PRO || 'Not set'}<br/>
+          Pro DPMS Variant: {process.env.NEXT_PUBLIC_LS_VARIANT_PRO_DPMS || 'Not set'}
+        </div>
+      )}
     </div>
   );
 }

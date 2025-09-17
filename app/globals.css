@@ -466,3 +466,29 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
     gap: 6px; 
   }
 }
+/* Add this to your globals.css file */
+
+/* Hide theme toggle in right controls on mobile */
+@media (max-width:1023px){
+  .right-controls .theme-toggle {
+    display: none !important;
+  }
+  
+  /* Ensure mobile menu theme toggle is centered and properly styled */
+  .menu-body .theme-toggle {
+    margin: 1rem auto 0 auto;
+    display: inline-flex !important;
+  }
+}
+
+/* Ensure desktop shows theme toggle in nav */
+@media (min-width:1024px){
+  .chip-nav .theme-toggle {
+    display: inline-flex !important;
+  }
+  
+  /* Hide right controls completely on desktop */
+  .right-controls {
+    display: none !important;
+  }
+}
