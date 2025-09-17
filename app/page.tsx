@@ -1,6 +1,7 @@
 // app/page.tsx
 import SiteHeader from "@/components/SiteHeader";
 import HeroPreview from "@/components/HeroPreview";
+import PricingSection from "@/components/PricingSection";
 
 export const metadata = {
   title: "ScanSnap — Professional barcode scanning and verification tool",
@@ -11,11 +12,6 @@ export const metadata = {
 export default function Page() {
   const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL ?? "https://portal.scansnap.io";
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
-
-  // Removed LS_BASIC because it wasn't used (helps avoid TS noUnusedLocals error)
-  const LS_PLUS  = process.env.NEXT_PUBLIC_LS_BUY_PLUS  ?? "#pricing";
-  const LS_PRO   = process.env.NEXT_PUBLIC_LS_BUY_PRO   ?? "#pricing";
-  const LS_DPMS  = process.env.NEXT_PUBLIC_LS_BUY_PRO_DPMS ?? "#pricing";
 
   return (
     <>
@@ -104,85 +100,7 @@ export default function Page() {
             <h2>Pricing</h2>
             <p>Choose the plan that fits your scanning needs</p>
           </div>
-          <div className="pricing-grid">
-            {/* BASIC */}
-            <div className="card">
-              <div>
-                <span className="tag">BASIC</span>
-                <h3>Free</h3>
-                <p className="muted">Essential barcode scanning for small-scale operations.</p>
-                <ul className="feature">
-                  <li>Scan standard barcodes</li>
-                  <li>Manual barcode entry</li>
-                  <li>Export to PDF, CSV, Excel</li>
-                  <li>Single user</li>
-                </ul>
-              </div>
-              <div style={{ height: 8 }} />
-              <a className="btn block" href={`${portalUrl}/login`}>Start free</a>
-            </div>
-
-            {/* PLUS */}
-            <div className="card">
-              <div>
-                <span className="tag">PLUS</span>
-                <h3>$9.99 <span className="muted">/ user / mo</span></h3>
-                <p className="muted">
-                  Verification and order building for professional workflows.
-                </p>
-                <ul className="feature">
-                  <li>Everything in Basic</li>
-                  <li><strong>Verify Mode</strong>: Import and verify against delivery lists</li>
-                  <li><strong>Order Builder</strong>: Upload catalogs, build orders by scanning</li>
-                  <li>Track quantities and catch discrepancies</li>
-                </ul>
-              </div>
-              <div style={{ height: 8 }} />
-              <a className="btn primary block" href={LS_PLUS}>Choose Plus</a>
-            </div>
-
-            {/* PRO */}
-            <div className="card">
-              <div>
-                <span className="tag">PRO</span>
-                <h3>$14.99 <span className="muted">/ user / mo</span></h3>
-                <p className="muted">Advanced code support for complex operations.</p>
-                <ul className="feature">
-                  <li>Everything in Plus</li>
-                  <li>QR code scanning</li>
-                  <li>DataMatrix code scanning</li>
-                  <li>Ideal for modern packaging and parts</li>
-                </ul>
-              </div>
-              <div style={{ height: 8 }} />
-              <a className="btn primary block" href={LS_PRO}>Choose Pro</a>
-            </div>
-
-            {/* PRO + DPMS */}
-            <div className="card">
-              <div>
-                <span className="tag">PRO + DPMS</span>
-                <h3>$49.99 <span className="muted">/ user / mo</span></h3>
-                <p className="muted">
-                  Specialized algorithms for hard-to-read industrial codes.
-                </p>
-                <ul className="feature">
-                  <li>Everything in Pro</li>
-                  <li>Dot-peen marked codes</li>
-                  <li>Laser-etched difficult marks</li>
-                  <li>Custom scanning algorithms</li>
-                </ul>
-              </div>
-              <div style={{ height: 8 }} />
-              <a className="btn primary block" href={LS_DPMS}>Coming Soon</a>
-            </div>
-          </div>
-
-          <div style={{ height: 12 }} />
-          <p className="fine">
-            Prices in USD. Per-seat licensing for teams. Add or remove users anytime from your portal.
-            All data processing happens locally—nothing is uploaded to our servers.
-          </p>
+          <PricingSection />
         </div>
       </section>
 
