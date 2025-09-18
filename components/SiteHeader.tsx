@@ -311,53 +311,6 @@ export default function SiteHeader() {
           </div>
         </div>
       </aside>
-
-      <style jsx>{`
-        /* DESKTOP: Hide mobile controls completely */
-        @media (min-width: 1024px) {
-          .right-controls,
-          .mobile-only {
-            display: none !important;
-          }
-          
-          .chip-nav {
-            display: flex !important;
-          }
-          
-          .desktop-user-menu {
-            display: flex !important;
-            align-items: center;
-            position: relative;
-          }
-          
-          .user-name-trigger:hover {
-            background: rgba(148,163,184,.15) !important;
-          }
-          
-          .mobile-page-title {
-            display: none !important;
-          }
-        }
-        
-        /* MOBILE: Show mobile controls, hide desktop nav */
-        @media (max-width: 1023px) {
-          .chip-nav {
-            display: none !important;
-          }
-          
-          .right-controls {
-            display: flex !important;
-          }
-          
-          .mobile-page-title {
-            display: block !important;
-          }
-          
-          .desktop-user-menu {
-            display: none !important;
-          }
-        }
-      `}</style>
     </header>
   );
 }
