@@ -1,20 +1,60 @@
-// components/SiteHeader.tsx
+// components/SiteHeader.tsx - Updated with mobile menu fixes
 "use client";
 
 import Link from "next/link";
 import { SignedIn, SignedOut, UserButton, useUser, useClerk } from "@clerk/nextjs";
 import ThemeToggle from "@/components/ThemeToggle";
 import LoginButton from "@/components/LoginButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 export default function SiteHeader() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [desktopUserMenuOpen, setDesktopUserMenuOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const { user } = useUser();
   const { signOut } = useClerk();
   const pathname = usePathname();
+
+  // Check if we're on mobile and handle window resize
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 1024;
+      setIsMobile(mobile);
+      
+      // Force close mobile menu if we switch to desktop
+      if (!mobile && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, [mobileMenuOpen]);
+
+  // Handle escape key to close mobile menu
+  useEffect(() => {
+    const handleEscape = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && mobileMenuOpen) {
+        setMobileMenuOpen(false);
+      }
+    };
+
+    if (mobileMenuOpen) {
+      document.addEventListener('keydown', handleEscape);
+      // Prevent body scroll when menu is open
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
   // Get page title based on current route
   const getPageTitle = () => {
@@ -26,6 +66,10 @@ export default function SiteHeader() {
   };
 
   const pageTitle = getPageTitle();
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
 
   return (
     <header className="site-header glass">
@@ -40,9 +84,9 @@ export default function SiteHeader() {
           </Link>
 
           {/* Mobile page title in center */}
-          {pageTitle && (
+          {pageTitle && isMobile && (
             <div className="mobile-page-title" style={{
-              display: 'none',
+              display: 'block',
               position: 'absolute',
               left: '50%',
               transform: 'translateX(-50%)',
@@ -54,7 +98,7 @@ export default function SiteHeader() {
             </div>
           )}
 
-          {/* Desktop inline nav chips */}
+          {/* Desktop inline nav chips - Only show on desktop */}
           <nav className="chip-nav" aria-label="Primary">
             {pathname === '/' ? (
               <>
@@ -211,106 +255,123 @@ export default function SiteHeader() {
             <ThemeToggle />
           </nav>
 
-          {/* Right controls / mobile ONLY */}
-          <div className="right-controls mobile-only">
-            {/* Mobile: Show UserButton icon only when signed in */}
-            <SignedIn>
-              <UserButton 
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: {
-                    avatarBox: "h-8 w-8 flex items-center justify-center",
-                    userButtonPopoverCard: {
-                      position: 'fixed',
-                      top: '70px',
-                      right: '20px',
-                      left: 'auto',
-                      transform: 'none',
-                      zIndex: '9999',
-                      maxWidth: '90vw'
+          {/* Right controls / mobile ONLY - Only render on mobile */}
+          {isMobile && (
+            <div className="right-controls mobile-only">
+              {/* Mobile: Show UserButton icon only when signed in */}
+              <SignedIn>
+                <UserButton 
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      avatarBox: "h-8 w-8 flex items-center justify-center",
+                      userButtonPopoverCard: {
+                        position: 'fixed',
+                        top: '70px',
+                        right: '20px',
+                        left: 'auto',
+                        transform: 'none',
+                        zIndex: '9999',
+                        maxWidth: '90vw'
+                      }
                     }
-                  }
+                  }}
+                />
+              </SignedIn>
+              <button 
+                className="hamburger" 
+                aria-label="Open menu" 
+                onClick={() => setMobileMenuOpen(true)}
+                style={{
+                  display: isMobile ? 'inline-flex' : 'none'
                 }}
-              />
-            </SignedIn>
-            <button 
-              className="hamburger" 
-              aria-label="Open menu" 
-              onClick={() => setMobileMenuOpen(true)}
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" role="img" aria-hidden="true">
-                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-              </svg>
-            </button>
-          </div>
+              >
+                <svg width="20" height="20" viewBox="0 0 24 24" role="img" aria-hidden="true">
+                  <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Mobile drawer */}
-      <div 
-        className={`menu-backdrop ${mobileMenuOpen ? 'show' : ''}`} 
-        onClick={() => setMobileMenuOpen(false)}
-      />
-      <aside className={`menu-sheet ${mobileMenuOpen ? 'open' : ''}`}>
-        <div className="menu-head">
-          <Link href="/" className="brand-inline mini" aria-label="ScanSnap Home">
-            <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
-            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
-          </Link>
-          <button 
-            className="hamburger" 
-            aria-label="Close menu" 
-            onClick={() => setMobileMenuOpen(false)}
+      {/* Mobile drawer - Only render and show on mobile */}
+      {isMobile && (
+        <>
+          <div 
+            className={`menu-backdrop ${mobileMenuOpen ? 'show' : ''}`} 
+            onClick={closeMobileMenu}
+            style={{
+              display: mobileMenuOpen ? 'block' : 'none'
+            }}
+          />
+          <aside 
+            className={`menu-sheet ${mobileMenuOpen ? 'open' : ''}`}
+            style={{
+              display: isMobile ? 'flex' : 'none'
+            }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" role="img" aria-hidden="true">
-              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </button>
-        </div>
-        <div className="menu-body">
-          {pathname === '/' ? (
-            <>
-              <Link className="menu-link" href="#features" onClick={() => setMobileMenuOpen(false)}>
-                Features
+            <div className="menu-head">
+              <Link href="/" className="brand-inline mini" aria-label="ScanSnap Home">
+                <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
+                <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
               </Link>
-              <Link className="menu-link" href="#pricing" onClick={() => setMobileMenuOpen(false)}>
-                Pricing
-              </Link>
-              <Link className="menu-link" href="#contact" onClick={() => setMobileMenuOpen(false)}>
-                Contact
-              </Link>
-            </>
-          ) : (
-            <Link className="menu-link" href="/" onClick={() => setMobileMenuOpen(false)}>
-              ← Back Home
-            </Link>
-          )}
-          
-          <a className="menu-link" href={appUrl} onClick={() => setMobileMenuOpen(false)}>
-            Go to App
-          </a>
-          
-          <SignedIn>
-            <Link className="menu-link" href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-              Dashboard
-            </Link>
-            <Link className="menu-link" href="/subscription" onClick={() => setMobileMenuOpen(false)}>
-              Manage Subscription
-            </Link>
-            <Link className="menu-link" href="/purchases" onClick={() => setMobileMenuOpen(false)}>
-              Purchase History
-            </Link>
-          </SignedIn>
-          
-          <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
-            <SignedOut>
-              <LoginButton isMobile={true} />
-            </SignedOut>
-            
-            <ThemeToggle />
-          </div>
-        </div>
-      </aside>
+              <button 
+                className="hamburger" 
+                aria-label="Close menu" 
+                onClick={closeMobileMenu}
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" role="img" aria-hidden="true">
+                  <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+            <div className="menu-body">
+              {pathname === '/' ? (
+                <>
+                  <Link className="menu-link" href="#features" onClick={closeMobileMenu}>
+                    Features
+                  </Link>
+                  <Link className="menu-link" href="#pricing" onClick={closeMobileMenu}>
+                    Pricing
+                  </Link>
+                  <Link className="menu-link" href="#contact" onClick={closeMobileMenu}>
+                    Contact
+                  </Link>
+                </>
+              ) : (
+                <Link className="menu-link" href="/" onClick={closeMobileMenu}>
+                  ← Back Home
+                </Link>
+              )}
+              
+              <a className="menu-link" href={appUrl} onClick={closeMobileMenu}>
+                Go to App
+              </a>
+              
+              <SignedIn>
+                <Link className="menu-link" href="/dashboard" onClick={closeMobileMenu}>
+                  Dashboard
+                </Link>
+                <Link className="menu-link" href="/subscription" onClick={closeMobileMenu}>
+                  Manage Subscription
+                </Link>
+                <Link className="menu-link" href="/purchases" onClick={closeMobileMenu}>
+                  Purchase History
+                </Link>
+              </SignedIn>
+              
+              <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+                <SignedOut>
+                  <LoginButton isMobile={true} />
+                </SignedOut>
+                
+                <ThemeToggle />
+              </div>
+            </div>
+          </aside>
+        </>
+      )}
     </header>
   );
 }
