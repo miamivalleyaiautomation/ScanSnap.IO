@@ -66,9 +66,11 @@ export default function LoginPage() {
       <main style={{
         flex: 1,
         display: 'flex',
-        alignItems: 'center',
+        alignItems: 'flex-start',
         justifyContent: 'center',
-        padding: '2rem 1rem'
+        padding: '2rem 1rem',
+        paddingTop: '3rem',
+        minHeight: 'calc(100vh - 80px)'
       }}>
         <div style={{
           width: '100%',
