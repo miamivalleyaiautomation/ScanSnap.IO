@@ -76,6 +76,8 @@ export default function LoginPage() {
         }}>
           {mounted ? (
             <SignIn 
+              routing="path"
+              path="/login"
               appearance={{
                 baseTheme: undefined,
                 variables: {
@@ -209,8 +211,6 @@ export default function LoginPage() {
               redirectUrl={redirectUrl}
               signUpUrl="/signup"
               afterSignInUrl={redirectUrl}
-              routing="path"
-              path="/login"
             />
           ) : (
             <div style={{
