@@ -1,34 +1,37 @@
 // components/SiteHeader.tsx
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/nextjs';
-import ThemeToggle from '@/components/ThemeToggle';
-import LoginButton from '@/components/LoginButton';
-import { useState } from 'react';
-import { usePathname } from 'next/navigation';
+import Link from "next/link";
+import { SignedIn, SignedOut, UserButton, useUser, useClerk } from "@clerk/nextjs";
+import ThemeToggle from "@/components/ThemeToggle";
+import LoginButton from "@/components/LoginButton";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
 export default function SiteHeader() {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? 'https://app.scansnap.io';
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopUserMenuOpen, setDesktopUserMenuOpen] = useState(false);
   const { user } = useUser();
+  const { signOut } = useClerk();
   const pathname = usePathname();
 
-  // Don't show header on sign-in/sign-up pages
-  if (pathname === '/sign-in' || pathname === '/sign-up') {
-    return null;
-  }
+  // Handle body scroll lock when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.classList.add('menu-open');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('menu-open');
+      document.body.style.overflow = '';
+    }
 
-  // Get page title based on current route
-  const getPageTitle = () => {
-    if (pathname === '/dashboard') return 'Dashboard';
-    if (pathname === '/subscription') return 'Manage Subscription';
-    if (pathname === '/purchases') return 'Purchase History';
-    if (pathname === '/') return '';
-    return '';
-  };
-
-  const pageTitle = getPageTitle();
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('menu-open');
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
   return (
     <header className="site-header glass">
@@ -37,12 +40,12 @@ export default function SiteHeader() {
           {/* Brand: icon + wordmark */}
           <Link href="/" className="brand-inline" aria-label="ScanSnap Home">
             <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
-            <img className="mark mark-dark" src="/assets/favicon_1024_dark.png" alt="" />
+            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
             <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
-            <img className="word word-dark" src="/assets/text_1024_dark.png" alt="ScanSnap" />
+            <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
           </Link>
 
-          {/* Desktop inline nav chips - This shows on desktop only due to CSS media queries */}
+          {/* Desktop inline nav chips */}
           <nav className="chip-nav" aria-label="Primary">
             {pathname === '/' ? (
               <>
@@ -55,122 +58,269 @@ export default function SiteHeader() {
             )}
             
             <a className="chip" href={appUrl}>Go to App</a>
-            <ThemeToggle />
             
             {/* Signed out: show login button */}
             <SignedOut>
               <LoginButton />
             </SignedOut>
             
-            {/* Signed in: show dashboard link and user button */}
+            {/* Signed in: show dashboard link and clickable user name */}
             <SignedIn>
               <Link className="chip" href="/dashboard">Dashboard</Link>
-              <UserButton afterSignOutUrl="/" />
+              
+              {/* Desktop: Custom dropdown menu */}
+              <div className="desktop-user-menu" style={{ position: 'relative' }}>
+                <button 
+                  className="chip user-name-trigger"
+                  onClick={() => setDesktopUserMenuOpen(!desktopUserMenuOpen)}
+                  style={{
+                    background: desktopUserMenuOpen ? 'rgba(148,163,184,.15)' : 'rgba(148,163,184,.08)',
+                    border: '1px solid var(--line)',
+                  }}
+                >
+                  {user?.firstName || user?.emailAddresses[0]?.emailAddress.split('@')[0] || 'Account'}
+                </button>
+                
+                {/* Custom dropdown menu */}
+                {desktopUserMenuOpen && (
+                  <>
+                    {/* Backdrop to close menu when clicking outside */}
+                    <div 
+                      style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        zIndex: 998
+                      }}
+                      onClick={() => setDesktopUserMenuOpen(false)}
+                    />
+                    
+                    {/* Dropdown menu */}
+                    <div 
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        right: 0,
+                        marginTop: '8px',
+                        background: 'var(--card)',
+                        border: '1px solid var(--line)',
+                        borderRadius: 'var(--radius-lg)',
+                        boxShadow: 'var(--shadow)',
+                        minWidth: '200px',
+                        zIndex: 999,
+                        padding: '8px 0'
+                      }}
+                    >
+                      <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--line)' }}>
+                        <div style={{ fontWeight: '600', fontSize: '0.875rem' }}>
+                          {user?.firstName} {user?.lastName}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                          {user?.emailAddresses[0]?.emailAddress}
+                        </div>
+                      </div>
+                      
+                      <Link 
+                        href="/dashboard" 
+                        style={{ 
+                          display: 'block', 
+                          padding: '8px 16px', 
+                          color: 'var(--fg)', 
+                          textDecoration: 'none',
+                          fontSize: '0.875rem'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(148,163,184,.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        onClick={() => setDesktopUserMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      
+                      <Link 
+                        href="/subscription" 
+                        style={{ 
+                          display: 'block', 
+                          padding: '8px 16px', 
+                          color: 'var(--fg)', 
+                          textDecoration: 'none',
+                          fontSize: '0.875rem'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(148,163,184,.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        onClick={() => setDesktopUserMenuOpen(false)}
+                      >
+                        Manage Subscription
+                      </Link>
+                      
+                      <Link 
+                        href="/purchases" 
+                        style={{ 
+                          display: 'block', 
+                          padding: '8px 16px', 
+                          color: 'var(--fg)', 
+                          textDecoration: 'none',
+                          fontSize: '0.875rem'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(148,163,184,.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        onClick={() => setDesktopUserMenuOpen(false)}
+                      >
+                        Purchase History
+                      </Link>
+                      
+                      <div style={{ height: '1px', background: 'var(--line)', margin: '8px 0' }} />
+                      
+                      <button
+                        onClick={() => {
+                          setDesktopUserMenuOpen(false);
+                          signOut();
+                        }}
+                        style={{
+                          display: 'block',
+                          width: '100%',
+                          padding: '8px 16px',
+                          background: 'transparent',
+                          border: 'none',
+                          color: 'var(--fg)',
+                          textAlign: 'left',
+                          fontSize: '0.875rem',
+                          cursor: 'pointer'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(148,163,184,.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
             </SignedIn>
+            
+            <ThemeToggle />
           </nav>
 
-          {/* Mobile controls - This shows on mobile only due to CSS media queries */}
-          <div className="right-controls">
-            <SignedOut>
-              <Link href="/sign-in" className="btn primary mobile-login">
-                Sign In
-              </Link>
-            </SignedOut>
-            
-            <SignedIn>
-              <UserButton afterSignOutUrl="/" />
-            </SignedIn>
-
-            {/* Hamburger menu button */}
+          {/* Right controls / mobile ONLY */}
+          <div className="right-controls mobile-only">
             <button 
-              className="hamburger"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-expanded={mobileMenuOpen}
-              aria-label="Toggle navigation menu"
+              className="hamburger" 
+              aria-label="Open menu" 
+              onClick={() => setMobileMenuOpen(true)}
             >
-              <span></span>
-              <span></span>
-              <span></span>
+              <svg width="20" height="20" viewBox="0 0 24 24" role="img" aria-hidden="true">
+                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
             </button>
           </div>
-
-          {/* Mobile slide-out menu */}
-          <nav className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`} aria-label="Mobile navigation">
-            <div className="mobile-menu-content">
-              {/* Mobile page title */}
-              {pageTitle && (
-                <div className="mobile-page-title-menu">{pageTitle}</div>
-              )}
-              
-              {/* Mobile nav links */}
-              {pathname === '/' ? (
-                <>
-                  <Link 
-                    className="mobile-menu-item" 
-                    href="#features"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Features
-                  </Link>
-                  <Link 
-                    className="mobile-menu-item" 
-                    href="#pricing"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Pricing
-                  </Link>
-                  <Link 
-                    className="mobile-menu-item" 
-                    href="#contact"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    Contact
-                  </Link>
-                </>
-              ) : (
-                <Link 
-                  className="mobile-menu-item" 
-                  href="/"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  ← Back Home
-                </Link>
-              )}
-              
-              <a 
-                className="mobile-menu-item" 
-                href={appUrl}
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Go to App
-              </a>
-
-              <SignedIn>
-                <Link 
-                  className="mobile-menu-item" 
-                  href="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Dashboard
-                </Link>
-              </SignedIn>
-              
-              {/* Theme toggle in mobile menu */}
-              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
-                <ThemeToggle />
-              </div>
-            </div>
-          </nav>
-
-          {/* Mobile menu overlay */}
-          {mobileMenuOpen && (
-            <div 
-              className="mobile-menu-overlay"
-              onClick={() => setMobileMenuOpen(false)}
-            />
-          )}
         </div>
       </div>
+
+      {/* Mobile drawer */}
+      <div 
+        className={`menu-backdrop ${mobileMenuOpen ? 'show' : ''}`} 
+        onClick={() => setMobileMenuOpen(false)}
+      />
+      <aside className={`menu-sheet ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="menu-head">
+          <Link href="/" className="brand-inline mini" aria-label="ScanSnap Home">
+            <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
+            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
+          </Link>
+          <button 
+            className="hamburger" 
+            aria-label="Close menu" 
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" role="img" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div className="menu-body">
+          {pathname === '/' ? (
+            <>
+              <Link className="menu-link" href="#features" onClick={() => setMobileMenuOpen(false)}>
+                Features
+              </Link>
+              <Link className="menu-link" href="#pricing" onClick={() => setMobileMenuOpen(false)}>
+                Pricing
+              </Link>
+              <Link className="menu-link" href="#contact" onClick={() => setMobileMenuOpen(false)}>
+                Contact
+              </Link>
+            </>
+          ) : (
+            <Link className="menu-link" href="/" onClick={() => setMobileMenuOpen(false)}>
+              ← Back Home
+            </Link>
+          )}
+          
+          <a className="menu-link" href={appUrl} onClick={() => setMobileMenuOpen(false)}>
+            Go to App
+          </a>
+          
+          {/* Account Management Section */}
+          <SignedOut>
+            <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--line)' }}>
+              <LoginButton isMobile={true} />
+            </div>
+          </SignedOut>
+          
+          <SignedIn>
+            <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--line)' }}>
+              {user && (
+                <div style={{ 
+                  padding: '12px', 
+                  background: 'rgba(148,163,184,.08)', 
+                  borderRadius: '10px', 
+                  marginBottom: '12px' 
+                }}>
+                  <div style={{ fontWeight: '600', fontSize: '0.875rem', marginBottom: '4px' }}>
+                    {user.firstName} {user.lastName}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                    {user.emailAddresses[0]?.emailAddress}
+                  </div>
+                </div>
+              )}
+              
+              <Link className="menu-link" href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                Dashboard
+              </Link>
+              <Link className="menu-link" href="/subscription" onClick={() => setMobileMenuOpen(false)}>
+                Manage Subscription
+              </Link>
+              <Link className="menu-link" href="/purchases" onClick={() => setMobileMenuOpen(false)}>
+                Purchase History
+              </Link>
+              
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  signOut();
+                }}
+                className="menu-link"
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: '1px solid var(--line)',
+                  color: 'var(--fg)',
+                  textAlign: 'center',
+                  marginTop: '8px'
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
+          </SignedIn>
+          
+          <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+            <ThemeToggle />
+          </div>
+        </div>
+      </aside>
     </header>
   );
 }
