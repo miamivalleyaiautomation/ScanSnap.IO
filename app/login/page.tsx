@@ -105,6 +105,33 @@ export default function LoginPage() {
                   },
                   headerSubtitle: {
                     color: 'var(--muted)',
+                    marginBottom: '1.5rem',
+                  },
+                  socialButtons: {
+                    marginBottom: '1.5rem',
+                  },
+                  socialButtonsBlockButton: {
+                    background: 'var(--bg)',
+                    border: '2px solid var(--brand0)',
+                    borderRadius: '12px',
+                    color: 'var(--fg)',
+                    fontSize: '1rem',
+                    fontWeight: '600',
+                    padding: '0.875rem',
+                    transition: 'all 0.2s ease',
+                    marginBottom: '1rem',
+                  },
+                  socialButtonsBlockButton__google: {
+                    background: 'linear-gradient(135deg, #00d1ff, #4a90e2)',
+                    border: 'none',
+                    color: '#fff',
+                  },
+                  socialButtonsBlockButtonText__google: {
+                    color: '#fff',
+                  },
+                  dividerRow: {
+                    marginTop: '1.5rem',
+                    marginBottom: '1.5rem',
                   },
                   formButtonPrimary: {
                     background: 'linear-gradient(135deg, #00d1ff, #4a90e2)',
@@ -130,20 +157,6 @@ export default function LoginPage() {
                   formFieldInput__focus: {
                     borderColor: 'var(--brand0)',
                     boxShadow: '0 0 0 3px rgba(0, 209, 255, 0.1)',
-                  },
-                  socialButtonsBlockButton: {
-                    background: 'var(--bg)',
-                    border: '1px solid var(--line)',
-                    borderRadius: '8px',
-                    color: 'var(--fg)',
-                    fontSize: '0.95rem',
-                    fontWeight: '500',
-                    padding: '0.75rem',
-                    transition: 'background 0.2s ease, border-color 0.2s ease',
-                  },
-                  socialButtonsBlockButton__hover: {
-                    background: 'rgba(148,163,184,.08)',
-                    borderColor: 'var(--brand0)',
                   },
                   footerActionLink: {
                     color: 'var(--brand0)',
@@ -196,6 +209,8 @@ export default function LoginPage() {
               redirectUrl={redirectUrl}
               signUpUrl="/signup"
               afterSignInUrl={redirectUrl}
+              routing="path"
+              path="/login"
             />
           ) : (
             <div style={{
