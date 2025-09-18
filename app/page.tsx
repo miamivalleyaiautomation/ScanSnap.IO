@@ -2,6 +2,7 @@
 import SiteHeader from "@/components/SiteHeader";
 import HeroPreview from "@/components/HeroPreview";
 import PricingSection from "@/components/PricingSection";
+import LoginButton from "@/components/LoginButton";
 
 export const metadata = {
   title: "ScanSnap — Professional barcode scanning and verification tool",
@@ -166,7 +167,7 @@ export default function Page() {
               <a className="btn" href="mailto:hello@scansnap.io">hello@scansnap.io</a>
             </div>
 
-           <div className="card">
+            <div className="card">
               <h3>Existing Customer</h3>
               <p className="muted">Manage your account, subscription, and billing settings.</p>
               <div style={{ height: 8 }} />
