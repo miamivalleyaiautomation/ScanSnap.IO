@@ -76,16 +76,20 @@ export default function SiteHeader() {
               <Link className="chip" href="/dashboard">Dashboard</Link>
               
               {/* Desktop: Clickable user name that opens user menu */}
-              <div className="desktop-user-menu">
-                <UserButton 
-                  afterSignOutUrl="/"
-                  appearance={{
-                    elements: {
-                      userButtonTrigger: "hidden", // Hide the default trigger
-                      userButtonPopoverCard: "fixed left-1/2 top-20 transform -translate-x-1/2 z-[9999]",
-                    }
-                  }}
-                />
+              <div className="desktop-user-menu" style={{ position: 'relative' }}>
+                {/* Hidden UserButton for functionality */}
+                <div style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', zIndex: -1 }}>
+                  <UserButton 
+                    afterSignOutUrl="/"
+                    appearance={{
+                      elements: {
+                        userButtonPopoverCard: "fixed left-1/2 top-20 transform -translate-x-1/2 z-[9999]",
+                      }
+                    }}
+                  />
+                </div>
+                
+                {/* Visible clickable name */}
                 <button 
                   className="chip user-name-trigger"
                   onClick={() => {
@@ -202,16 +206,16 @@ export default function SiteHeader() {
       </aside>
 
       <style jsx>{`
-        @media (max-width: 1023px) {
-          .mobile-page-title {
-            display: block !important;
-          }
-          .desktop-user-menu {
+        /* Hide hamburger and right-controls on desktop */
+        @media (min-width: 1024px) {
+          .right-controls {
             display: none !important;
           }
-        }
-        
-        @media (min-width: 1024px) {
+          
+          .chip-nav {
+            display: flex !important;
+          }
+          
           .desktop-user-menu {
             display: flex !important;
             align-items: center;
@@ -220,6 +224,25 @@ export default function SiteHeader() {
           
           .user-name-trigger:hover {
             background: rgba(148,163,184,.15) !important;
+          }
+        }
+        
+        /* Show hamburger and hide chip-nav on mobile */
+        @media (max-width: 1023px) {
+          .chip-nav {
+            display: none !important;
+          }
+          
+          .right-controls {
+            display: flex !important;
+          }
+          
+          .mobile-page-title {
+            display: block !important;
+          }
+          
+          .desktop-user-menu {
+            display: none !important;
           }
         }
       `}</style>
