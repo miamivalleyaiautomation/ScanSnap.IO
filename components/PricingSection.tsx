@@ -159,30 +159,21 @@ export default function PricingSection() {
                   Go to Dashboard
                 </button>
               ) : (
-                <div>
-                  <LoginButton />
-                  <p style={{ fontSize: '0.875rem', color: 'var(--muted)', marginTop: '8px', textAlign: 'center' }}>
-                    Free forever
-                  </p>
-                </div>
+                <button 
+                  className="btn primary block"
+                  onClick={() => window.location.href = '/dashboard'}
+                >
+                  Start Basic
+                </button>
               )
             ) : (
               // Paid Plans Buttons
-              isSignedIn ? (
-                <button
-                  className="btn primary block"
-                  onClick={() => handleUpgrade(plan)}
-                >
-                  Get {plan.name}
-                </button>
-              ) : (
-                <div>
-                  <LoginButton />
-                  <p style={{ fontSize: '0.875rem', color: 'var(--muted)', marginTop: '8px', textAlign: 'center' }}>
-                    Sign in to upgrade
-                  </p>
-                </div>
-              )
+              <button
+                className="btn primary block"
+                onClick={() => handleUpgrade(plan)}
+              >
+                Purchase {plan.name}
+              </button>
             )}
           </div>
         </div>
