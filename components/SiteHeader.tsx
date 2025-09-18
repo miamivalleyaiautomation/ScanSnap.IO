@@ -71,27 +71,38 @@ export default function SiteHeader() {
               <LoginButton />
             </SignedOut>
             
-            {/* Signed in: show dashboard link, user info and user button */}
+            {/* Signed in: show dashboard link and clickable user name */}
             <SignedIn>
               <Link className="chip" href="/dashboard">Dashboard</Link>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
-                gap: '0.5rem',
-                color: 'var(--muted)',
-                fontSize: '0.875rem'
-              }}>
-                {user?.firstName || user?.emailAddresses[0]?.emailAddress.split('@')[0]}
+              
+              {/* Desktop: Clickable user name that opens user menu */}
+              <div className="desktop-user-menu">
+                <UserButton 
+                  afterSignOutUrl="/"
+                  appearance={{
+                    elements: {
+                      userButtonTrigger: "hidden", // Hide the default trigger
+                      userButtonPopoverCard: "fixed left-1/2 top-20 transform -translate-x-1/2 z-[9999]",
+                    }
+                  }}
+                />
+                <button 
+                  className="chip user-name-trigger"
+                  onClick={() => {
+                    // Programmatically trigger the UserButton
+                    const userButton = document.querySelector('.cl-userButtonTrigger') as HTMLElement;
+                    if (userButton) {
+                      userButton.click();
+                    }
+                  }}
+                  style={{
+                    background: 'rgba(148,163,184,.08)',
+                    border: '1px solid var(--line)',
+                  }}
+                >
+                  {user?.firstName || user?.emailAddresses[0]?.emailAddress.split('@')[0] || 'Account'}
+                </button>
               </div>
-              <UserButton 
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: {
-                    avatarBox: "h-9 w-9",
-                    userButtonPopoverCard: "fixed left-1/2 top-20 transform -translate-x-1/2",
-                  }
-                }}
-              />
             </SignedIn>
             
             <ThemeToggle />
@@ -99,6 +110,7 @@ export default function SiteHeader() {
 
           {/* Right controls / mobile */}
           <div className="right-controls">
+            {/* Mobile: Show UserButton icon only when signed in */}
             <SignedIn>
               <UserButton 
                 afterSignOutUrl="/"
@@ -193,6 +205,21 @@ export default function SiteHeader() {
         @media (max-width: 1023px) {
           .mobile-page-title {
             display: block !important;
+          }
+          .desktop-user-menu {
+            display: none !important;
+          }
+        }
+        
+        @media (min-width: 1024px) {
+          .desktop-user-menu {
+            display: flex !important;
+            align-items: center;
+            position: relative;
+          }
+          
+          .user-name-trigger:hover {
+            background: rgba(148,163,184,.15) !important;
           }
         }
       `}</style>
