@@ -5,7 +5,7 @@ import Link from "next/link";
 import { SignedIn, SignedOut, UserButton, useUser, useClerk } from "@clerk/nextjs";
 import ThemeToggle from "@/components/ThemeToggle";
 import LoginButton from "@/components/LoginButton";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 
 export default function SiteHeader() {
@@ -15,6 +15,23 @@ export default function SiteHeader() {
   const { user } = useUser();
   const { signOut } = useClerk();
   const pathname = usePathname();
+
+  // Handle body scroll lock when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.classList.add('menu-open');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('menu-open');
+      document.body.style.overflow = '';
+    }
+
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('menu-open');
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
   return (
     <header className="site-header glass">

@@ -563,3 +563,85 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
 body.cl-modal-open {
   overflow: hidden !important;
 }
+/* ===== MOBILE MENU Z-INDEX FIX ===== */
+/* Add these CSS rules to your globals.css to fix the mobile menu layering */
+
+/* ===== MOBILE DRAWER - UPDATED Z-INDEX ===== */
+.menu-backdrop{
+  position:fixed; 
+  inset:0; 
+  background:rgba(0,0,0,.35);
+  opacity:0; 
+  pointer-events:none; 
+  transition:opacity .18s ease;
+  z-index: 9998; /* Higher z-index to appear above sticky header */
+}
+.menu-backdrop.show{ 
+  opacity:1; 
+  pointer-events:auto; 
+}
+
+.menu-sheet{
+  position:fixed; 
+  top:0; 
+  right:0; 
+  height:100dvh; 
+  width:min(86vw, 360px);
+  background:var(--card); 
+  border-left:1px solid var(--line);
+  transform:translateX(100%); 
+  transition:transform .22s ease; 
+  z-index: 9999; /* Highest z-index to appear above everything */
+  display:flex; 
+  flex-direction:column;
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3); /* Enhanced shadow for better visibility */
+}
+
+.menu-sheet.open{ 
+  transform:translateX(0%) 
+}
+
+/* Ensure hamburger button has proper z-index */
+.hamburger {
+  z-index: 51; /* Just above the sticky header */
+  position: relative;
+}
+
+/* Site header z-index adjustment */
+.site-header{ 
+  position:sticky; 
+  top:0; 
+  z-index:50; /* Lower than mobile menu */
+  padding:12px 0; 
+  background:transparent; 
+}
+
+/* Additional safety for mobile menu content */
+.menu-head,
+.menu-body {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ensure mobile menu appears above all content */
+@media (max-width: 1023px) {
+  .menu-backdrop {
+    z-index: 9998 !important;
+  }
+  
+  .menu-sheet {
+    z-index: 9999 !important;
+  }
+  
+  /* Prevent content from interfering with menu */
+  body.menu-open {
+    overflow: hidden;
+  }
+}
+
+/* Force menu above everything else */
+.menu-sheet,
+.menu-backdrop {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
