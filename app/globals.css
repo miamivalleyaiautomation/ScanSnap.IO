@@ -537,3 +537,108 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
 body.cl-modal-open {
   overflow: hidden !important;
 }
+/* ===== RESPONSIVE ===== */
+@media (min-width:1024px){
+  .chip-nav{ display:flex !important; }
+  
+  /* COMPLETELY HIDE mobile controls on desktop */
+  .right-controls,
+  .mobile-only,
+  .hamburger {
+    display: none !important;
+    visibility: hidden !important;
+  }
+  
+  /* Hide theme toggle in right controls, show in chip-nav */
+  .right-controls .theme-toggle { display: none !important; }
+  
+  /* Ensure desktop user menu shows */
+  .desktop-user-menu {
+    display: flex !important;
+  }
+}
+
+@media (max-width:1023px){
+  .chip-nav{ display: none !important; }
+  .right-controls{ display: flex !important; }
+  .right-controls .theme-toggle { display: none !important; }
+  
+  /* Hide desktop user menu on mobile */
+  .desktop-user-menu {
+    display: none !important;
+  }
+  
+  .hero-grid{ grid-template-columns:1fr }
+  .grid.cols-2{ grid-template-columns:1fr }
+  .grid.cols-3{ grid-template-columns:1fr }
+  
+  /* Mobile pricing with consistent width */
+  .pricing-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.2rem;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  
+  /* Consistent container width on mobile */
+  .container {
+    width: min(100% - 2rem, 640px);
+    padding: 0 1rem;
+  }
+  
+  /* Mobile nav rail adjustments */
+  .nav-rail {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+  
+  /* Brand container - only shows the icon on left */
+  .nav-rail .brand-inline,
+  .nav-rail .brand-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  /* Logo smaller on mobile */
+  .nav-rail .mark{ 
+    height: 33px;
+    max-width: 33px; 
+  }
+  
+  /* Move text image to center with absolute positioning */
+  .nav-rail .word {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 46px;
+    max-width: 140px;
+    z-index: 1;
+  }
+  
+  /* Right controls stay on right */
+  .right-controls {
+    position: relative;
+    z-index: 3;
+  }
+  
+  /* Fix UserButton positioning on mobile */
+  .cl-userButtonTrigger {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Ensure UserButton popover is centered */
+  .cl-userButtonPopoverCard {
+    position: fixed !important;
+    left: 50% !important;
+    top: 80px !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999 !important;
+  }
+}

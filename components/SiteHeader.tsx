@@ -211,8 +211,8 @@ export default function SiteHeader() {
             <ThemeToggle />
           </nav>
 
-          {/* Right controls / mobile */}
-          <div className="right-controls">
+          {/* Right controls / mobile ONLY */}
+          <div className="right-controls mobile-only">
             {/* Mobile: Show UserButton icon only when signed in */}
             <SignedIn>
               <UserButton 
@@ -313,9 +313,10 @@ export default function SiteHeader() {
       </aside>
 
       <style jsx>{`
-        /* Hide hamburger and right-controls on desktop */
+        /* DESKTOP: Hide mobile controls completely */
         @media (min-width: 1024px) {
-          .right-controls {
+          .right-controls,
+          .mobile-only {
             display: none !important;
           }
           
@@ -332,9 +333,13 @@ export default function SiteHeader() {
           .user-name-trigger:hover {
             background: rgba(148,163,184,.15) !important;
           }
+          
+          .mobile-page-title {
+            display: none !important;
+          }
         }
         
-        /* Show hamburger and hide chip-nav on mobile */
+        /* MOBILE: Show mobile controls, hide desktop nav */
         @media (max-width: 1023px) {
           .chip-nav {
             display: none !important;
