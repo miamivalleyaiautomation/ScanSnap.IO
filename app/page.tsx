@@ -171,9 +171,12 @@ export default function Page() {
               <h3>Existing Customer</h3>
               <p className="muted">Manage your account, subscription, and billing settings.</p>
               <div style={{ height: 8 }} />
-              <LoginButton />
+              <div style={{ display: 'flex', justifyContent: 'center' }}>
+                <div style={{ width: 'auto', minWidth: '120px', maxWidth: '180px' }}>
+                  <LoginButton />
+                </div>
+              </div>
             </div>
-          </div>
         </div>
       </section>
 

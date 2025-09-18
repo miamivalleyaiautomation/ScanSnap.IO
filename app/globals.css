@@ -712,3 +712,32 @@ html[data-theme="light"] .word-dark {
 .menu-sheet {
   border-radius: 12px 0 0 12px; /* Squared corners on the left side */
 }
+/* Add this CSS to your globals.css to make LoginButton smaller */
+
+/* Make LoginButton smaller width in contact section */
+#contact .card .btn,
+#contact .card button {
+  width: auto !important;
+  min-width: 120px;
+  max-width: 200px;
+  margin: 0 auto;
+  display: inline-flex !important;
+  justify-content: center;
+}
+
+/* Alternative: Target LoginButton specifically if it has a class */
+.login-button {
+  width: auto !important;
+  min-width: 120px;
+  max-width: 180px;
+  margin: 0 auto;
+  display: inline-flex !important;
+  justify-content: center;
+}
+
+/* Remove block styling from buttons in contact cards */
+#contact .btn.block {
+  width: auto !important;
+  max-width: 200px;
+  margin: 0 auto;
+}
