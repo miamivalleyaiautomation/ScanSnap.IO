@@ -42,7 +42,7 @@ export default function SiteHeader() {
             <img className="word word-dark" src="/assets/text_1024_dark.png" alt="ScanSnap" />
           </Link>
 
-          {/* Desktop inline nav chips */}
+          {/* Desktop inline nav chips - This shows on desktop only due to CSS media queries */}
           <nav className="chip-nav" aria-label="Primary">
             {pathname === '/' ? (
               <>
@@ -69,10 +69,8 @@ export default function SiteHeader() {
             </SignedIn>
           </nav>
 
-          {/* Mobile controls */}
+          {/* Mobile controls - This shows on mobile only due to CSS media queries */}
           <div className="right-controls">
-            <ThemeToggle />
-            
             <SignedOut>
               <Link href="/sign-in" className="btn primary mobile-login">
                 Sign In
@@ -156,6 +154,11 @@ export default function SiteHeader() {
                   Dashboard
                 </Link>
               </SignedIn>
+              
+              {/* Theme toggle in mobile menu */}
+              <div style={{ display: 'flex', justifyContent: 'center', marginTop: '1rem' }}>
+                <ThemeToggle />
+              </div>
             </div>
           </nav>
 
