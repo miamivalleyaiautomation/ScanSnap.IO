@@ -741,3 +741,72 @@ html[data-theme="light"] .word-dark {
   max-width: 200px;
   margin: 0 auto;
 }
+/* Add this to your globals.css file */
+
+/* ===== MOBILE VIEWPORT FIX FOR AUTH PAGES ===== */
+/* Fixes for mobile keyboard and viewport issues */
+
+/* Prevent viewport zooming on input focus */
+@media (max-width: 640px) {
+input[type=“text”],
+input[type=“email”],
+input[type=“password”],
+input[type=“tel”],
+input[type=“number”],
+textarea {
+font-size: 16px !important; /* Prevents zoom on iOS */
+}
+}
+
+/* Fix for mobile auth pages */
+@supports (-webkit-touch-callout: none) {
+/* iOS specific fixes */
+.cl-rootBox {
+position: fixed !important;
+top: 0 !important;
+left: 0 !important;
+right: 0 !important;
+bottom: 0 !important;
+overflow-y: auto !important;
+-webkit-overflow-scrolling: touch !important;
+}
+
+.cl-card {
+max-height: 90vh !important;
+overflow-y: auto !important;
+-webkit-overflow-scrolling: touch !important;
+}
+}
+
+/* Ensure auth forms are scrollable on mobile */
+@media (max-height: 700px) {
+.cl-rootBox {
+padding-top: 1rem !important;
+}
+
+.cl-card {
+margin-top: 0 !important;
+max-height: calc(100vh - 2rem) !important;
+}
+}
+
+/* Fix for keyboard pushing content */
+@media (max-width: 640px) {
+body {
+/* Allow scrolling when keyboard is open */
+overflow-y: auto !important;
+height: 100% !important;
+position: relative !important;
+}
+
+/* Adjust main content when keyboard might be open */
+main {
+min-height: auto !important;
+padding-bottom: 50vh !important; /* Extra space for keyboard */
+}
+}
+
+/* Viewport meta tag adjustment - add this to your HTML head */
+/*
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+*/
