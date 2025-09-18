@@ -1,183 +1,326 @@
-// Updated PricingSection component with better button text
+// components/SiteHeader.tsx
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+import Link from "next/link";
+import { SignedIn, SignedOut, UserButton, useUser, useClerk } from "@clerk/nextjs";
+import ThemeToggle from "@/components/ThemeToggle";
 import LoginButton from "@/components/LoginButton";
+import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 
-const PLANS = [
-  {
-    id: 'basic',
-    name: 'Basic',
-    price: 'Free',
-    interval: '',
-    description: 'Essential barcode scanning for small-scale operations.',
-    features: [
-      'Scan standard barcodes',
-      'Manual barcode entry', 
-      'Export to PDF, CSV, Excel',
-      'Single user'
-    ],
-    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_BASIC'
-  },
-  {
-    id: 'plus',
-    name: 'Plus',
-    price: '$9.99',
-    interval: '/ user / mo',
-    description: 'Verification and order building for professional workflows.',
-    features: [
-      'Everything in Basic',
-      'Verify Mode: Import and verify against delivery lists',
-      'Order Builder: Upload catalogs, build orders by scanning',
-      'Track quantities and catch discrepancies'
-    ],
-    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_PLUS',
-    popular: true
-  },
-  {
-    id: 'pro',
-    name: 'Pro', 
-    price: '$14.99',
-    interval: '/ user / mo',
-    description: 'Advanced code support for complex operations.',
-    features: [
-      'Everything in Plus',
-      'QR code scanning',
-      'DataMatrix code scanning',
-      'Ideal for modern packaging and parts'
-    ],
-    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_PRO'
-  },
-  {
-    id: 'pro_dpms',
-    name: 'Pro + DPMS',
-    price: '$49.99', 
-    interval: '/ user / mo',
-    description: 'Specialized algorithms for hard-to-read industrial codes.',
-    features: [
-      'Everything in Pro',
-      'Dot-peen marked codes',
-      'Laser-etched difficult marks',
-      'Custom scanning algorithms'
-    ],
-    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_PRO_DPMS'
-  }
-];
+export default function SiteHeader() {
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopUserMenuOpen, setDesktopUserMenuOpen] = useState(false);
+  const { user } = useUser();
+  const { signOut } = useClerk();
+  const pathname = usePathname();
 
-export default function PricingSection() {
-  const { user, isSignedIn, isLoaded } = useUser();
-
-  const handleUpgrade = (plan: typeof PLANS[0]) => {
-    if (!isSignedIn || !user) {
-      // This shouldn't happen as button should show login, but just in case
-      return;
+  // Handle body scroll lock when mobile menu is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.classList.add('menu-open');
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.classList.remove('menu-open');
+      document.body.style.overflow = '';
     }
 
-    if (plan.id === 'basic') {
-      // Redirect to dashboard for free plan
-      window.location.href = '/dashboard';
-      return;
-    }
-
-    const variantId = process.env[plan.variantEnv as keyof typeof process.env];
-    if (!variantId) {
-      alert('This plan is not available for purchase yet. Please contact support.');
-      return;
-    }
-
-    const checkoutUrl = `https://pay.scansnap.io/checkout/buy/${variantId}?` + 
-      new URLSearchParams({
-        'checkout[email]': user.emailAddresses[0].emailAddress,
-        'checkout[custom][clerk_user_id]': user.id,
-        'checkout[custom][user_name]': `${user.firstName || ''} ${user.lastName || ''}`.trim()
-      }).toString();
-
-    window.open(checkoutUrl, '_blank');
-  };
-
-  if (!isLoaded) {
-    return (
-      <div style={{ textAlign: 'center', padding: '2rem' }}>
-        <div>Loading pricing...</div>
-      </div>
-    );
-  }
+    // Cleanup on unmount
+    return () => {
+      document.body.classList.remove('menu-open');
+      document.body.style.overflow = '';
+    };
+  }, [mobileMenuOpen]);
 
   return (
-    <div className="pricing-grid">
-      {PLANS.map((plan) => (
-        <div
-          key={plan.id}
-          className="card plan"
-          style={{
-            position: 'relative',
-            border: plan.popular ? '2px solid var(--brand0)' : '1px solid var(--line)',
-            background: 'var(--card)'
-          }}
-        >
-          {plan.popular && (
-            <div style={{
-              position: 'absolute',
-              top: '-12px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              background: 'var(--brand0)',
-              color: '#fff',
-              padding: '4px 16px',
-              borderRadius: 'var(--radius-pill)',
-              fontSize: '0.75rem',
-              fontWeight: '600',
-              textTransform: 'uppercase'
-            }}>
-              Most Popular
-            </div>
-          )}
-          
-          <div className="plan-head">
-            <div className="tag">{plan.name}</div>
-            <div className="price">
-              {plan.price}
-              {plan.interval && <span className="muted" style={{ fontSize: '1rem', fontWeight: '400' }}>{plan.interval}</span>}
-            </div>
-            <p className="muted">{plan.description}</p>
-          </div>
-          
-          <ul className="feature">
-            {plan.features.map((feature, index) => (
-              <li key={index}>{feature}</li>
-            ))}
-          </ul>
-          
-          <div className="cta">
-            {plan.id === 'basic' ? (
-              // Basic Plan Button
-              isSignedIn ? (
-                <button 
-                  className="btn primary block"
-                  onClick={() => window.location.href = '/dashboard'}
-                >
-                  Go to Dashboard
-                </button>
-              ) : (
-                <button 
-                  className="btn primary block"
-                  onClick={() => window.location.href = '/dashboard'}
-                >
-                  Start Basic
-                </button>
-              )
+    <header className="site-header glass">
+      <div className="container">
+        <div className="nav-rail">
+          {/* Brand: icon + wordmark */}
+          <Link href="/" className="brand-inline" aria-label="ScanSnap Home">
+            <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
+            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
+            <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
+            <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
+          </Link>
+
+          {/* Desktop inline nav chips */}
+          <nav className="chip-nav" aria-label="Primary">
+            {pathname === '/' ? (
+              <>
+                <Link className="chip" href="#features">Features</Link>
+                <Link className="chip" href="#pricing">Pricing</Link>
+                <Link className="chip" href="#contact">Contact</Link>
+              </>
             ) : (
-              // Paid Plans Buttons
-              <button
-                className="btn primary block"
-                onClick={() => handleUpgrade(plan)}
-              >
-                Purchase {plan.name}
-              </button>
+              <Link className="chip" href="/">← Back Home</Link>
             )}
+            
+            <a className="chip" href={appUrl}>Go to App</a>
+            
+            {/* Signed out: show login button */}
+            <SignedOut>
+              <LoginButton />
+            </SignedOut>
+            
+            {/* Signed in: show dashboard link and clickable user name */}
+            <SignedIn>
+              <Link className="chip" href="/dashboard">Dashboard</Link>
+              
+              {/* Desktop: Custom dropdown menu */}
+              <div className="desktop-user-menu" style={{ position: 'relative' }}>
+                <button 
+                  className="chip user-name-trigger"
+                  onClick={() => setDesktopUserMenuOpen(!desktopUserMenuOpen)}
+                  style={{
+                    background: desktopUserMenuOpen ? 'rgba(148,163,184,.15)' : 'rgba(148,163,184,.08)',
+                    border: '1px solid var(--line)',
+                  }}
+                >
+                  {user?.firstName || user?.emailAddresses[0]?.emailAddress.split('@')[0] || 'Account'}
+                </button>
+                
+                {/* Custom dropdown menu */}
+                {desktopUserMenuOpen && (
+                  <>
+                    {/* Backdrop to close menu when clicking outside */}
+                    <div 
+                      style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        zIndex: 998
+                      }}
+                      onClick={() => setDesktopUserMenuOpen(false)}
+                    />
+                    
+                    {/* Dropdown menu */}
+                    <div 
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        right: 0,
+                        marginTop: '8px',
+                        background: 'var(--card)',
+                        border: '1px solid var(--line)',
+                        borderRadius: 'var(--radius-lg)',
+                        boxShadow: 'var(--shadow)',
+                        minWidth: '200px',
+                        zIndex: 999,
+                        padding: '8px 0'
+                      }}
+                    >
+                      <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--line)' }}>
+                        <div style={{ fontWeight: '600', fontSize: '0.875rem' }}>
+                          {user?.firstName} {user?.lastName}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                          {user?.emailAddresses[0]?.emailAddress}
+                        </div>
+                      </div>
+                      
+                      <Link 
+                        href="/dashboard" 
+                        style={{ 
+                          display: 'block', 
+                          padding: '8px 16px', 
+                          color: 'var(--fg)', 
+                          textDecoration: 'none',
+                          fontSize: '0.875rem'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(148,163,184,.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        onClick={() => setDesktopUserMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      
+                      <Link 
+                        href="/subscription" 
+                        style={{ 
+                          display: 'block', 
+                          padding: '8px 16px', 
+                          color: 'var(--fg)', 
+                          textDecoration: 'none',
+                          fontSize: '0.875rem'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(148,163,184,.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        onClick={() => setDesktopUserMenuOpen(false)}
+                      >
+                        Manage Subscription
+                      </Link>
+                      
+                      <Link 
+                        href="/purchases" 
+                        style={{ 
+                          display: 'block', 
+                          padding: '8px 16px', 
+                          color: 'var(--fg)', 
+                          textDecoration: 'none',
+                          fontSize: '0.875rem'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(148,163,184,.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        onClick={() => setDesktopUserMenuOpen(false)}
+                      >
+                        Purchase History
+                      </Link>
+                      
+                      <div style={{ height: '1px', background: 'var(--line)', margin: '8px 0' }} />
+                      
+                      <button
+                        onClick={() => {
+                          setDesktopUserMenuOpen(false);
+                          signOut();
+                        }}
+                        style={{
+                          display: 'block',
+                          width: '100%',
+                          padding: '8px 16px',
+                          background: 'transparent',
+                          border: 'none',
+                          color: 'var(--fg)',
+                          textAlign: 'left',
+                          fontSize: '0.875rem',
+                          cursor: 'pointer'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(148,163,184,.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </SignedIn>
+            
+            <ThemeToggle />
+          </nav>
+
+          {/* Right controls / mobile ONLY */}
+          <div className="right-controls mobile-only">
+            <button 
+              className="hamburger" 
+              aria-label="Open menu" 
+              onClick={() => setMobileMenuOpen(true)}
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" role="img" aria-hidden="true">
+                <path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
+            </button>
           </div>
         </div>
-      ))}
-    </div>
+      </div>
+
+      {/* Mobile drawer */}
+      <div 
+        className={`menu-backdrop ${mobileMenuOpen ? 'show' : ''}`} 
+        onClick={() => setMobileMenuOpen(false)}
+      />
+      <aside className={`menu-sheet ${mobileMenuOpen ? 'open' : ''}`}>
+        <div className="menu-head">
+          <Link href="/" className="brand-inline mini" aria-label="ScanSnap Home">
+            <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
+            <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
+          </Link>
+          <button 
+            className="hamburger" 
+            aria-label="Close menu" 
+            onClick={() => setMobileMenuOpen(false)}
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" role="img" aria-hidden="true">
+              <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/>
+            </svg>
+          </button>
+        </div>
+        <div className="menu-body">
+          {pathname === '/' ? (
+            <>
+              <Link className="menu-link" href="#features" onClick={() => setMobileMenuOpen(false)}>
+                Features
+              </Link>
+              <Link className="menu-link" href="#pricing" onClick={() => setMobileMenuOpen(false)}>
+                Pricing
+              </Link>
+              <Link className="menu-link" href="#contact" onClick={() => setMobileMenuOpen(false)}>
+                Contact
+              </Link>
+            </>
+          ) : (
+            <Link className="menu-link" href="/" onClick={() => setMobileMenuOpen(false)}>
+              ← Back Home
+            </Link>
+          )}
+          
+          <a className="menu-link" href={appUrl} onClick={() => setMobileMenuOpen(false)}>
+            Go to App
+          </a>
+          
+          {/* Account Management Section */}
+          <SignedOut>
+            <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--line)' }}>
+              <LoginButton isMobile={true} />
+            </div>
+          </SignedOut>
+          
+          <SignedIn>
+            <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid var(--line)' }}>
+              {user && (
+                <div style={{ 
+                  padding: '12px', 
+                  background: 'rgba(148,163,184,.08)', 
+                  borderRadius: '10px', 
+                  marginBottom: '12px' 
+                }}>
+                  <div style={{ fontWeight: '600', fontSize: '0.875rem', marginBottom: '4px' }}>
+                    {user.firstName} {user.lastName}
+                  </div>
+                  <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                    {user.emailAddresses[0]?.emailAddress}
+                  </div>
+                </div>
+              )}
+              
+              <Link className="menu-link" href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                Dashboard
+              </Link>
+              <Link className="menu-link" href="/subscription" onClick={() => setMobileMenuOpen(false)}>
+                Manage Subscription
+              </Link>
+              <Link className="menu-link" href="/purchases" onClick={() => setMobileMenuOpen(false)}>
+                Purchase History
+              </Link>
+              
+              <button
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  signOut();
+                }}
+                className="menu-link"
+                style={{
+                  width: '100%',
+                  background: 'transparent',
+                  border: '1px solid var(--line)',
+                  color: 'var(--fg)',
+                  textAlign: 'center',
+                  marginTop: '8px'
+                }}
+              >
+                Sign Out
+              </button>
+            </div>
+          </SignedIn>
+          
+          <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+            <ThemeToggle />
+          </div>
+        </div>
+      </aside>
+    </header>
   );
 }
