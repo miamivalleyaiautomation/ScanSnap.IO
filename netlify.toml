@@ -1,17 +1,9 @@
-# netlify.toml
 [build]
-  command = "npm run build"
-  publish = ".next"
+publish = “.next”
+command = “npm run build”
 
 [[plugins]]
-  package = "@netlify/plugin-nextjs"
+package = “@netlify/plugin-nextjs”
 
 [build.environment]
-  NODE_VERSION = "18"
-  NPM_VERSION  = "10"
-  
-  # Allow these public keys (they're meant to be public)
-  SECRETS_SCAN_OMIT_KEYS = "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,NEXT_PUBLIC_LS_VARIANT_BASIC,NEXT_PUBLIC_LS_VARIANT_PLUS,NEXT_PUBLIC_LS_VARIANT_PRO,NEXT_PUBLIC_LS_VARIANT_PRO_DPMS,NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY"
-  
-  # Exclude cache and build directories from secrets scanning
-  SECRETS_SCAN_OMIT_PATHS = ".next/**,.netlify/.next/**,node_modules/**"
+NODE_VERSION = “20”
