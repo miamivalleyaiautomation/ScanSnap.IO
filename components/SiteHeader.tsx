@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { SignedIn, SignedOut, UserButton, useUser, useClerk } from "@clerk/nextjs";
+import { SignedIn, SignedOut, useUser, useClerk } from "@clerk/nextjs";
 import ThemeToggle from "@/components/ThemeToggle";
 import LoginButton from "@/components/LoginButton";
 import { useState, useEffect } from "react";
@@ -33,6 +33,11 @@ export default function SiteHeader() {
     };
   }, [mobileMenuOpen]);
 
+  const handleSignOut = async () => {
+    await signOut();
+    window.location.href = '/';
+  };
+
   return (
     <header className="site-header glass">
       <div className="container">
@@ -53,6 +58,8 @@ export default function SiteHeader() {
                 <Link className="chip" href="#pricing">Pricing</Link>
                 <Link className="chip" href="#contact">Contact</Link>
               </>
+            ) : pathname === '/login' || pathname === '/signup' ? (
+              <Link className="chip" href="/">← Back Home</Link>
             ) : (
               <Link className="chip" href="/">← Back Home</Link>
             )}
@@ -175,7 +182,7 @@ export default function SiteHeader() {
                       <button
                         onClick={() => {
                           setDesktopUserMenuOpen(false);
-                          signOut();
+                          handleSignOut();
                         }}
                         style={{
                           display: 'block',
@@ -251,6 +258,10 @@ export default function SiteHeader() {
                 Contact
               </Link>
             </>
+          ) : pathname === '/login' || pathname === '/signup' ? (
+            <Link className="menu-link" href="/" onClick={() => setMobileMenuOpen(false)}>
+              ← Back Home
+            </Link>
           ) : (
             <Link className="menu-link" href="/" onClick={() => setMobileMenuOpen(false)}>
               ← Back Home
@@ -299,7 +310,7 @@ export default function SiteHeader() {
               <button
                 onClick={() => {
                   setMobileMenuOpen(false);
-                  signOut();
+                  handleSignOut();
                 }}
                 className="menu-link"
                 style={{

@@ -1,8 +1,8 @@
-// Updated PricingSection component with better button text
+// components/PricingSection.tsx
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import LoginButton from "@/components/LoginButton";
+import { useRouter } from "next/navigation";
 
 const PLANS = [
   {
@@ -66,10 +66,12 @@ const PLANS = [
 
 export default function PricingSection() {
   const { user, isSignedIn, isLoaded } = useUser();
+  const router = useRouter();
 
-  const handleUpgrade = (plan: typeof PLANS[0]) => {
-    if (!isSignedIn || !user) {
-      // This shouldn't happen as button should show login, but just in case
+  const handlePlanClick = (plan: typeof PLANS[0]) => {
+    if (!isSignedIn) {
+      // Redirect to login with the plan information
+      router.push(`/login?redirect_url=/dashboard&plan=${plan.id}`);
       return;
     }
 
@@ -149,32 +151,15 @@ export default function PricingSection() {
           </ul>
           
           <div className="cta">
-            {plan.id === 'basic' ? (
-              // Basic Plan Button
-              isSignedIn ? (
-                <button 
-                  className="btn primary block"
-                  onClick={() => window.location.href = '/dashboard'}
-                >
-                  Go to Dashboard
-                </button>
-              ) : (
-                <button 
-                  className="btn primary block"
-                  onClick={() => window.location.href = '/dashboard'}
-                >
-                  Start Basic
-                </button>
-              )
-            ) : (
-              // Paid Plans Buttons
-              <button
-                className="btn primary block"
-                onClick={() => handleUpgrade(plan)}
-              >
-                Purchase {plan.name}
-              </button>
-            )}
+            <button
+              className="btn primary block"
+              onClick={() => handlePlanClick(plan)}
+            >
+              {plan.id === 'basic' 
+                ? (isSignedIn ? 'Go to Dashboard' : 'Start Free')
+                : `Get ${plan.name}`
+              }
+            </button>
           </div>
         </div>
       ))}
