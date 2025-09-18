@@ -83,20 +83,7 @@ export default function SiteHeader() {
             <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
           </Link>
 
-          {/* Mobile page title in center */}
-          {pageTitle && isMobile && (
-            <div className="mobile-page-title" style={{
-              display: 'block',
-              position: 'absolute',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              fontSize: '1.125rem',
-              fontWeight: '600',
-              color: 'var(--fg)'
-            }}>
-              {pageTitle}
-            </div>
-          )}
+          {/* Mobile page title in center - REMOVED */}
 
           {/* Desktop inline nav chips - Only show on desktop */}
           <nav className="chip-nav" aria-label="Primary">
