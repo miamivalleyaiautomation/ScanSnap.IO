@@ -1,6 +1,6 @@
 // app/sign-up/page.tsx
-import Link from 'next/link';
-import { SignUp } from '@clerk/nextjs';
+import Link from ‘next/link’;
+import { SignUp } from ‘@clerk/nextjs’;
 
 export default function SignUpPage() {
 return (
@@ -50,42 +50,42 @@ Create your ScanSnap account
         redirectUrl="/dashboard"
         appearance={{
           variables: {
-            colorPrimary: "#00d1ff",
-            colorTextOnPrimaryBackground: "#ffffff",
-            borderRadius: "12px"
+            colorPrimary: '#00d1ff',
+            colorTextOnPrimaryBackground: '#ffffff',
+            borderRadius: '12px'
           },
           elements: {
             card: {
-              background: "transparent",
-              border: "none",
-              boxShadow: "none",
+              background: 'transparent',
+              border: 'none',
+              boxShadow: 'none',
             },
             headerTitle: {
-              display: "none"
+              display: 'none'
             },
             headerSubtitle: {
-              display: "none"
+              display: 'none'
             },
             socialButtonsBlockButton: {
-              background: "rgba(255, 255, 255, 0.1)",
-              border: "1px solid rgba(255, 255, 255, 0.2)",
-              color: "inherit",
-              "&:hover": {
-                background: "rgba(255, 255, 255, 0.15)"
+              background: 'rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              color: 'inherit',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.15)'
               }
             },
             formButtonPrimary: {
-              background: "linear-gradient(135deg, #00d1ff, #4a90e2)",
-              color: "#ffffff",
-              "&:hover": {
-                background: "linear-gradient(135deg, #00b8e6, #3a7bc8)"
+              background: 'linear-gradient(135deg, #00d1ff, #4a90e2)',
+              color: '#ffffff',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #00b8e6, #3a7bc8)'
               }
             },
             formFieldInput: {
-              background: "rgba(255, 255, 255, 0.05)",
-              border: "1px solid rgba(255, 255, 255, 0.1)",
-              "&:focus": {
-                border: "1px solid #00d1ff"
+              background: 'rgba(255, 255, 255, 0.05)',
+              border: '1px solid rgba(255, 255, 255, 0.1)',
+              '&:focus': {
+                border: '1px solid #00d1ff'
               }
             }
           }
@@ -96,7 +96,7 @@ Create your ScanSnap account
     {/* Footer Links */}
     <div className="text-center mt-6">
       <p className="text-sm text-gray-600 dark:text-gray-400">
-        Already have an account?{" "}
+        Already have an account?{' '}
         <Link 
           href="/sign-in" 
           className="text-blue-600 hover:text-blue-500 dark:text-blue-400 font-medium"
