@@ -2,8 +2,8 @@
 
 import { useUser } from "@clerk/nextjs"
 import { useEffect, useState } from "react"
-import { UserButton } from "@clerk/nextjs"
 import Link from "next/link"
+import SiteHeader from "@/components/SiteHeader"
 
 interface UserProfile {
   id: string
@@ -151,25 +151,26 @@ export default function SubscriptionPage() {
 
   if (!isLoaded || loading) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        background: 'var(--bg)',
-        color: 'var(--fg)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ 
-            width: '48px', 
-            height: '48px', 
-            border: '3px solid var(--brand0)', 
-            borderTop: '3px solid transparent', 
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }}></div>
-          <p>Loading subscription...</p>
+      <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
+        <SiteHeader />
+        <div style={{ 
+          minHeight: 'calc(100vh - 80px)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ 
+              width: '48px', 
+              height: '48px', 
+              border: '3px solid var(--brand0)', 
+              borderTop: '3px solid transparent', 
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 16px'
+            }}></div>
+            <p>Loading subscription...</p>
+          </div>
         </div>
       </div>
     )
@@ -177,17 +178,18 @@ export default function SubscriptionPage() {
 
   if (!user) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        background: 'var(--bg)',
-        color: 'var(--fg)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Please sign in</h1>
-          <Link href="/" className="btn primary">Go Home</Link>
+      <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
+        <SiteHeader />
+        <div style={{ 
+          minHeight: 'calc(100vh - 80px)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Please sign in</h1>
+            <Link href="/" className="btn primary">Go Home</Link>
+          </div>
         </div>
       </div>
     )
@@ -195,46 +197,7 @@ export default function SubscriptionPage() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
-      {/* Header */}
-      <header style={{ 
-        background: 'var(--card)', 
-        borderBottom: '1px solid var(--line)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50
-      }}>
-        <div className="container" style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          height: '64px'
-        }}>
-          <Link href="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img 
-              className="mark mark-light" 
-              src="/assets/favicon_1024_light.png" 
-              alt="" 
-              style={{ height: '32px' }} 
-            />
-            <img 
-              className="mark mark-dark" 
-              src="/assets/favicon_1024_dark.png" 
-              alt="" 
-              style={{ height: '32px' }} 
-            />
-            <span style={{ fontSize: '1.25rem', fontWeight: '600' }}>
-              Subscription
-            </span>
-          </Link>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <Link href="/dashboard" className="link">
-              ← Back to Dashboard
-            </Link>
-            <UserButton afterSignOutUrl="/" />
-          </div>
-        </div>
-      </header>
+      <SiteHeader />
 
       <main className="container section">
         
