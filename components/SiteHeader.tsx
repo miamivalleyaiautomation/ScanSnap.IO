@@ -42,8 +42,8 @@ export default function SiteHeader() {
             <img className="word word-dark" src="/assets/text_1024_dark.png" alt="ScanSnap" />
           </Link>
 
-          {/* Desktop inline nav chips - ONLY VISIBLE ON DESKTOP */}
-          <nav className="chip-nav desktop-only" aria-label="Primary">
+          {/* Desktop inline nav chips */}
+          <nav className="chip-nav" aria-label="Primary">
             {pathname === '/' ? (
               <>
                 <Link className="chip" href="#features">Features</Link>
@@ -57,49 +57,20 @@ export default function SiteHeader() {
             <a className="chip" href={appUrl}>Go to App</a>
             <ThemeToggle />
             
-            {/* Signed out: show login button on desktop only */}
+            {/* Signed out: show login button */}
             <SignedOut>
               <LoginButton />
             </SignedOut>
             
-            {/* Signed in: show dashboard link and user name on desktop */}
+            {/* Signed in: show dashboard link and user button */}
             <SignedIn>
               <Link className="chip" href="/dashboard">Dashboard</Link>
-              
-              {/* Desktop: Simple user name button */}
-              <div className="user-menu-wrapper">
-                <UserButton 
-                  afterSignOutUrl="/"
-                  appearance={{
-                    elements: {
-                      userButtonAvatarBox: {
-                        width: '32px',
-                        height: '32px'
-                      },
-                      userButtonTrigger: {
-                        background: 'rgba(148,163,184,.08)',
-                        border: '1px solid var(--line)',
-                        borderRadius: '999px',
-                        padding: '6px 12px',
-                        fontSize: '14px',
-                        fontWeight: '500',
-                        color: 'var(--fg)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        '&:hover': {
-                          background: 'rgba(148,163,184,.15)'
-                        }
-                      }
-                    }
-                  }}
-                />
-              </div>
+              <UserButton afterSignOutUrl="/" />
             </SignedIn>
           </nav>
 
-          {/* Mobile controls - ONLY VISIBLE ON MOBILE */}
-          <div className="right-controls mobile-only">
+          {/* Mobile controls */}
+          <div className="right-controls">
             <ThemeToggle />
             
             <SignedOut>
@@ -109,18 +80,7 @@ export default function SiteHeader() {
             </SignedOut>
             
             <SignedIn>
-              {/* Mobile: Just show the user avatar */}
-              <UserButton 
-                afterSignOutUrl="/"
-                appearance={{
-                  elements: {
-                    userButtonAvatarBox: {
-                      width: '36px',
-                      height: '36px'
-                    }
-                  }
-                }}
-              />
+              <UserButton afterSignOutUrl="/" />
             </SignedIn>
 
             {/* Hamburger menu button */}
