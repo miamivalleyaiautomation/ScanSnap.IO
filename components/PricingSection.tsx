@@ -1,159 +1,192 @@
+// Updated PricingSection component with better button text
 "use client";
 
-import { useUser, SignedIn, SignedOut } from "@clerk/nextjs";
-import LoginButton from "./LoginButton";
+import { useUser } from "@clerk/nextjs";
+import LoginButton from "@/components/LoginButton";
+
+const PLANS = [
+  {
+    id: 'basic',
+    name: 'Basic',
+    price: 'Free',
+    interval: '',
+    description: 'Essential barcode scanning for small-scale operations.',
+    features: [
+      'Scan standard barcodes',
+      'Manual barcode entry', 
+      'Export to PDF, CSV, Excel',
+      'Single user'
+    ],
+    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_BASIC'
+  },
+  {
+    id: 'plus',
+    name: 'Plus',
+    price: '$9.99',
+    interval: '/ user / mo',
+    description: 'Verification and order building for professional workflows.',
+    features: [
+      'Everything in Basic',
+      'Verify Mode: Import and verify against delivery lists',
+      'Order Builder: Upload catalogs, build orders by scanning',
+      'Track quantities and catch discrepancies'
+    ],
+    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_PLUS',
+    popular: true
+  },
+  {
+    id: 'pro',
+    name: 'Pro', 
+    price: '$14.99',
+    interval: '/ user / mo',
+    description: 'Advanced code support for complex operations.',
+    features: [
+      'Everything in Plus',
+      'QR code scanning',
+      'DataMatrix code scanning',
+      'Ideal for modern packaging and parts'
+    ],
+    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_PRO'
+  },
+  {
+    id: 'pro_dpms',
+    name: 'Pro + DPMS',
+    price: '$49.99', 
+    interval: '/ user / mo',
+    description: 'Specialized algorithms for hard-to-read industrial codes.',
+    features: [
+      'Everything in Pro',
+      'Dot-peen marked codes',
+      'Laser-etched difficult marks',
+      'Custom scanning algorithms'
+    ],
+    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_PRO_DPMS'
+  }
+];
 
 export default function PricingSection() {
-  const { user, isSignedIn } = useUser();
+  const { user, isSignedIn, isLoaded } = useUser();
 
-  const handlePurchase = (planName: string, variantEnv: string) => {
-    if (!isSignedIn) {
-      alert('Please sign in first to purchase a subscription');
+  const handleUpgrade = (plan: typeof PLANS[0]) => {
+    if (!isSignedIn || !user) {
+      // This shouldn't happen as button should show login, but just in case
       return;
     }
 
-    const variantId = process.env[variantEnv as keyof typeof process.env] as string | undefined;
-    
+    if (plan.id === 'basic') {
+      // Redirect to dashboard for free plan
+      window.location.href = '/dashboard';
+      return;
+    }
+
+    const variantId = process.env[plan.variantEnv as keyof typeof process.env];
     if (!variantId) {
-      alert(`Checkout not configured for ${planName} plan. Please contact support.`);
+      alert('This plan is not available for purchase yet. Please contact support.');
       return;
     }
 
-    const baseUrl = `https://pay.scansnap.io/checkout/buy/${variantId}`;
-    
-    const params = new URLSearchParams({
-      'checkout[email]': user!.emailAddresses[0].emailAddress,
-      'checkout[custom][clerk_user_id]': user!.id,
-      'checkout[custom][user_name]': `${user!.firstName || ''} ${user!.lastName || ''}`.trim()
-    });
-    
-    const checkoutUrl = `${baseUrl}?${params.toString()}`;
+    const checkoutUrl = `https://pay.scansnap.io/checkout/buy/${variantId}?` + 
+      new URLSearchParams({
+        'checkout[email]': user.emailAddresses[0].emailAddress,
+        'checkout[custom][clerk_user_id]': user.id,
+        'checkout[custom][user_name]': `${user.firstName || ''} ${user.lastName || ''}`.trim()
+      }).toString();
+
     window.open(checkoutUrl, '_blank');
   };
 
+  if (!isLoaded) {
+    return (
+      <div style={{ textAlign: 'center', padding: '2rem' }}>
+        <div>Loading pricing...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="pricing-grid">
-      {/* BASIC */}
-      <div className="card">
-        <div>
-          <span className="tag">BASIC</span>
-          <h3>Free</h3>
-          <p className="muted">Essential barcode scanning for small-scale operations.</p>
-          <ul className="feature">
-            <li>Scan standard barcodes</li>
-            <li>Manual barcode entry</li>
-            <li>Export to PDF, CSV, Excel</li>
-            <li>Single user</li>
-          </ul>
-        </div>
-        <div style={{ height: 8 }} />
-        <SignedOut>
-          <LoginButton />
-        </SignedOut>
-        <SignedIn>
-          <a className="btn block" href="/dashboard">Go to Dashboard</a>
-        </SignedIn>
-      </div>
-
-      {/* PLUS */}
-      <div className="card">
-        <div>
-          <span className="tag">PLUS</span>
-          <h3>$9.99 <span className="muted">/ user / mo</span></h3>
-          <p className="muted">
-            Verification and order building for professional workflows.
-          </p>
-          <ul className="feature">
-            <li>Everything in Basic</li>
-            <li><strong>Verify Mode</strong>: Import and verify against delivery lists</li>
-            <li><strong>Order Builder</strong>: Upload catalogs, build orders by scanning</li>
-            <li>Track quantities and catch discrepancies</li>
-          </ul>
-        </div>
-        <div style={{ height: 8 }} />
-        <SignedOut>
-          <div>
-            <LoginButton />
-            <p className="note" style={{ marginTop: 8, textAlign: 'center' }}>
-              Sign in required
-            </p>
+      {PLANS.map((plan) => (
+        <div
+          key={plan.id}
+          className="card plan"
+          style={{
+            position: 'relative',
+            border: plan.popular ? '2px solid var(--brand0)' : '1px solid var(--line)',
+            background: 'var(--card)'
+          }}
+        >
+          {plan.popular && (
+            <div style={{
+              position: 'absolute',
+              top: '-12px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              background: 'var(--brand0)',
+              color: '#fff',
+              padding: '4px 16px',
+              borderRadius: 'var(--radius-pill)',
+              fontSize: '0.75rem',
+              fontWeight: '600',
+              textTransform: 'uppercase'
+            }}>
+              Most Popular
+            </div>
+          )}
+          
+          <div className="plan-head">
+            <div className="tag">{plan.name}</div>
+            <div className="price">
+              {plan.price}
+              {plan.interval && <span className="muted" style={{ fontSize: '1rem', fontWeight: '400' }}>{plan.interval}</span>}
+            </div>
+            <p className="muted">{plan.description}</p>
           </div>
-        </SignedOut>
-        <SignedIn>
-          <button 
-            className="btn primary block" 
-            onClick={() => handlePurchase("Plus", "NEXT_PUBLIC_LS_VARIANT_PLUS")}
-          >
-            Choose Plus
-          </button>
-        </SignedIn>
-      </div>
-
-      {/* PRO */}
-      <div className="card">
-        <div>
-          <span className="tag">PRO</span>
-          <h3>$14.99 <span className="muted">/ user / mo</span></h3>
-          <p className="muted">Advanced code support for complex operations.</p>
+          
           <ul className="feature">
-            <li>Everything in Plus</li>
-            <li>QR code scanning</li>
-            <li>DataMatrix code scanning</li>
-            <li>Ideal for modern packaging and parts</li>
+            {plan.features.map((feature, index) => (
+              <li key={index}>{feature}</li>
+            ))}
           </ul>
-        </div>
-        <div style={{ height: 8 }} />
-        <SignedOut>
-          <div>
-            <LoginButton />
-            <p className="note" style={{ marginTop: 8, textAlign: 'center' }}>
-              Sign in required
-            </p>
+          
+          <div className="cta">
+            {plan.id === 'basic' ? (
+              // Basic Plan Button
+              isSignedIn ? (
+                <button 
+                  className="btn primary block"
+                  onClick={() => window.location.href = '/dashboard'}
+                >
+                  Go to Dashboard
+                </button>
+              ) : (
+                <div>
+                  <LoginButton />
+                  <p style={{ fontSize: '0.875rem', color: 'var(--muted)', marginTop: '8px', textAlign: 'center' }}>
+                    Free forever
+                  </p>
+                </div>
+              )
+            ) : (
+              // Paid Plans Buttons
+              isSignedIn ? (
+                <button
+                  className="btn primary block"
+                  onClick={() => handleUpgrade(plan)}
+                >
+                  Get {plan.name}
+                </button>
+              ) : (
+                <div>
+                  <LoginButton />
+                  <p style={{ fontSize: '0.875rem', color: 'var(--muted)', marginTop: '8px', textAlign: 'center' }}>
+                    Sign in to upgrade
+                  </p>
+                </div>
+              )
+            )}
           </div>
-        </SignedOut>
-        <SignedIn>
-          <button 
-            className="btn primary block" 
-            onClick={() => handlePurchase("Pro", "NEXT_PUBLIC_LS_VARIANT_PRO")}
-          >
-            Choose Pro
-          </button>
-        </SignedIn>
-      </div>
-
-      {/* PRO + DPMS */}
-      <div className="card">
-        <div>
-          <span className="tag">PRO + DPMS</span>
-          <h3>$49.99 <span className="muted">/ user / mo</span></h3>
-          <p className="muted">
-            Specialized algorithms for hard-to-read industrial codes.
-          </p>
-          <ul className="feature">
-            <li>Everything in Pro</li>
-            <li>Dot-peen marked codes</li>
-            <li>Laser-etched difficult marks</li>
-            <li>Custom scanning algorithms</li>
-          </ul>
         </div>
-        <div style={{ height: 8 }} />
-        <SignedOut>
-          <div>
-            <LoginButton />
-            <p className="note" style={{ marginTop: 8, textAlign: 'center' }}>
-              Sign in required
-            </p>
-          </div>
-        </SignedOut>
-        <SignedIn>
-          <button 
-            className="btn primary block" 
-            onClick={() => handlePurchase("Pro + DPMS", "NEXT_PUBLIC_LS_VARIANT_PRO_DPMS")}
-          >
-            Choose Pro + DPMS
-          </button>
-        </SignedIn>
-      </div>
+      ))}
     </div>
   );
 }
