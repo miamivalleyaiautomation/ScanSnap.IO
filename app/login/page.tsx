@@ -21,7 +21,9 @@ minHeight: ‘100vh’,
 background: ‘var(–bg)’,
 color: ‘var(–fg)’,
 display: ‘flex’,
-flexDirection: ‘column’
+flexDirection: ‘column’,
+position: ‘relative’,
+overflow: ‘hidden’
 }}>
 {/* Simple header with logo */}
 <header style={{
