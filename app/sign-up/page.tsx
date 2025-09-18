@@ -1,6 +1,6 @@
 // app/sign-up/page.tsx
-import Link from “next/link”;
-import { SignUp } from “@clerk/nextjs”;
+import Link from 'next/link';
+import { SignUp } from '@clerk/nextjs';
 
 export default function SignUpPage() {
 return (
