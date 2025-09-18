@@ -1,289 +1,211 @@
-"use client"
+// app/page.tsx - Update just the contact section
+import SiteHeader from "@/components/SiteHeader";
+import HeroPreview from "@/components/HeroPreview";
+import PricingSection from "@/components/PricingSection";
+import LoginButton from "@/components/LoginButton";
 
-import { useUser } from "@clerk/nextjs"
-import { useEffect, useState } from "react"
-import Link from "next/link"
-import SiteHeader from "@/components/SiteHeader"
+export const metadata = {
+  title: "ScanSnap — Professional barcode scanning and verification tool",
+  description:
+    "Scan, verify, and build orders with barcodes. Import your catalogs, verify deliveries, and streamline warehouse operations. Nothing leaves your device.",
+};
 
-interface UserProfile {
-  id: string
-  clerk_user_id: string
-  email: string
-  first_name?: string
-  last_name?: string
-  subscription_status: string
-  subscription_plan: string
-  created_at: string
-}
-
-export default function Dashboard() {
-  const { user, isLoaded } = useUser()
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    if (isLoaded && user) {
-      fetchUserProfile()
-    }
-  }, [isLoaded, user])
-
-  const fetchUserProfile = async () => {
-    try {
-      const { createClient } = await import("@supabase/supabase-js")
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      const supabase = createClient(supabaseUrl, supabaseAnonKey)
-      
-      const { data: allProfiles, error: listError } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("clerk_user_id", user?.id)
-
-      if (listError) {
-        setError(`Query error: ${listError.message}`)
-        return
-      }
-
-      if (!allProfiles || allProfiles.length === 0) {
-        setError("User profile not found. Please wait a moment and refresh.")
-        return
-      }
-
-      setUserProfile(allProfiles[0])
-    } catch (err) {
-      setError(`Failed to load profile: ${err}`)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleLaunchApp = () => {
-    const userData = {
-      clerk_user_id: user?.id,
-      subscription_status: userProfile?.subscription_status || "basic",
-      subscription_plan: userProfile?.subscription_plan || "basic",
-      email: user?.emailAddresses[0]?.emailAddress,
-      first_name: user?.firstName,
-      last_name: user?.lastName
-    };
-    
-    localStorage.setItem("scansnap_user_data", JSON.stringify(userData));
-    window.open("https://app.scansnap.io", "_blank");
-  }
-
-  const getSubscriptionDisplayName = (status: string): string => {
-    switch (status) {
-      case 'basic': return 'Basic (Free)';
-      case 'plus': return 'Plus';
-      case 'pro': return 'Pro';
-      case 'pro_dpms': return 'Pro + DPMS';
-      case 'cancelled': return 'Cancelled';
-      case 'expired': return 'Expired';
-      default: return status;
-    }
-  }
-
-  if (!isLoaded || loading) {
-    return (
-      <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
-        <SiteHeader />
-        <div style={{ 
-          minHeight: 'calc(100vh - 80px)', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center'
-        }}>
-          <div style={{ textAlign: 'center' }}>
-            <div style={{ 
-              width: '48px', 
-              height: '48px', 
-              border: '3px solid var(--brand0)', 
-              borderTop: '3px solid transparent', 
-              borderRadius: '50%',
-              animation: 'spin 1s linear infinite',
-              margin: '0 auto 16px'
-            }}></div>
-            <p>Loading dashboard...</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (!user) {
-    return (
-      <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
-        <SiteHeader />
-        <div style={{ 
-          minHeight: 'calc(100vh - 80px)', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center'
-        }}>
-          <div style={{ textAlign: 'center' }}>
-            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Please sign in</h1>
-            <Link href="/" className="btn primary">Go Home</Link>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  if (error) {
-    return (
-      <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
-        <SiteHeader />
-        <div style={{ 
-          minHeight: 'calc(100vh - 80px)', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center'
-        }}>
-          <div className="container" style={{ maxWidth: '600px', textAlign: 'center' }}>
-            <div className="card">
-              <h1 style={{ color: '#ef4444', marginBottom: '1rem' }}>Error Loading Dashboard</h1>
-              <p style={{ color: 'var(--muted)', marginBottom: '1.5rem' }}>{error}</p>
-              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-                <button onClick={() => window.location.reload()} className="btn primary">
-                  Retry
-                </button>
-                <Link href="/" className="btn">Go Home</Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
+export default function Page() {
+  const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL ?? "https://portal.scansnap.io";
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
+    <>
       <SiteHeader />
 
-      <main className="container section">
-        
-        {/* Welcome Section */}
-        <div className="card" style={{ marginBottom: '2rem' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
-            Welcome back, {user.firstName || 'there'}!
-          </h1>
-          <p className="muted" style={{ marginBottom: '1.5rem' }}>
-            Your ScanSnap account is ready to go. Launch the app to start scanning.
-          </p>
-          <button onClick={handleLaunchApp} className="btn primary" style={{ fontSize: '1.125rem' }}>
-            🚀 Launch ScanSnap App
-          </button>
-        </div>
-
-        {/* Stats Grid */}
-        {userProfile && (
-          <div className="grid cols-3" style={{ marginBottom: '2rem' }}>
-            
-            {/* Current Plan */}
-            <div className="card">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                <div style={{ 
-                  width: '32px', 
-                  height: '32px', 
-                  borderRadius: '50%',
-                  background: userProfile.subscription_status === 'basic' ? 'var(--muted)' : 'var(--brand0)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: userProfile.subscription_status === 'basic' ? 'var(--bg)' : '#fff',
-                  fontSize: '0.875rem',
-                  fontWeight: '600'
-                }}>
-                  {userProfile.subscription_status === 'basic' ? '○' : '✓'}
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>Current Plan</div>
-                  <div style={{ fontSize: '1.125rem', fontWeight: '600' }}>
-                    {getSubscriptionDisplayName(userProfile.subscription_status)}
-                  </div>
-                </div>
-              </div>
+      {/* ===== HERO ===== */}
+      <section className="hero section">
+        <div className="bg-gradient" />
+        <div className="container hero-grid">
+          <div>
+            <h1>
+              Professional <span className="accent">barcode scanning</span> for businesses that need accuracy.
+            </h1>
+            <p className="lede">
+              Scan, verify deliveries, and build orders with confidence. Import your catalogs, verify against shipments, and streamline warehouse operations—<strong>all data stays on your device</strong>.
+            </p>
+            <div className="actions">
+              <a className="btn primary" href={`${portalUrl}/login`}>Start scanning</a>
+              <a className="btn" href="#features">See what it does</a>
             </div>
+            <div style={{ height: 12 }} />
+            <div className="note">Perfect for retail, warehouses, and production environments.</div>
+          </div>
 
-            {/* Account Status */}
-            <div className="card">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                <div style={{ 
-                  width: '32px', 
-                  height: '32px', 
-                  borderRadius: '50%',
-                  background: 'var(--brand1)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  fontSize: '0.875rem',
-                  fontWeight: '600'
-                }}>
-                  👤
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>Account Status</div>
-                  <div style={{ fontSize: '1.125rem', fontWeight: '600', color: '#10b981' }}>Active</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Member Since */}
-            <div className="card">
-              <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                <div style={{ 
-                  width: '32px', 
-                  height: '32px', 
-                  borderRadius: '50%',
-                  background: '#8b5cf6',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  color: '#fff',
-                  fontSize: '0.875rem',
-                  fontWeight: '600'
-                }}>
-                  📅
-                </div>
-                <div>
-                  <div style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>Member Since</div>
-                  <div style={{ fontSize: '1.125rem', fontWeight: '600' }}>
-                    {new Date(userProfile.created_at).toLocaleDateString()}
-                  </div>
-                </div>
+          <div>
+            <div className="device">
+              <div className="device-top" />
+              <HeroPreview src="/assets/app-preview.gif" alt="ScanSnap in action" />
+              <div className="bar">
+                <button className="pill" type="button">Live Demo</button>
+                <button className="pill" type="button">Offline-Ready</button>
               </div>
             </div>
           </div>
-        )}
+        </div>
+      </section>
 
-        {/* Quick Actions */}
-        <div className="card" style={{ marginBottom: '2rem' }}>
-          <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>Quick Actions</h3>
-          <div className="grid cols-2" style={{ gap: '1rem' }}>
-            <button onClick={handleLaunchApp} className="btn primary block">
-              🚀 Launch App
-            </button>
-            <Link href="/subscription" className="btn block">
-              ⚡ Manage Subscription
-            </Link>
-            <Link href="/purchases" className="btn block">
-              📄 View Purchases
-            </Link>
-            <Link href="/#pricing" className="btn block">
-              💎 View Plans
-            </Link>
+      {/* ===== FEATURES ===== */}
+      <section id="features" className="section">
+        <div className="container">
+          <div className="section-heading">
+            <h2>Three powerful modes for every workflow</h2>
+            <p>From simple scanning to complex order building and delivery verification</p>
+          </div>
+          <div className="grid cols-3">
+            <div className="card">
+              <span className="tag">Scan Mode</span>
+              <h3 style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>Basic barcode scanning</h3>
+              <ul className="feature">
+                <li>Scan barcodes with your camera or device</li>
+                <li>Manual barcode entry when needed</li>
+                <li>Export to PDF, CSV, or Excel</li>
+                <li>Works completely offline</li>
+              </ul>
+            </div>
+
+            <div className="card">
+              <span className="tag">Verify Mode</span>
+              <h3 style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>Delivery & order verification</h3>
+              <ul className="feature">
+                <li>Import your order summaries or delivery lists</li>
+                <li>Scan items to verify against imported data</li>
+                <li>Track counts and catch missing items</li>
+                <li>Perfect for delivery verification and inventory counts</li>
+              </ul>
+            </div>
+
+            <div className="card">
+              <span className="tag">Order Builder</span>
+              <h3 style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>Build orders from your catalog</h3>
+              <ul className="feature">
+                <li>Upload CSV with barcodes and descriptions</li>
+                <li>Scan to add items with automatic lookup</li>
+                <li>Track quantities from repeated scans</li>
+                <li>Replace paper-based vendor ordering</li>
+              </ul>
+            </div>
           </div>
         </div>
-      </main>
+      </section>
 
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
-    </div>
-  )
+      {/* ===== PRICING ===== */}
+      <section id="pricing" className="section">
+        <div className="container">
+          <div className="section-heading">
+            <h2>Pricing</h2>
+            <p>Choose the plan that fits your scanning needs</p>
+          </div>
+          <PricingSection />
+        </div>
+      </section>
+
+      {/* ===== USE CASES ===== */}
+      <section id="use-cases" className="section">
+        <div className="container">
+          <div className="section-heading">
+            <h2>Built for real business workflows</h2>
+            <p>See how teams use ScanSnap to streamline their operations</p>
+          </div>
+          <div className="grid cols-2">
+            <div className="card">
+              <h3>Retail & Small Business</h3>
+              <ul className="feature">
+                <li><strong>Vendor Orders</strong>: Replace handwritten orders with barcode scanning</li>
+                <li><strong>Delivery Verification</strong>: Scan incoming shipments against order lists</li>
+                <li><strong>Inventory Counts</strong>: Quick cycle counts and stock verification</li>
+              </ul>
+            </div>
+
+            <div className="card">
+              <h3>Warehouses & Distribution</h3>
+              <ul className="feature">
+                <li><strong>Pick Verification</strong>: Verify picks against order summaries</li>
+                <li><strong>Receiving</strong>: Check incoming inventory against purchase orders</li>
+                <li><strong>Shipping Verification</strong>: Ensure correct items before dispatch</li>
+              </ul>
+            </div>
+
+            <div className="card">
+              <h3>Manufacturing & Production</h3>
+              <ul className="feature">
+                <li><strong>Parts Sorting</strong>: Sort components using imported parts lists</li>
+                <li><strong>Work Order Verification</strong>: Scan parts against production requirements</li>
+                <li><strong>Quality Control</strong>: Track and verify component usage</li>
+              </ul>
+            </div>
+
+            <div className="card">
+              <h3>Field Service & Maintenance</h3>
+              <ul className="feature">
+                <li><strong>Parts Ordering</strong>: Build service orders by scanning needed parts</li>
+                <li><strong>Delivery Verification</strong>: Verify parts deliveries at job sites</li>
+                <li><strong>Inventory Management</strong>: Track van stock and supplies</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== CONTACT ===== */}
+      <section id="contact" className="section">
+        <div className="container">
+          <div className="section-heading">
+            <h2>Get Started Today</h2>
+            <p>Questions about implementation or need a custom solution?</p>
+          </div>
+          <div className="grid cols-2">
+            <div className="card">
+              <h3>Contact Sales</h3>
+              <p className="muted">Questions about team licensing, custom workflows, or bulk deployments?</p>
+              <div style={{ height: 8 }} />
+              <a className="btn" href="mailto:hello@scansnap.io">hello@scansnap.io</a>
+            </div>
+
+            <div className="card">
+              <h3>Existing Customer</h3>
+              <p className="muted">Manage your account, subscription, and billing settings.</p>
+              <div style={{ height: 8 }} />
+              <LoginButton />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ===== FOOTER ===== */}
+      <footer className="site">
+        <div className="container foot-grid">
+          <div className="brand-row">
+            <div className="brand footer-brand" style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
+              <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
+              <img className="word word-light" src="/assets/text_1024_light.png" alt="ScanSnap" />
+              <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
+            </div>
+            <p className="muted">© {new Date().getFullYear()} ScanSnap. All rights reserved.</p>
+          </div>
+          <div>
+            <h4>Product</h4>
+            <div className="grid">
+              <a className="link" href="#features">Features</a>
+              <a className="link" href="#pricing">Pricing</a>
+              <a className="link" href="#use-cases">Use Cases</a>
+            </div>
+          </div>
+          <div>
+            <h4>Company</h4>
+            <div className="grid">
+              <a className="link" href="#contact">Contact</a>
+              <a className="link" href={appUrl}>Open App</a>
+            </div>
+          </div>
+        </div>
+      </footer>
+    </>
+  );
 }
