@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton, useUser, useClerk } from "@clerk/nextjs";
 import ThemeToggle from "@/components/ThemeToggle";
 import LoginButton from "@/components/LoginButton";
 import { useState } from "react";
@@ -11,7 +11,9 @@ import { usePathname } from "next/navigation";
 export default function SiteHeader() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopUserMenuOpen, setDesktopUserMenuOpen] = useState(false);
   const { user } = useUser();
+  const { signOut } = useClerk();
   const pathname = usePathname();
 
   // Get page title based on current route
@@ -75,37 +77,134 @@ export default function SiteHeader() {
             <SignedIn>
               <Link className="chip" href="/dashboard">Dashboard</Link>
               
-              {/* Desktop: Clickable user name that opens user menu */}
+              {/* Desktop: Custom dropdown menu */}
               <div className="desktop-user-menu" style={{ position: 'relative' }}>
-                {/* Hidden UserButton for functionality */}
-                <div style={{ position: 'absolute', opacity: 0, pointerEvents: 'none', zIndex: -1 }}>
-                  <UserButton 
-                    afterSignOutUrl="/"
-                    appearance={{
-                      elements: {
-                        userButtonPopoverCard: "fixed left-1/2 top-20 transform -translate-x-1/2 z-[9999]",
-                      }
-                    }}
-                  />
-                </div>
-                
-                {/* Visible clickable name */}
                 <button 
                   className="chip user-name-trigger"
-                  onClick={() => {
-                    // Programmatically trigger the UserButton
-                    const userButton = document.querySelector('.cl-userButtonTrigger') as HTMLElement;
-                    if (userButton) {
-                      userButton.click();
-                    }
-                  }}
+                  onClick={() => setDesktopUserMenuOpen(!desktopUserMenuOpen)}
                   style={{
-                    background: 'rgba(148,163,184,.08)',
+                    background: desktopUserMenuOpen ? 'rgba(148,163,184,.15)' : 'rgba(148,163,184,.08)',
                     border: '1px solid var(--line)',
                   }}
                 >
                   {user?.firstName || user?.emailAddresses[0]?.emailAddress.split('@')[0] || 'Account'}
                 </button>
+                
+                {/* Custom dropdown menu */}
+                {desktopUserMenuOpen && (
+                  <>
+                    {/* Backdrop to close menu when clicking outside */}
+                    <div 
+                      style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        zIndex: 998
+                      }}
+                      onClick={() => setDesktopUserMenuOpen(false)}
+                    />
+                    
+                    {/* Dropdown menu */}
+                    <div 
+                      style={{
+                        position: 'absolute',
+                        top: '100%',
+                        right: 0,
+                        marginTop: '8px',
+                        background: 'var(--card)',
+                        border: '1px solid var(--line)',
+                        borderRadius: 'var(--radius-lg)',
+                        boxShadow: 'var(--shadow)',
+                        minWidth: '200px',
+                        zIndex: 999,
+                        padding: '8px 0'
+                      }}
+                    >
+                      <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--line)' }}>
+                        <div style={{ fontWeight: '600', fontSize: '0.875rem' }}>
+                          {user?.firstName} {user?.lastName}
+                        </div>
+                        <div style={{ fontSize: '0.75rem', color: 'var(--muted)' }}>
+                          {user?.emailAddresses[0]?.emailAddress}
+                        </div>
+                      </div>
+                      
+                      <Link 
+                        href="/dashboard" 
+                        style={{ 
+                          display: 'block', 
+                          padding: '8px 16px', 
+                          color: 'var(--fg)', 
+                          textDecoration: 'none',
+                          fontSize: '0.875rem'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(148,163,184,.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        onClick={() => setDesktopUserMenuOpen(false)}
+                      >
+                        Dashboard
+                      </Link>
+                      
+                      <Link 
+                        href="/subscription" 
+                        style={{ 
+                          display: 'block', 
+                          padding: '8px 16px', 
+                          color: 'var(--fg)', 
+                          textDecoration: 'none',
+                          fontSize: '0.875rem'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(148,163,184,.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        onClick={() => setDesktopUserMenuOpen(false)}
+                      >
+                        Manage Subscription
+                      </Link>
+                      
+                      <Link 
+                        href="/purchases" 
+                        style={{ 
+                          display: 'block', 
+                          padding: '8px 16px', 
+                          color: 'var(--fg)', 
+                          textDecoration: 'none',
+                          fontSize: '0.875rem'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(148,163,184,.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                        onClick={() => setDesktopUserMenuOpen(false)}
+                      >
+                        Purchase History
+                      </Link>
+                      
+                      <div style={{ height: '1px', background: 'var(--line)', margin: '8px 0' }} />
+                      
+                      <button
+                        onClick={() => {
+                          setDesktopUserMenuOpen(false);
+                          signOut();
+                        }}
+                        style={{
+                          display: 'block',
+                          width: '100%',
+                          padding: '8px 16px',
+                          background: 'transparent',
+                          border: 'none',
+                          color: 'var(--fg)',
+                          textAlign: 'left',
+                          fontSize: '0.875rem',
+                          cursor: 'pointer'
+                        }}
+                        onMouseEnter={(e) => e.currentTarget.style.background = 'rgba(148,163,184,.08)'}
+                        onMouseLeave={(e) => e.currentTarget.style.background = 'transparent'}
+                      >
+                        Sign Out
+                      </button>
+                    </div>
+                  </>
+                )}
               </div>
             </SignedIn>
             
@@ -121,7 +220,15 @@ export default function SiteHeader() {
                 appearance={{
                   elements: {
                     avatarBox: "h-8 w-8 flex items-center justify-center",
-                    userButtonPopoverCard: "fixed left-1/2 top-20 transform -translate-x-1/2 z-[9999]",
+                    userButtonPopoverCard: {
+                      position: 'fixed',
+                      top: '70px',
+                      right: '20px',
+                      left: 'auto',
+                      transform: 'none',
+                      zIndex: '9999',
+                      maxWidth: '90vw'
+                    }
                   }
                 }}
               />
