@@ -1,15 +1,15 @@
 // components/SiteHeader.tsx
-'use client';
+‘use client’;
 
-import Link from 'next/link';
-import { SignedIn, SignedOut, UserButton, useUser } from “@clerk/nextjs”;
-import ThemeToggle from “@/components/ThemeToggle”;
-import LoginButton from “@/components/LoginButton”;
-import { useState } from “react”;
-import { usePathname } from “next/navigation”;
+import Link from ‘next/link’;
+import { SignedIn, SignedOut, UserButton, useUser } from ‘@clerk/nextjs’;
+import ThemeToggle from ‘@/components/ThemeToggle’;
+import LoginButton from ‘@/components/LoginButton’;
+import { useState } from ‘react’;
+import { usePathname } from ‘next/navigation’;
 
 export default function SiteHeader() {
-const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? “https://app.scansnap.io”;
+const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? ‘https://app.scansnap.io’;
 const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 const { user } = useUser();
 const pathname = usePathname();
@@ -74,22 +74,22 @@ return (
               appearance={{
                 elements: {
                   userButtonAvatarBox: {
-                    width: "32px",
-                    height: "32px"
+                    width: '32px',
+                    height: '32px'
                   },
                   userButtonTrigger: {
-                    background: "rgba(148,163,184,.08)",
-                    border: "1px solid var(--line)",
-                    borderRadius: "999px",
-                    padding: "6px 12px",
-                    fontSize: "14px",
-                    fontWeight: "500",
-                    color: "var(--fg)",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    "&:hover": {
-                      background: "rgba(148,163,184,.15)"
+                    background: 'rgba(148,163,184,.08)',
+                    border: '1px solid var(--line)',
+                    borderRadius: '999px',
+                    padding: '6px 12px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: 'var(--fg)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    '&:hover': {
+                      background: 'rgba(148,163,184,.15)'
                     }
                   }
                 }
@@ -116,8 +116,8 @@ return (
             appearance={{
               elements: {
                 userButtonAvatarBox: {
-                  width: "36px",
-                  height: "36px"
+                  width: '36px',
+                  height: '36px'
                 }
               }
             }}
