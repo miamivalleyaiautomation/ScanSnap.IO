@@ -86,7 +86,6 @@ export default function LoginPage() {
                   colorInputBackground: 'var(--bg)',
                   colorInputText: 'var(--fg)',
                   borderRadius: '12px',
-                  colorAlphaShade: 'var(--line)',
                 },
                 elements: {
                   rootBox: {
