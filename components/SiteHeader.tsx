@@ -1,7 +1,7 @@
 // components/SiteHeader.tsx
-“use client”;
+'use client';
 
-import Link from “next/link”;
+import Link from 'next/link';
 import { SignedIn, SignedOut, UserButton, useUser } from “@clerk/nextjs”;
 import ThemeToggle from “@/components/ThemeToggle”;
 import LoginButton from “@/components/LoginButton”;
