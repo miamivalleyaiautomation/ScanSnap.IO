@@ -166,14 +166,11 @@ export default function Page() {
               <a className="btn" href="mailto:hello@scansnap.io">hello@scansnap.io</a>
             </div>
 
-            <div className="card">
+           <div className="card">
               <h3>Existing Customer</h3>
-              <p className="muted">Manage your subscription, team members, and billing settings.</p>
+              <p className="muted">Manage your account, subscription, and billing settings.</p>
               <div style={{ height: 8 }} />
-              <div className="actions">
-                <a className="btn" href={appUrl}>Open App</a>
-                <a className="btn primary" href={`${portalUrl}/login`}>Billing Portal</a>
-              </div>
+              <LoginButton />
             </div>
           </div>
         </div>
