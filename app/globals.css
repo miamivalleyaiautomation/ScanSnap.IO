@@ -645,3 +645,70 @@ body.cl-modal-open {
   position: fixed !important;
   z-index: 9999 !important;
 }
+/* ===== HEADER SHAPE AND FAVICON THEME FIX ===== */
+/* Add these CSS rules to your globals.css to fix header shape and favicon switching */
+
+/* Update header shape - squared with smooth rounded edges */
+.nav-rail{
+  display:flex; 
+  align-items:center; 
+  justify-content:space-between; 
+  gap:12px;
+  background:var(--overlay); 
+  backdrop-filter:saturate(180%) blur(14px);
+  border:1px solid var(--line); 
+  border-radius: 12px; /* Changed from var(--radius-pill) to smooth squared edges */
+  padding:8px;
+}
+
+/* Fix favicon icon theme switching - REMOVE the always light rule */
+.mark-light,
+.mark-dark {
+  /* Remove the always show light rule to allow proper theme switching */
+}
+
+/* Proper theme switching for favicon icons */
+html[data-theme="dark"] .mark-light { 
+  display: inline-block !important; 
+}
+html[data-theme="dark"] .mark-dark { 
+  display: none !important; 
+}
+
+html[data-theme="light"] .mark-light { 
+  display: none !important; 
+}
+html[data-theme="light"] .mark-dark { 
+  display: inline-block !important; 
+}
+
+/* Keep text icon switching as is (working correctly) */
+html[data-theme="dark"] .word-light { 
+  display: inline-block; 
+}
+html[data-theme="dark"] .word-dark { 
+  display: none; 
+}
+
+html[data-theme="light"] .word-light { 
+  display: none; 
+}
+html[data-theme="light"] .word-dark { 
+  display: inline-block; 
+}
+
+/* Additional refinements for the squared header */
+.hamburger,
+.chip,
+.theme-toggle {
+  border-radius: 8px; /* Slightly more squared for consistency */
+}
+
+/* Mobile menu elements to match */
+.menu-link {
+  border-radius: 8px; /* Match the squared theme */
+}
+
+.menu-sheet {
+  border-radius: 12px 0 0 12px; /* Squared corners on the left side */
+}
