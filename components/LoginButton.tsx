@@ -1,4 +1,4 @@
-// components/LoginButton.tsx
+// Fix for PricingSection component to remove debug
 'use client'
 
 import { SignInButton, SignUpButton, useUser } from "@clerk/nextjs"
@@ -46,18 +46,26 @@ export default function LoginButton({ className = "", isMobile = false }: { clas
 
   return (
     <>
-      <button 
-        className={isMobile ? `menu-link ${className}` : `chip primary ${className}`}
-        onClick={() => setShowModal(true)}
-        style={isMobile ? { 
-          background: 'var(--brand-grad)', 
-          color: '#fff',
-          fontWeight: '600',
-          textAlign: 'center'
-        } : {}}
-      >
-        Login
-      </button>
+      {isMobile ? (
+        <a 
+          className="menu-link"
+          onClick={() => setShowModal(true)}
+          style={{ 
+            cursor: 'pointer',
+            display: 'block',
+            textAlign: 'center'
+          }}
+        >
+          Login
+        </a>
+      ) : (
+        <button 
+          className={`chip primary ${className}`}
+          onClick={() => setShowModal(true)}
+        >
+          Login
+        </button>
+      )}
 
       {showModal && (
         <>

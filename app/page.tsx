@@ -59,7 +59,7 @@ export default function Page() {
           <div className="grid cols-3">
             <div className="card">
               <span className="tag">Scan Mode</span>
-              <h3>Basic barcode scanning</h3>
+              <h3 style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>Basic barcode scanning</h3>
               <ul className="feature">
                 <li>Scan barcodes with your camera or device</li>
                 <li>Manual barcode entry when needed</li>
@@ -70,7 +70,7 @@ export default function Page() {
 
             <div className="card">
               <span className="tag">Verify Mode</span>
-              <h3>Delivery &amp; order verification</h3>
+              <h3 style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>Delivery & order verification</h3>
               <ul className="feature">
                 <li>Import your order summaries or delivery lists</li>
                 <li>Scan items to verify against imported data</li>
@@ -81,7 +81,7 @@ export default function Page() {
 
             <div className="card">
               <span className="tag">Order Builder</span>
-              <h3>Build orders from your catalog</h3>
+              <h3 style={{ marginTop: '0.75rem', marginBottom: '0.75rem' }}>Build orders from your catalog</h3>
               <ul className="feature">
                 <li>Upload CSV with barcodes and descriptions</li>
                 <li>Scan to add items with automatic lookup</li>
@@ -113,7 +113,7 @@ export default function Page() {
           </div>
           <div className="grid cols-2">
             <div className="card">
-              <h3>Retail &amp; Small Business</h3>
+              <h3>Retail & Small Business</h3>
               <ul className="feature">
                 <li><strong>Vendor Orders</strong>: Replace handwritten orders with barcode scanning</li>
                 <li><strong>Delivery Verification</strong>: Scan incoming shipments against order lists</li>
@@ -122,7 +122,7 @@ export default function Page() {
             </div>
 
             <div className="card">
-              <h3>Warehouses &amp; Distribution</h3>
+              <h3>Warehouses & Distribution</h3>
               <ul className="feature">
                 <li><strong>Pick Verification</strong>: Verify picks against order summaries</li>
                 <li><strong>Receiving</strong>: Check incoming inventory against purchase orders</li>
@@ -131,7 +131,7 @@ export default function Page() {
             </div>
 
             <div className="card">
-              <h3>Manufacturing &amp; Production</h3>
+              <h3>Manufacturing & Production</h3>
               <ul className="feature">
                 <li><strong>Parts Sorting</strong>: Sort components using imported parts lists</li>
                 <li><strong>Work Order Verification</strong>: Scan parts against production requirements</li>
@@ -140,7 +140,7 @@ export default function Page() {
             </div>
 
             <div className="card">
-              <h3>Field Service &amp; Maintenance</h3>
+              <h3>Field Service & Maintenance</h3>
               <ul className="feature">
                 <li><strong>Parts Ordering</strong>: Build service orders by scanning needed parts</li>
                 <li><strong>Delivery Verification</strong>: Verify parts deliveries at job sites</li>

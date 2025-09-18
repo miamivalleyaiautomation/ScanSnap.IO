@@ -2,20 +2,34 @@
 "use client";
 
 import Link from "next/link";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { SignedIn, SignedOut, UserButton, useUser } from "@clerk/nextjs";
 import ThemeToggle from "@/components/ThemeToggle";
 import LoginButton from "@/components/LoginButton";
 import { useState } from "react";
+import { usePathname } from "next/navigation";
 
 export default function SiteHeader() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user } = useUser();
+  const pathname = usePathname();
+
+  // Get page title based on current route
+  const getPageTitle = () => {
+    if (pathname === '/dashboard') return 'Dashboard';
+    if (pathname === '/subscription') return 'Manage Subscription';
+    if (pathname === '/purchases') return 'Purchase History';
+    if (pathname === '/') return '';
+    return '';
+  };
+
+  const pageTitle = getPageTitle();
 
   return (
     <header className="site-header glass">
       <div className="container">
         <div className="nav-rail">
-          {/* Brand: NO inner pill — just icon + wordmark, perfectly centered */}
+          {/* Brand: icon + wordmark */}
           <Link href="/" className="brand-inline" aria-label="ScanSnap Home">
             <img className="mark mark-light" src="/assets/favicon_1024_light.png" alt="" />
             <img className="mark mark-dark"  src="/assets/favicon_1024_dark.png"  alt="" />
@@ -23,11 +37,33 @@ export default function SiteHeader() {
             <img className="word word-dark"  src="/assets/text_1024_dark.png"  alt="ScanSnap" />
           </Link>
 
+          {/* Mobile page title in center */}
+          {pageTitle && (
+            <div className="mobile-page-title" style={{
+              display: 'none',
+              position: 'absolute',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              fontSize: '1.125rem',
+              fontWeight: '600',
+              color: 'var(--fg)'
+            }}>
+              {pageTitle}
+            </div>
+          )}
+
           {/* Desktop inline nav chips */}
           <nav className="chip-nav" aria-label="Primary">
-            <Link className="chip" href="#features">Features</Link>
-            <Link className="chip" href="#pricing">Pricing</Link>
-            <Link className="chip" href="#contact">Contact</Link>
+            {pathname === '/' ? (
+              <>
+                <Link className="chip" href="#features">Features</Link>
+                <Link className="chip" href="#pricing">Pricing</Link>
+                <Link className="chip" href="#contact">Contact</Link>
+              </>
+            ) : (
+              <Link className="chip" href="/">← Back Home</Link>
+            )}
+            
             <a className="chip" href={appUrl}>Go to App</a>
             
             {/* Signed out: show login button */}
@@ -35,15 +71,24 @@ export default function SiteHeader() {
               <LoginButton />
             </SignedOut>
             
-            {/* Signed in: show dashboard link and user button */}
+            {/* Signed in: show dashboard link, user info and user button */}
             <SignedIn>
               <Link className="chip" href="/dashboard">Dashboard</Link>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '0.5rem',
+                color: 'var(--muted)',
+                fontSize: '0.875rem'
+              }}>
+                {user?.firstName || user?.emailAddresses[0]?.emailAddress.split('@')[0]}
+              </div>
               <UserButton 
                 afterSignOutUrl="/"
                 appearance={{
                   elements: {
-                    avatarBox: "w-8 h-8",
-                    userButtonPopoverCard: "z-50", // Ensure user menu appears above other elements
+                    avatarBox: "h-9 w-9",
+                    userButtonPopoverCard: "fixed left-1/2 top-20 transform -translate-x-1/2",
                   }
                 }}
               />
@@ -52,23 +97,19 @@ export default function SiteHeader() {
             <ThemeToggle />
           </nav>
 
-          {/* Right controls / mobile - only hamburger */}
+          {/* Right controls / mobile */}
           <div className="right-controls">
-            <SignedOut>
-              <LoginButton />
-            </SignedOut>
             <SignedIn>
               <UserButton 
                 afterSignOutUrl="/"
                 appearance={{
                   elements: {
-                    avatarBox: "w-8 h-8",
-                    userButtonPopoverCard: "z-50",
+                    avatarBox: "h-8 w-8 flex items-center justify-center",
+                    userButtonPopoverCard: "fixed left-1/2 top-20 transform -translate-x-1/2 z-[9999]",
                   }
                 }}
               />
             </SignedIn>
-            <ThemeToggle />
             <button 
               className="hamburger" 
               aria-label="Open menu" 
@@ -82,7 +123,7 @@ export default function SiteHeader() {
         </div>
       </div>
 
-      {/* Mobile drawer - everything goes here */}
+      {/* Mobile drawer */}
       <div 
         className={`menu-backdrop ${mobileMenuOpen ? 'show' : ''}`} 
         onClick={() => setMobileMenuOpen(false)}
@@ -104,34 +145,57 @@ export default function SiteHeader() {
           </button>
         </div>
         <div className="menu-body">
-          <Link className="menu-link" href="#features" onClick={() => setMobileMenuOpen(false)}>
-            Features
-          </Link>
-          <Link className="menu-link" href="#pricing" onClick={() => setMobileMenuOpen(false)}>
-            Pricing
-          </Link>
-          <Link className="menu-link" href="#contact" onClick={() => setMobileMenuOpen(false)}>
-            Contact
-          </Link>
+          {pathname === '/' ? (
+            <>
+              <Link className="menu-link" href="#features" onClick={() => setMobileMenuOpen(false)}>
+                Features
+              </Link>
+              <Link className="menu-link" href="#pricing" onClick={() => setMobileMenuOpen(false)}>
+                Pricing
+              </Link>
+              <Link className="menu-link" href="#contact" onClick={() => setMobileMenuOpen(false)}>
+                Contact
+              </Link>
+            </>
+          ) : (
+            <Link className="menu-link" href="/" onClick={() => setMobileMenuOpen(false)}>
+              ← Back Home
+            </Link>
+          )}
+          
           <a className="menu-link" href={appUrl} onClick={() => setMobileMenuOpen(false)}>
             Go to App
           </a>
-          
-          <SignedOut>
-            <div style={{ marginTop: '1rem' }}>
-              <LoginButton isMobile={true} />
-            </div>
-          </SignedOut>
           
           <SignedIn>
             <Link className="menu-link" href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
               Dashboard
             </Link>
+            <Link className="menu-link" href="/subscription" onClick={() => setMobileMenuOpen(false)}>
+              Manage Subscription
+            </Link>
+            <Link className="menu-link" href="/purchases" onClick={() => setMobileMenuOpen(false)}>
+              Purchase History
+            </Link>
           </SignedIn>
           
-          <ThemeToggle />
+          <div style={{ marginTop: 'auto', paddingTop: '1rem' }}>
+            <SignedOut>
+              <LoginButton isMobile={true} />
+            </SignedOut>
+            
+            <ThemeToggle />
+          </div>
         </div>
       </aside>
+
+      <style jsx>{`
+        @media (max-width: 1023px) {
+          .mobile-page-title {
+            display: block !important;
+          }
+        }
+      `}</style>
     </header>
   );
 }

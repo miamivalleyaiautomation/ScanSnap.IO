@@ -98,11 +98,12 @@ h4{ font-size:1rem; margin:.4rem 0 .3rem; font-weight:600; }
   white-space:nowrap; 
   border:0; 
 }
+
 /* Section headings - proper spacing for smooth scroll */
 .section-heading {
-  margin: 0 0 1.5rem 0;         /* reduced from 2rem */
+  margin: 0 0 1.5rem 0;
   text-align: center;
-  padding-top: 0.5rem;          /* reduced from 1rem */
+  padding-top: 0.5rem;
 }
 
 .section-heading h2 {
@@ -129,43 +130,54 @@ h4{ font-size:1rem; margin:.4rem 0 .3rem; font-weight:600; }
 .btn.primary{ background:var(--brand-grad); border-color:transparent; color:#00131c; font-weight:700 }
 .btn.block{ width:100%; justify-content:center }
 
-/* ===== SUPERU-STYLE GLASS HEADER ===== */
-.site-header{ position:sticky; top:0; z-index:50; padding:12px 0; background:transparent; }
+/* ===== GLASS HEADER ===== */
+.site-header{ 
+  position:sticky; 
+  top:0; 
+  z-index:50; 
+  padding:12px 0; 
+  background:transparent; 
+}
+
+.site-header.glass {
+  backdrop-filter: saturate(180%) blur(14px);
+  background: var(--overlay);
+}
+
 .nav-rail{
   display:flex; align-items:center; justify-content:space-between; gap:12px;
   background:var(--overlay); backdrop-filter:saturate(180%) blur(14px);
   border:1px solid var(--line); border-radius:var(--radius-pill); padding:8px;
 }
 
-/* --- Brand: icon + text centered vertically, NO inner pill ---------------- */
+/* Brand styling */
 .nav-rail .brand-inline,
-.nav-rail .brand-badge{        /* support either class, same look */
-  all: unset;                  /* nuke inner "pill" border/padding */
+.nav-rail .brand-badge{
+  all: unset;
   display:flex; 
-  align-items:center;          /* vertical center alignment */
-  justify-content: center;     /* horizontal center for mobile */
+  align-items:center;
   gap:10px; 
   line-height:0; 
   cursor:pointer;
-  flex-shrink: 0;              /* prevent brand from shrinking */
-}
-.nav-rail .brand-inline img,
-.nav-rail .brand-badge  img{ 
-  display:block; 
-  height:auto; 
-  flex-shrink: 0;              /* prevent images from shrinking */
+  flex-shrink: 0;
 }
 
-/* Bigger brand in header - with max-width constraints */
+.nav-rail .brand-inline img,
+.nav-rail .brand-badge img{ 
+  display:block; 
+  height:auto; 
+  flex-shrink: 0;
+}
+
 .nav-rail .mark{ 
   height:var(--brand-mark-h-header); 
   width:auto; 
-  max-width: 44px;             /* prevent logo from getting too wide */
+  max-width: 44px;
 }
 .nav-rail .word{ 
   height:var(--brand-word-h-header); 
   width:auto; 
-  max-width: 120px;            /* prevent wordmark from getting too wide */
+  max-width: 120px;
 }
 
 /* Desktop chip-nav */
@@ -174,42 +186,42 @@ h4{ font-size:1rem; margin:.4rem 0 .3rem; font-weight:600; }
   display:inline-flex; align-items:center; gap:8px; height:36px; padding:0 14px;
   border:1px solid var(--line); border-radius:var(--radius-pill);
   background:transparent; color:var(--fg); font-weight:600;
-  white-space: nowrap;         /* prevent text wrapping */
+  white-space: nowrap;
 }
 .chip:hover{ background:rgba(148,163,184,.08) }
 .chip.primary{ background:var(--brand-grad); border-color:transparent; color:#00131c }
 
-/* Right controls - improved layout */
+/* Right controls */
 .right-controls{ 
   display:flex; 
   align-items:center; 
   gap:8px; 
-  flex-shrink: 0;              /* prevent right controls from shrinking */
+  flex-shrink: 0;
 }
+
 .hamburger{
   border:1px solid var(--line); background:transparent; border-radius:10px;
   padding:8px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer;
   flex-shrink: 0;
-  color: var(--fg);            /* ensure icon color follows theme */
+  color: var(--fg);
 }
 .hamburger:hover {
   background: rgba(148,163,184,.08);
 }
 
-/* Hamburger SVG inherits color */
 .hamburger svg {
   color: inherit;
   stroke: currentColor;
 }
 
-/* Theme toggle button - Fixed styling */
+/* Theme toggle button */
 .theme-toggle{
   display:inline-flex !important; 
   align-items:center; 
   justify-content:center;
   height:40px; 
   width:40px; 
-  min-width: 40px;             /* ensure minimum width */
+  min-width: 40px;
   border:1px solid var(--line); 
   border-radius:10px;
   background:transparent; 
@@ -218,8 +230,8 @@ h4{ font-size:1rem; margin:.4rem 0 .3rem; font-weight:600; }
   cursor:pointer;
   transition:transform .06s ease, filter .15s ease;
   flex-shrink: 0;
-  padding: 0 !important;       /* force remove padding */
-  gap: 0 !important;           /* force remove gap */
+  padding: 0 !important;
+  gap: 0 !important;
 }
 .theme-toggle:hover{ filter:brightness(1.07) }
 .theme-toggle:active{ transform:translateY(1px) }
@@ -229,7 +241,7 @@ h4{ font-size:1rem; margin:.4rem 0 .3rem; font-weight:600; }
 .theme-toggle .sr-only { display: none !important; }
 .theme-toggle span:not(.emoji) { display: none !important; }
 
-/* Override btn styles for theme-toggle specifically - more specific selectors */
+/* Override btn styles for theme-toggle specifically */
 button.theme-toggle,
 .btn.theme-toggle,
 button.btn.theme-toggle {
@@ -260,11 +272,19 @@ button.btn.theme-toggle {
   padding:14px; border-bottom:1px solid var(--line); 
 }
 .menu-body{ 
-  padding:14px; display:flex; flex-direction:column; gap:10px; overflow:auto;
+  padding:14px; 
+  display:flex; 
+  flex-direction:column; 
+  gap:10px; 
+  overflow:auto;
+  flex: 1;
 }
 .menu-link{ 
-  padding:10px 12px; border:1px solid var(--line); border-radius:10px; 
-  display: block; text-align: center;
+  padding:10px 12px; 
+  border:1px solid var(--line); 
+  border-radius:10px; 
+  display: block; 
+  text-align: center;
 }
 .menu-inline{ 
   display: flex; gap: 8px; margin-top: 10px; 
@@ -276,18 +296,16 @@ button.btn.theme-toggle {
   margin-top: 10px;
 }
 
-/* Brand in mobile menu header - logo only, no text */
+/* Brand in mobile menu header */
 .menu-head .brand-inline .mark{ 
-  height: 33px;                        /* 25% smaller than 44px */
+  height: 33px;
   max-width: 33px; 
 }
 .menu-head .brand-inline .word{ 
-  display: none;                       /* hide text in mobile menu */
+  display: none;
 }
 
-/* ===== THEME ASSET SWAP (icon/wordmark) =====
-   - DARK theme shows LIGHT assets (white icons on dark background)
-   - LIGHT theme shows DARK assets (dark icons on light background) */
+/* ===== THEME ASSET SWAP ===== */
 html[data-theme="dark"] .word-light, 
 html[data-theme="dark"] .mark-light { display:inline-block; }
 html[data-theme="dark"] .word-dark,  
@@ -297,6 +315,10 @@ html[data-theme="light"] .word-light,
 html[data-theme="light"] .mark-light { display:none; }
 html[data-theme="light"] .word-dark,
 html[data-theme="light"] .mark-dark  { display:inline-block; }
+
+/* Always show light favicon */
+.mark-light { display:inline-block !important; }
+.mark-dark { display:none !important; }
 
 /* ===== HERO ===== */
 .hero{ position:relative; overflow:hidden; border-bottom:1px solid var(--line); }
@@ -333,7 +355,7 @@ html[data-theme="light"] .device img{ background:#ffffff }
   box-shadow:var(--shadow);
   display: flex;
   flex-direction: column;
-  justify-content: space-between;  /* distribute space evenly */
+  justify-content: space-between;
 }
 
 .grid{ display:grid; gap:1rem }
@@ -356,23 +378,6 @@ html[data-theme="light"] .device img{ background:#ffffff }
 .plan .price{ font-size:2rem; font-weight:800 }
 .plan .cta{ margin-top:.8rem }
 
-/* Mobile pricing override */
-@media (max-width: 1023px) {
-  .pricing-grid {
-    grid-template-columns: 1fr;
-    gap: 1.2rem;
-    max-width: 400px;
-    margin: 0 auto;
-  }
-}
-
-@media (max-width: 640px) {
-  .pricing-grid {
-    max-width: 350px;
-    gap: 1rem;
-  }
-}
-
 /* ===== FOOTER ===== */
 footer.site{ border-top:1px solid var(--line); background:transparent; padding:1.5rem 0; margin-top:2rem }
 .foot-grid{ display:grid; grid-template-columns:1.2fr .6fr .6fr; gap:1rem }
@@ -382,19 +387,36 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
 
 /* ===== RESPONSIVE ===== */
 @media (min-width:1024px){
-  .chip-nav{ display:flex }      /* show desktop nav chips */
-  .right-controls{ display:none }/* hide right controls on desktop */
+  .chip-nav{ display:flex }
+  .right-controls .theme-toggle { display:none !important; }
+  .right-controls .hamburger { display:none !important; }
+  .right-controls { display:none !important; }
 }
 
 @media (max-width:1023px){
-  .chip-nav{ display:none }      /* hide desktop nav on mobile */
-  .right-controls{ display:flex }/* show only hamburger + theme toggle on mobile */
+  .chip-nav{ display:none }
+  .right-controls{ display:flex !important; }
+  .right-controls .theme-toggle { display:none !important; }
   
   .hero-grid{ grid-template-columns:1fr }
   .grid.cols-2{ grid-template-columns:1fr }
   .grid.cols-3{ grid-template-columns:1fr }
   
-  /* Mobile approach: show text image but positioned in center */
+  /* Mobile pricing with consistent width */
+  .pricing-grid {
+    grid-template-columns: 1fr !important;
+    gap: 1.2rem;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  
+  /* Consistent container width on mobile */
+  .container {
+    width: min(100% - 2rem, 640px);
+    padding: 0 1rem;
+  }
+  
+  /* Mobile nav rail adjustments */
   .nav-rail {
     position: relative;
     display: flex;
@@ -411,7 +433,7 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
     gap: 10px;
   }
   
-  /* Logo 25% smaller, stays in brand container */
+  /* Logo smaller on mobile */
   .nav-rail .mark{ 
     height: 33px;
     max-width: 33px; 
@@ -423,7 +445,7 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
-    height: 46px;                /* 30% bigger */
+    height: 46px;
     max-width: 140px;
     z-index: 1;
   }
@@ -433,20 +455,28 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
     position: relative;
     z-index: 3;
   }
+  
+  /* Fix UserButton positioning on mobile */
+  .cl-userButtonTrigger {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  
+  /* Ensure UserButton popover is centered */
+  .cl-userButtonPopoverCard {
+    position: fixed !important;
+    left: 50% !important;
+    top: 80px !important;
+    transform: translateX(-50%) !important;
+    z-index: 9999 !important;
+  }
 }
 
 @media (max-width:640px){
   footer.site .footer-brand .mark{ height:18px }
   footer.site .footer-brand .word{ height:16px }
   
-  /* Even more specific override for small screens */
-  .pricing-grid,
-  .grid[style*="grid-template-columns: repeat(4, minmax(0, 1fr))"] { 
-    max-width: 350px !important; 
-    gap: 1rem !important; 
-  }
-  
-  /* Small phones: bigger text image */
   .nav-rail {
     height: 64px;
   }
@@ -454,159 +484,56 @@ footer.site .footer-brand .word{ height:var(--brand-word-h-footer); width:auto }
   .nav-rail .mark{ 
     height: 33px;
     max-width: 33px; 
-  }   
+  }
   
   .nav-rail .word {
-    height: 50px;                /* bigger on small screens */
+    height: 50px;
     max-width: 150px;
   }
   
-  /* Stack right controls vertically on very small screens if needed */
   .right-controls { 
     gap: 6px; 
   }
-}
-/* Add this to your globals.css file */
-
-/* Hide theme toggle in right controls on mobile */
-@media (max-width:1023px){
-  .right-controls .theme-toggle {
-    display: none !important;
+  
+  /* Ensure consistent mobile container */
+  .container {
+    width: calc(100% - 2rem);
+    max-width: 100%;
+    padding: 0 1rem;
   }
   
-  /* Ensure mobile menu theme toggle is centered and properly styled */
-  .menu-body .theme-toggle {
-    margin: 1rem auto 0 auto;
-    display: inline-flex !important;
-  }
-}
-
-/* Ensure desktop shows theme toggle in nav */
-@media (min-width:1024px){
-  .chip-nav .theme-toggle {
-    display: inline-flex !important;
+  /* Fix pricing section on small screens */
+  #pricing .container,
+  .pricing-grid {
+    width: 100%;
+    max-width: 100%;
   }
   
-  /* Hide right controls completely on desktop */
-  .right-controls {
-    display: none !important;
-  }
-}
-/* Add these styles to your globals.css file */
-
-/* Ensure proper z-index stacking for Clerk modals */
-[data-clerk-modal] {
-  z-index: 9999 !important;
-}
-
-/* Ensure UserButton dropdowns appear above other content */
-.cl-userButtonPopoverCard {
-  z-index: 9999 !important;
-}
-
-/* Ensure header stays fixed and doesn't get disrupted */
-.site-header {
-  position: sticky;
-  top: 0;
-  z-index: 50;
-  padding: 12px 0;
-  background: transparent;
-}
-
-/* Improve login button dropdown positioning */
-.chip.primary {
-  position: relative;
-}
-
-/* Ensure all Clerk components use modal mode */
-.cl-signIn-root,
-.cl-signUp-root {
-  position: fixed !important;
-  top: 50% !important;
-  left: 50% !important;
-  transform: translate(-50%, -50%) !important;
-  z-index: 9999 !important;
-  max-width: 400px !important;
-  width: 90vw !important;
-}
-
-/* Ensure Clerk modal backdrop */
-.cl-modalBackdrop {
-  z-index: 9998 !important;
-  backdrop-filter: blur(4px) !important;
-}
-
-/* Prevent body scroll when modal is open */
-body.cl-modal-open {
-  overflow: hidden !important;
-}
-
-/* Login button dropdown specific styles */
-.login-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  margin-top: 8px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow);
-  padding: 1rem;
-  min-width: 200px;
-  z-index: 60;
-}
-
-/* Ensure proper spacing in nav */
-.chip-nav {
-  display: none;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 1;
-}
-
-.chip-nav .chip {
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-/* Mobile specific fixes */
-@media (max-width: 1023px) {
-  .chip-nav {
-    display: none !important;
-  }
-  
-  .right-controls {
-    display: flex !important;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
+  .pricing-grid .card {
+    margin: 0;
   }
 }
 
-/* Desktop specific */
-@media (min-width: 1024px) {
-  .chip-nav {
-    display: flex !important;
-  }
-  
-  .right-controls {
-    display: none !important;
-  }
-}
-
-/* Prevent any layout shifts from Clerk components */
-.cl-internal-b3fm6y {
-  position: fixed !important;
-}
-
-/* Override any Clerk styles that might interfere with header */
+/* Ensure Clerk components use modal mode and appear correctly */
 .cl-rootBox {
   position: fixed !important;
   z-index: 9999 !important;
 }
 
-/* Ensure theme toggle stays properly positioned */
-.theme-toggle {
-  flex-shrink: 0 !important;
-  z-index: 1 !important;
+.cl-userButtonPopoverCard {
+  position: fixed !important;
+  left: 50% !important;
+  top: 80px !important;
+  transform: translateX(-50%) !important;
+  z-index: 9999 !important;
+  max-width: 90vw;
+}
+
+[data-clerk-modal] {
+  z-index: 9999 !important;
+}
+
+/* Prevent body scroll when modal is open */
+body.cl-modal-open {
+  overflow: hidden !important;
 }

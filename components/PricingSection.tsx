@@ -7,24 +7,18 @@ export default function PricingSection() {
   const { user, isSignedIn } = useUser();
 
   const handlePurchase = (planName: string, variantEnv: string) => {
-    console.log("Purchase clicked for:", planName);
-    
     if (!isSignedIn) {
       alert('Please sign in first to purchase a subscription');
       return;
     }
 
-    // Get the variant ID from environment variables
     const variantId = process.env[variantEnv as keyof typeof process.env] as string | undefined;
-    
-    console.log("Variant ID:", variantId);
     
     if (!variantId) {
       alert(`Checkout not configured for ${planName} plan. Please contact support.`);
       return;
     }
 
-    // Construct checkout URL with custom domain
     const baseUrl = `https://pay.scansnap.io/checkout/buy/${variantId}`;
     
     const params = new URLSearchParams({
@@ -34,10 +28,6 @@ export default function PricingSection() {
     });
     
     const checkoutUrl = `${baseUrl}?${params.toString()}`;
-    
-    console.log("Opening checkout URL:", checkoutUrl);
-    
-    // Open Lemon Squeezy checkout
     window.open(checkoutUrl, '_blank');
   };
 
@@ -164,26 +154,6 @@ export default function PricingSection() {
           </button>
         </SignedIn>
       </div>
-      
-      {/* Debug info for testing - remove in production */}
-      {isSignedIn && (
-        <div style={{ 
-          gridColumn: '1 / -1', 
-          marginTop: 20, 
-          padding: 10, 
-          backgroundColor: '#f5f5f5', 
-          fontSize: '12px',
-          border: '1px solid #ddd',
-          borderRadius: '8px'
-        }}>
-          <strong>Debug Info (remove in production):</strong><br/>
-          User ID: {user?.id}<br/>
-          Email: {user?.emailAddresses[0]?.emailAddress}<br/>
-          Plus Variant: {process.env.NEXT_PUBLIC_LS_VARIANT_PLUS || 'NOT SET'}<br/>
-          Pro Variant: {process.env.NEXT_PUBLIC_LS_VARIANT_PRO || 'NOT SET'}<br/>
-          Pro DPMS Variant: {process.env.NEXT_PUBLIC_LS_VARIANT_PRO_DPMS || 'NOT SET'}
-        </div>
-      )}
     </div>
   );
 }

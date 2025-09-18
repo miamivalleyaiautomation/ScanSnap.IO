@@ -2,8 +2,8 @@
 
 import { useUser } from "@clerk/nextjs"
 import { useEffect, useState } from "react"
-import { UserButton } from "@clerk/nextjs"
 import Link from "next/link"
+import SiteHeader from "@/components/SiteHeader"
 
 interface UserProfile {
   id: string
@@ -86,25 +86,26 @@ export default function Dashboard() {
 
   if (!isLoaded || loading) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        background: 'var(--bg)',
-        color: 'var(--fg)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ 
-            width: '48px', 
-            height: '48px', 
-            border: '3px solid var(--brand0)', 
-            borderTop: '3px solid transparent', 
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }}></div>
-          <p>Loading dashboard...</p>
+      <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
+        <SiteHeader />
+        <div style={{ 
+          minHeight: 'calc(100vh - 80px)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ 
+              width: '48px', 
+              height: '48px', 
+              border: '3px solid var(--brand0)', 
+              borderTop: '3px solid transparent', 
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite',
+              margin: '0 auto 16px'
+            }}></div>
+            <p>Loading dashboard...</p>
+          </div>
         </div>
       </div>
     )
@@ -112,17 +113,18 @@ export default function Dashboard() {
 
   if (!user) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        background: 'var(--bg)',
-        color: 'var(--fg)'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Please sign in</h1>
-          <Link href="/" className="btn primary">Go Home</Link>
+      <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
+        <SiteHeader />
+        <div style={{ 
+          minHeight: 'calc(100vh - 80px)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center'
+        }}>
+          <div style={{ textAlign: 'center' }}>
+            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>Please sign in</h1>
+            <Link href="/" className="btn primary">Go Home</Link>
+          </div>
         </div>
       </div>
     )
@@ -130,23 +132,24 @@ export default function Dashboard() {
 
   if (error) {
     return (
-      <div style={{ 
-        minHeight: '100vh', 
-        display: 'flex', 
-        alignItems: 'center', 
-        justifyContent: 'center',
-        background: 'var(--bg)',
-        color: 'var(--fg)'
-      }}>
-        <div className="container" style={{ maxWidth: '600px', textAlign: 'center' }}>
-          <div className="card">
-            <h1 style={{ color: '#ef4444', marginBottom: '1rem' }}>Error Loading Dashboard</h1>
-            <p style={{ color: 'var(--muted)', marginBottom: '1.5rem' }}>{error}</p>
-            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
-              <button onClick={() => window.location.reload()} className="btn primary">
-                Retry
-              </button>
-              <Link href="/" className="btn">Go Home</Link>
+      <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
+        <SiteHeader />
+        <div style={{ 
+          minHeight: 'calc(100vh - 80px)', 
+          display: 'flex', 
+          alignItems: 'center', 
+          justifyContent: 'center'
+        }}>
+          <div className="container" style={{ maxWidth: '600px', textAlign: 'center' }}>
+            <div className="card">
+              <h1 style={{ color: '#ef4444', marginBottom: '1rem' }}>Error Loading Dashboard</h1>
+              <p style={{ color: 'var(--muted)', marginBottom: '1.5rem' }}>{error}</p>
+              <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center' }}>
+                <button onClick={() => window.location.reload()} className="btn primary">
+                  Retry
+                </button>
+                <Link href="/" className="btn">Go Home</Link>
+              </div>
             </div>
           </div>
         </div>
@@ -156,48 +159,8 @@ export default function Dashboard() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
-      {/* Header */}
-      <header style={{ 
-        background: 'var(--card)', 
-        borderBottom: '1px solid var(--line)',
-        position: 'sticky',
-        top: 0,
-        zIndex: 50
-      }}>
-        <div className="container" style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          height: '64px'
-        }}>
-          <Link href="/" style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <img 
-              className="mark mark-light" 
-              src="/assets/favicon_1024_light.png" 
-              alt="" 
-              style={{ height: '32px' }} 
-            />
-            <img 
-              className="mark mark-dark" 
-              src="/assets/favicon_1024_dark.png" 
-              alt="" 
-              style={{ height: '32px' }} 
-            />
-            <span style={{ fontSize: '1.25rem', fontWeight: '600' }}>
-              ScanSnap Dashboard
-            </span>
-          </Link>
-          
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <span style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>
-              {user.firstName || user.emailAddresses[0].emailAddress}
-            </span>
-            <UserButton afterSignOutUrl="/" />
-          </div>
-        </div>
-      </header>
+      <SiteHeader />
 
-      {/* Main Content */}
       <main className="container section">
         
         {/* Welcome Section */}
@@ -309,43 +272,10 @@ export default function Dashboard() {
               📄 View Purchases
             </Link>
             <Link href="/#pricing" className="btn block">
-              💎 Upgrade Plan
+              💎 View Plans
             </Link>
           </div>
         </div>
-
-        {/* Upgrade Prompt for Basic Users */}
-        {userProfile?.subscription_status === 'basic' && (
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1))',
-            border: '1px solid var(--brand0)',
-            borderRadius: 'var(--radius-lg)',
-            padding: '1.5rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
-              <div style={{ 
-                width: '24px', 
-                height: '24px', 
-                color: 'var(--brand0)',
-                flexShrink: 0,
-                marginTop: '2px'
-              }}>
-                💡
-              </div>
-              <div style={{ flex: 1 }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--brand0)' }}>
-                  Unlock More Features
-                </h3>
-                <p className="muted" style={{ marginBottom: '1rem' }}>
-                  You're on the Basic plan. Upgrade to Plus or Pro to unlock catalog import, verify mode, order builder, and advanced scanning features.
-                </p>
-                <Link href="/#pricing" className="btn primary">
-                  View Plans
-                </Link>
-              </div>
-            </div>
-          </div>
-        )}
       </main>
 
       <style jsx>{`
