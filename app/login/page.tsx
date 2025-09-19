@@ -107,11 +107,7 @@ export default function LoginPage() {
                     overflowY: 'auto',
                     WebkitOverflowScrolling: 'touch',
                     margin: '0 auto',
-                    width: '100%',
-                    '@media (max-width: 480px)': {
-                      borderRadius: '12px',
-                      padding: '1rem',
-                    }
+                    width: '100%'
                   },
                   headerTitle: {
                     fontSize: '1.25rem',
