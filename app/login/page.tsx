@@ -25,46 +25,44 @@ export default function LoginPage() {
       position: 'relative',
       overflow: 'hidden'
     }}>
-      {/* Simple header with logo */}
       <header style={{
-        padding: '1.5rem 0',
+        padding: '1rem 0',
         borderBottom: '1px solid var(–line)'
       }}>
         <div className="container">
           <Link href="/" style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: '12px'
+            gap: '8px'
           }}>
             <img
               className="mark mark-light"
               src="/assets/favicon_1024_light.png"
               alt=""
-              style={{ height: '40px' }}
+              style={{ height: '32px' }}
             />
             <img
               className="mark mark-dark"
               src="/assets/favicon_1024_dark.png"
               alt=""
-              style={{ height: '40px' }}
+              style={{ height: '32px' }}
             />
             <img
               className="word word-light"
               src="/assets/text_1024_light.png"
               alt="ScanSnap"
-              style={{ height: '32px' }}
+              style={{ height: '24px' }}
             />
             <img
               className="word word-dark"
               src="/assets/text_1024_dark.png"
               alt="ScanSnap"
-              style={{ height: '32px' }}
+              style={{ height: '24px' }}
             />
           </Link>
         </div>
       </header>
 
-      {/* Main content */}
       <main style={{
         flex: 1,
         display: 'flex',
@@ -81,7 +79,7 @@ export default function LoginPage() {
           maxWidth: '440px'
         }}>
           {mounted ? (
-            <SignIn
+            <SignIn 
               routing="path"
               path="/login"
               appearance={{
@@ -104,37 +102,36 @@ export default function LoginPage() {
                     border: '1px solid var(--line)',
                     borderRadius: 'var(--radius-lg)',
                     boxShadow: 'var(--shadow)',
-                    padding: '1.5rem',
-                    maxHeight: '85vh',
+                    padding: '1.25rem',
+                    maxHeight: 'calc(100vh - 120px)',
                     overflowY: 'auto',
                     WebkitOverflowScrolling: 'touch',
-                    '@media (max-width: 640px)': {
-                      padding: '1rem',
-                      maxHeight: '80vh',
-                    }
+                    margin: '0 auto'
                   },
                   headerTitle: {
-                    fontSize: '1.5rem',
+                    fontSize: '1.25rem',
                     fontWeight: '600',
                     color: 'var(--fg)',
+                    marginBottom: '0.25rem'
                   },
                   headerSubtitle: {
                     color: 'var(--muted)',
-                    marginBottom: '1.5rem',
+                    marginBottom: '1rem',
+                    fontSize: '0.875rem'
                   },
                   socialButtons: {
-                    marginBottom: '1.5rem',
+                    marginBottom: '1rem',
                   },
                   socialButtonsBlockButton: {
                     background: 'var(--bg)',
                     border: '2px solid var(--brand0)',
                     borderRadius: '12px',
                     color: 'var(--fg)',
-                    fontSize: '1rem',
+                    fontSize: '0.95rem',
                     fontWeight: '600',
-                    padding: '0.875rem',
+                    padding: '0.75rem',
                     transition: 'all 0.2s ease',
-                    marginBottom: '1rem',
+                    marginBottom: '0.75rem',
                   },
                   socialButtonsBlockButton__google: {
                     background: 'linear-gradient(135deg, #00d1ff, #4a90e2)',
@@ -145,8 +142,8 @@ export default function LoginPage() {
                     color: '#fff',
                   },
                   dividerRow: {
-                    marginTop: '1.5rem',
-                    marginBottom: '1.5rem',
+                    marginTop: '1rem',
+                    marginBottom: '1rem',
                   },
                   formButtonPrimary: {
                     background: 'linear-gradient(135deg, #00d1ff, #4a90e2)',
@@ -157,35 +154,13 @@ export default function LoginPage() {
                     padding: '0.75rem 1.5rem',
                     transition: 'transform 0.2s ease, filter 0.2s ease',
                   },
-                  formButtonPrimary__hover: {
-                    transform: 'translateY(-1px)',
-                    filter: 'brightness(1.1)',
-                  },
                   formFieldInput: {
                     background: 'var(--bg)',
                     border: '1px solid var(--line)',
                     borderRadius: '8px',
                     color: 'var(--fg)',
                     padding: '0.75rem',
-                    fontSize: '1rem',
-                  },
-                  formFieldInput__focus: {
-                    borderColor: 'var(--brand0)',
-                    boxShadow: '0 0 0 3px rgba(0, 209, 255, 0.1)',
-                  },
-                  footerActionLink: {
-                    color: 'var(--brand0)',
-                    textDecoration: 'none',
-                    fontWeight: '500',
-                  },
-                  footerActionLink__hover: {
-                    textDecoration: 'underline',
-                  },
-                  identityPreviewText: {
-                    color: 'var(--fg)',
-                  },
-                  identityPreviewEditButton: {
-                    color: 'var(--brand0)',
+                    fontSize: '16px',
                   },
                   formFieldLabel: {
                     color: 'var(--fg)',
@@ -199,14 +174,10 @@ export default function LoginPage() {
                     color: 'var(--muted)',
                     fontSize: '0.875rem',
                   },
-                  otpCodeFieldInput: {
-                    background: 'var(--bg)',
-                    border: '1px solid var(--line)',
-                    borderRadius: '8px',
-                    color: 'var(--fg)',
-                  },
-                  formFieldAction: {
+                  footerActionLink: {
                     color: 'var(--brand0)',
+                    textDecoration: 'none',
+                    fontWeight: '500',
                   },
                   formFieldError: {
                     color: '#ef4444',
@@ -234,11 +205,11 @@ export default function LoginPage() {
               padding: '2rem',
               textAlign: 'center'
             }}>
-              <div style={{
-                width: '48px',
-                height: '48px',
-                border: '3px solid var(--brand0)',
-                borderTop: '3px solid transparent',
+              <div style={{ 
+                width: '48px', 
+                height: '48px', 
+                border: '3px solid var(--brand0)', 
+                borderTop: '3px solid transparent', 
                 borderRadius: '50%',
                 animation: 'spin 1s linear infinite',
                 margin: '0 auto 16px'
@@ -247,21 +218,20 @@ export default function LoginPage() {
             </div>
           )}
 
-          {/* Additional links below the sign-in form */}
           <div style={{
             marginTop: '2rem',
             textAlign: 'center'
           }}>
-            <p style={{
-              color: 'var(--muted)',
+            <p style={{ 
+              color: 'var(--muted)', 
               fontSize: '0.875rem',
               marginBottom: '1rem'
             }}>
               Don't have an account?{' '}
-              <Link
-                href="/signup"
-                style={{
-                  color: 'var(--brand0)',
+              <Link 
+                href="/signup" 
+                style={{ 
+                  color: 'var(--brand0)', 
                   textDecoration: 'none',
                   fontWeight: '500'
                 }}
@@ -269,11 +239,11 @@ export default function LoginPage() {
                 Sign up
               </Link>
             </p>
-
-            <Link
-              href="/"
-              style={{
-                color: 'var(--muted)',
+            
+            <Link 
+              href="/" 
+              style={{ 
+                color: 'var(--muted)', 
                 fontSize: '0.875rem',
                 textDecoration: 'none'
               }}
@@ -283,13 +253,6 @@ export default function LoginPage() {
           </div>
         </div>
       </main>
-
-      <style jsx>{`
-        @keyframes spin {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-      `}</style>
     </div>
   )
 }
