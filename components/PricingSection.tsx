@@ -69,6 +69,10 @@ export default function PricingSection() {
   const router = useRouter();
 
   const handlePlanClick = (plan: typeof PLANS[0]) => {
+    console.log('Plan clicked:', plan.name);
+    console.log('User signed in:', isSignedIn);
+    console.log('Variant env key:', plan.variantEnv);
+    
     if (!isSignedIn) {
       // Redirect to login with the plan information
       router.push(`/login?redirect_url=/dashboard&plan=${plan.id}`);
@@ -82,18 +86,23 @@ export default function PricingSection() {
     }
 
     const variantId = process.env[plan.variantEnv as keyof typeof process.env];
+    console.log('Variant ID:', variantId);
+    
     if (!variantId) {
-      alert('This plan is not available for purchase yet. Please contact support.');
+      // Show more helpful error message
+      alert(`This plan is not available for purchase yet. Please contact support.\n\nTechnical info: Missing ${plan.variantEnv} environment variable.`);
       return;
     }
 
-    const checkoutUrl = `https://pay.scansnap.io/checkout/buy/${variantId}?` + 
+    // Use Lemon Squeezy's checkout URL directly
+    const checkoutUrl = `https://app.lemonsqueezy.com/checkout/buy/${variantId}?` + 
       new URLSearchParams({
         'checkout[email]': user.emailAddresses[0].emailAddress,
         'checkout[custom][clerk_user_id]': user.id,
         'checkout[custom][user_name]': `${user.firstName || ''} ${user.lastName || ''}`.trim()
       }).toString();
 
+    console.log('Opening checkout URL:', checkoutUrl);
     window.open(checkoutUrl, '_blank');
   };
 
@@ -103,6 +112,16 @@ export default function PricingSection() {
         <div>Loading pricing...</div>
       </div>
     );
+  }
+
+  // Debug: Log all variant IDs on mount
+  if (typeof window !== 'undefined') {
+    console.log('Available Lemon Squeezy Variants:', {
+      basic: process.env.NEXT_PUBLIC_LS_VARIANT_BASIC || 'NOT SET',
+      plus: process.env.NEXT_PUBLIC_LS_VARIANT_PLUS || 'NOT SET',
+      pro: process.env.NEXT_PUBLIC_LS_VARIANT_PRO || 'NOT SET',
+      proDpms: process.env.NEXT_PUBLIC_LS_VARIANT_PRO_DPMS || 'NOT SET',
+    });
   }
 
   return (
