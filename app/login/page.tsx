@@ -27,6 +27,7 @@ export default function LoginPage() {
     }}>
       <header style={{
         padding: '1rem 0',
+<<<<<<< Updated upstream
         borderBottom: '1px solid var(–line)'
       }}>
         <div className="container">
@@ -46,6 +47,39 @@ export default function LoginPage() {
               src="/assets/favicon_1024_dark.png"
               alt=""
               style={{ height: '32px' }}
+=======
+        borderBottom: '1px solid var(--line)'
+      }}>
+        <div className="container">
+          <Link href="/" style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '8px' 
+          }}>
+            <img 
+              className="mark mark-light" 
+              src="/assets/favicon_1024_light.png" 
+              alt="" 
+              style={{ height: '32px' }}
+            />
+            <img 
+              className="mark mark-dark" 
+              src="/assets/favicon_1024_dark.png" 
+              alt="" 
+              style={{ height: '32px' }}
+            />
+            <img 
+              className="word word-light" 
+              src="/assets/text_1024_light.png" 
+              alt="ScanSnap" 
+              style={{ height: '24px' }}
+            />
+            <img 
+              className="word word-dark" 
+              src="/assets/text_1024_dark.png" 
+              alt="ScanSnap" 
+              style={{ height: '24px' }}
+>>>>>>> Stashed changes
             />
             <img
               className="word word-light"
@@ -68,7 +102,11 @@ export default function LoginPage() {
         display: 'flex',
         alignItems: 'flex-start',
         justifyContent: 'center',
+<<<<<<< Updated upstream
         padding: '1rem',
+=======
+        padding: '0.5rem',
+>>>>>>> Stashed changes
         paddingTop: '1rem',
         minHeight: 'auto',
         overflowY: 'auto',
@@ -76,7 +114,7 @@ export default function LoginPage() {
       }}>
         <div style={{
           width: '100%',
-          maxWidth: '440px'
+          maxWidth: '500px'
         }}>
           {mounted ? (
             <SignIn 
@@ -103,10 +141,22 @@ export default function LoginPage() {
                     borderRadius: 'var(--radius-lg)',
                     boxShadow: 'var(--shadow)',
                     padding: '1.25rem',
+<<<<<<< Updated upstream
                     maxHeight: 'calc(100vh - 120px)',
                     overflowY: 'auto',
                     WebkitOverflowScrolling: 'touch',
                     margin: '0 auto'
+=======
+                    maxHeight: 'calc(100vh - 100px)',
+                    overflowY: 'auto',
+                    WebkitOverflowScrolling: 'touch',
+                    margin: '0 auto',
+                    width: '100%',
+                    '@media (max-width: 480px)': {
+                      borderRadius: '12px',
+                      padding: '1rem',
+                    }
+>>>>>>> Stashed changes
                   },
                   headerTitle: {
                     fontSize: '1.25rem',

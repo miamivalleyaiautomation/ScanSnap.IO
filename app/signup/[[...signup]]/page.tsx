@@ -13,6 +13,7 @@ export default function SignupPage() {
   }, [])
 
   return (
+<<<<<<< Updated upstream
     <div
       style={{
         minHeight: '100vh',
@@ -48,6 +49,48 @@ export default function SignupPage() {
               src="/assets/favicon_1024_dark.png"
               alt=""
               style={{ height: '32px' }}
+=======
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'var(--bg)', 
+      color: 'var(--fg)',
+      display: 'flex',
+      flexDirection: 'column'
+    }}>
+      <header style={{
+        padding: '1rem 0',
+        borderBottom: '1px solid var(--line)'
+      }}>
+        <div className="container">
+          <Link href="/" style={{ 
+            display: 'inline-flex', 
+            alignItems: 'center', 
+            gap: '8px' 
+          }}>
+            <img 
+              className="mark mark-light" 
+              src="/assets/favicon_1024_light.png" 
+              alt="" 
+              style={{ height: '32px' }}
+            />
+            <img 
+              className="mark mark-dark" 
+              src="/assets/favicon_1024_dark.png" 
+              alt="" 
+              style={{ height: '32px' }}
+            />
+            <img 
+              className="word word-light" 
+              src="/assets/text_1024_light.png" 
+              alt="ScanSnap" 
+              style={{ height: '24px' }}
+            />
+            <img 
+              className="word word-dark" 
+              src="/assets/text_1024_dark.png" 
+              alt="ScanSnap" 
+              style={{ height: '24px' }}
+>>>>>>> Stashed changes
             />
             <img
               className="word word-light"
@@ -65,6 +108,7 @@ export default function SignupPage() {
         </div>
       </header>
 
+<<<<<<< Updated upstream
       <main
         style={{
           flex: 1,
@@ -84,6 +128,23 @@ export default function SignupPage() {
             maxWidth: '440px',
           }}
         >
+=======
+      <main style={{
+        flex: 1,
+        display: 'flex',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
+        padding: '0.5rem',
+        paddingTop: '1rem',
+        minHeight: 'auto',
+        overflowY: 'auto',
+        WebkitOverflowScrolling: 'touch'
+      }}>
+        <div style={{
+          width: '100%',
+          maxWidth: '500px'
+        }}>
+>>>>>>> Stashed changes
           {mounted ? (
             <SignUp
               path="/signup"
@@ -111,21 +172,41 @@ export default function SignupPage() {
                     borderRadius: 'var(--radius-lg)',
                     boxShadow: 'var(--shadow)',
                     padding: '1.25rem',
+<<<<<<< Updated upstream
                     maxHeight: 'calc(100vh - 120px)',
                     overflowY: 'auto',
                     WebkitOverflowScrolling: 'touch',
                     margin: '0 auto',
+=======
+                    maxHeight: 'calc(100vh - 100px)',
+                    overflowY: 'auto',
+                    WebkitOverflowScrolling: 'touch',
+                    margin: '0 auto',
+                    width: '100%',
+                    '@media (max-width: 480px)': {
+                      borderRadius: '12px',
+                      padding: '1rem',
+                    }
+>>>>>>> Stashed changes
                   },
                   headerTitle: {
                     fontSize: '1.25rem',
                     fontWeight: '600',
                     color: 'var(--fg)',
+<<<<<<< Updated upstream
                     marginBottom: '0.25rem',
+=======
+                    marginBottom: '0.25rem'
+>>>>>>> Stashed changes
                   },
                   headerSubtitle: {
                     color: 'var(--muted)',
                     marginBottom: '1rem',
+<<<<<<< Updated upstream
                     fontSize: '0.875rem',
+=======
+                    fontSize: '0.875rem'
+>>>>>>> Stashed changes
                   },
                   socialButtons: {
                     marginBottom: '1rem',
@@ -237,6 +318,7 @@ export default function SignupPage() {
             </div>
           )}
 
+<<<<<<< Updated upstream
           <div
             style={{
               marginTop: '2rem',
@@ -250,6 +332,17 @@ export default function SignupPage() {
                 marginBottom: '1rem',
               }}
             >
+=======
+          <div style={{
+            marginTop: '2rem',
+            textAlign: 'center'
+          }}>
+            <p style={{ 
+              color: 'var(--muted)', 
+              fontSize: '0.875rem',
+              marginBottom: '1rem'
+            }}>
+>>>>>>> Stashed changes
               Already have an account?{' '}
               <Link
                 href="/login"
