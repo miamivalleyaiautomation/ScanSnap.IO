@@ -368,18 +368,26 @@ async function handleSubscriptionUpdated(data: any, event: any) {
 async function handleSubscriptionCancelled(data: any, event: any) {
   console.log('Processing subscription cancellation')
   
+  // When cancelled, the subscription stays active until expiry
+  // We should NOT change the subscription_status to cancelled
+  // The status should remain as the current plan (plus, pro, etc) until it expires
+  
+  // Just update the expiry date - the subscription remains active until then
   const { error } = await supabaseAdmin
     .from('user_profiles')
     .update({
-      subscription_status: 'cancelled',
+      // Keep current status - don't change it!
+      // The subscription is still active until expiry
+      subscription_expires_at: data.attributes?.ends_at || data.attributes?.renews_at,
       updated_at: new Date().toISOString(),
+      // Note: We're NOT changing subscription_status here
     })
     .eq('lemon_squeezy_subscription_id', data.id?.toString())
 
   if (error) {
-    console.error('Error cancelling subscription:', error)
+    console.error('Error updating subscription expiry:', error)
   } else {
-    console.log('Subscription cancelled successfully')
+    console.log('Subscription will remain active until:', data.attributes?.ends_at || data.attributes?.renews_at)
   }
 }
 
