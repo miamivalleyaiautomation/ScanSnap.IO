@@ -11,20 +11,15 @@ export async function POST(request: NextRequest) {
   const headerPayload = headers()
   const signature = headerPayload.get('x-signature')
 
-  console.log('Webhook headers:', {
-    hasSignature: !!signature,
-    contentLength: headerPayload.get('content-length')
-  })
-
   if (!signature) {
-    console.error('❌ No signature header')
-    return new Response('Unauthorized - No signature', { status: 401 })
+    console.error('No signature header')
+    return new Response('Unauthorized', { status: 401 })
   }
 
   // Verify the webhook signature
   const secret = process.env.LEMONSQUEEZY_WEBHOOK_SECRET!
   if (!secret) {
-    console.error('❌ LEMONSQUEEZY_WEBHOOK_SECRET not configured')
+    console.error('LEMONSQUEEZY_WEBHOOK_SECRET not configured')
     return new Response('Server configuration error', { status: 500 })
   }
 
@@ -33,173 +28,269 @@ export async function POST(request: NextRequest) {
   const digest = hmac.digest('hex')
 
   if (!crypto.timingSafeEqual(Buffer.from(signature, 'hex'), Buffer.from(digest, 'hex'))) {
-    console.error('❌ Invalid signature')
-    console.error('Expected:', digest)
-    console.error('Received:', signature)
-    return new Response('Unauthorized - Invalid signature', { status: 401 })
+    console.error('Invalid signature')
+    return new Response('Unauthorized', { status: 401 })
   }
-
-  console.log('✅ Signature verified')
 
   let event
   try {
     event = JSON.parse(body)
   } catch (error) {
-    console.error('❌ Invalid JSON:', error)
+    console.error('Invalid JSON:', error)
     return new Response('Invalid JSON', { status: 400 })
   }
 
   const eventType = event.meta.event_name
   const eventData = event.data
 
-  console.log(`📨 Lemon Squeezy webhook: ${eventType}`)
-  console.log('Event data:', {
-    id: eventData.id,
-    attributes: {
-      customer_id: eventData.attributes?.customer_id,
-      custom_data: eventData.attributes?.custom_data,
-      product_name: eventData.attributes?.product_name,
-      variant_name: eventData.attributes?.variant_name
-    }
-  })
+  console.log(`Lemon Squeezy webhook: ${eventType}`)
+  console.log('Event ID:', eventData.id)
+  console.log('Custom data:', event.meta?.custom_data)
 
   try {
     // Check if we've already processed this event
-    if (event.meta.custom_data?.event_id) {
-      const { data: existingEvent } = await supabaseAdmin
-        .from('subscription_events')
-        .select('id')
-        .eq('lemon_squeezy_event_id', event.meta.custom_data.event_id)
-        .single()
+    const eventId = `${eventType}_${eventData.id}_${Date.now()}`
+    const { data: existingEvent } = await supabaseAdmin
+      .from('subscription_events')
+      .select('id')
+      .eq('lemon_squeezy_event_id', eventId)
+      .single()
 
-      if (existingEvent) {
-        console.log('⏭️ Event already processed, skipping')
-        return new Response('OK - Already processed', { status: 200 })
-      }
+    if (existingEvent) {
+      console.log('Event already processed, skipping')
+      return new Response('OK', { status: 200 })
     }
 
     switch (eventType) {
-      case 'subscription_created':
-        console.log('🔄 Processing subscription_created')
-        await handleSubscriptionCreated(eventData, event)
-        break
-      case 'subscription_updated':
-        console.log('🔄 Processing subscription_updated')
-        await handleSubscriptionUpdated(eventData, event)
-        break
-      case 'subscription_cancelled':
-        console.log('🔄 Processing subscription_cancelled')
-        await handleSubscriptionCancelled(eventData, event)
-        break
-      case 'subscription_resumed':
-        console.log('🔄 Processing subscription_resumed')
-        await handleSubscriptionResumed(eventData, event)
-        break
-      case 'subscription_expired':
-        console.log('🔄 Processing subscription_expired')
-        await handleSubscriptionExpired(eventData, event)
-        break
-      case 'subscription_payment_success':
-        console.log('🔄 Processing subscription_payment_success')
-        await handlePaymentSuccess(eventData, event)
-        break
       case 'order_created':
-        console.log('🔄 Processing order_created')
+        console.log('Processing order_created')
         await handleOrderCreated(eventData, event)
         break
+        
+      case 'subscription_created':
+        console.log('Processing subscription_created')
+        await handleSubscriptionCreated(eventData, event)
+        break
+        
+      case 'subscription_updated':
+        console.log('Processing subscription_updated')
+        await handleSubscriptionUpdated(eventData, event)
+        break
+        
+      case 'subscription_cancelled':
+        console.log('Processing subscription_cancelled')
+        await handleSubscriptionCancelled(eventData, event)
+        break
+        
+      case 'subscription_resumed':
+        console.log('Processing subscription_resumed')
+        await handleSubscriptionResumed(eventData, event)
+        break
+        
+      case 'subscription_expired':
+        console.log('Processing subscription_expired')
+        await handleSubscriptionExpired(eventData, event)
+        break
+        
+      case 'subscription_payment_success':
+        console.log('Processing subscription_payment_success')
+        await handlePaymentSuccess(eventData, event)
+        break
+        
       default:
-        console.log(`⚠️ Unhandled event type: ${eventType}`)
+        console.log(`Unhandled event type: ${eventType}`)
     }
 
-    // Log the event for debugging
-    const { error: logError } = await supabaseAdmin.from('subscription_events').insert({
+    // Log the event
+    await supabaseAdmin.from('subscription_events').insert({
       event_type: eventType,
       lemon_squeezy_subscription_id: eventData.attributes?.subscription_id || eventData.id,
-      lemon_squeezy_event_id: event.meta.custom_data?.event_id || `${eventType}_${Date.now()}`,
+      lemon_squeezy_event_id: eventId,
       event_data: event,
     })
 
-    if (logError) {
-      console.error('❌ Error logging event:', logError)
-    } else {
-      console.log('✅ Event logged successfully')
-    }
-
   } catch (error) {
-    console.error('❌ Error processing webhook:', error)
+    console.error('Error processing webhook:', error)
     return new Response('Internal server error', { status: 500 })
   }
 
-  console.log('✅ Webhook processed successfully')
   return new Response('OK', { status: 200 })
 }
 
-async function handleSubscriptionCreated(data: any, event: any) {
-  console.log('🎯 handleSubscriptionCreated called')
+async function handleOrderCreated(data: any, event: any) {
+  console.log('Processing order creation')
   
-  // Custom data is in event.meta.custom_data for Lemon Squeezy webhooks!
-  const customData = event.meta?.custom_data || data.attributes?.custom_data || {}
-  console.log('Custom data found:', customData)
-  
+  // IMPORTANT: Custom data is in event.meta.custom_data for Lemon Squeezy!
+  const customData = event.meta?.custom_data || {}
   const clerkUserId = customData.clerk_user_id
 
   if (!clerkUserId) {
-    console.error('❌ No clerk_user_id in custom_data')
-    console.error('Full data.attributes:', JSON.stringify(data.attributes, null, 2))
+    console.error('No clerk_user_id in custom_data')
+    console.error('Available custom data:', customData)
+    
+    // Try to find user by email as fallback
+    const email = data.attributes?.user_email
+    if (email) {
+      console.log('Attempting to find user by email:', email)
+      const { data: userProfile } = await supabaseAdmin
+        .from('user_profiles')
+        .select('*')
+        .eq('email', email)
+        .single()
+      
+      if (userProfile) {
+        console.log('Found user by email, creating purchase')
+        await createPurchaseRecord(userProfile.id, data, event)
+        
+        // Update subscription if needed
+        if (!data.attributes.product_name?.toLowerCase().includes('one-time')) {
+          await updateSubscriptionFromOrder(userProfile.clerk_user_id, data)
+        }
+      }
+    }
     return
   }
 
-  console.log('👤 Updating user:', clerkUserId)
+  console.log('Processing order for user:', clerkUserId)
 
-  // Map product/variant to subscription status
+  // Get user profile to get internal user ID
+  const { data: userProfile, error: profileError } = await supabaseAdmin
+    .from('user_profiles')
+    .select('*')
+    .eq('clerk_user_id', clerkUserId)
+    .single()
+
+  if (profileError || !userProfile) {
+    console.error('User profile not found:', profileError)
+    return
+  }
+
+  // Create purchase record
+  await createPurchaseRecord(userProfile.id, data, event)
+  
+  // Update subscription status if it's a subscription product
+  if (!data.attributes.product_name?.toLowerCase().includes('one-time')) {
+    await updateSubscriptionFromOrder(clerkUserId, data)
+  }
+}
+
+async function createPurchaseRecord(userId: string, data: any, event: any) {
+  const purchaseData = {
+    user_id: userId,
+    lemon_squeezy_order_id: data.id.toString(),
+    product_name: data.attributes.product_name,
+    variant_name: data.attributes.variant_name || 'Default',
+    amount: data.attributes.total,
+    currency: data.attributes.currency || 'USD',
+    status: data.attributes.status || 'paid',
+    purchase_date: data.attributes.created_at || new Date().toISOString(),
+    lemon_squeezy_data: event,
+  }
+
+  console.log('Creating purchase record:', purchaseData)
+
+  const { error } = await supabaseAdmin.from('purchases').insert(purchaseData)
+
+  if (error) {
+    console.error('Error creating purchase record:', error)
+  } else {
+    console.log('Purchase record created successfully')
+  }
+}
+
+async function updateSubscriptionFromOrder(clerkUserId: string, data: any) {
+  const subscriptionStatus = getSubscriptionStatusFromProduct(
+    data.attributes.product_name,
+    data.attributes.variant_name
+  )
+  
+  const { error } = await supabaseAdmin
+    .from('user_profiles')
+    .update({
+      subscription_status: subscriptionStatus,
+      subscription_plan: subscriptionStatus,
+      lemon_squeezy_customer_id: data.attributes.customer_id?.toString(),
+      updated_at: new Date().toISOString(),
+    })
+    .eq('clerk_user_id', clerkUserId)
+  
+  if (error) {
+    console.error('Error updating subscription from order:', error)
+  } else {
+    console.log('Subscription updated from order')
+  }
+}
+
+async function handleSubscriptionCreated(data: any, event: any) {
+  console.log('Processing subscription creation')
+  
+  // IMPORTANT: Custom data is in event.meta.custom_data!
+  const customData = event.meta?.custom_data || {}
+  const clerkUserId = customData.clerk_user_id
+
+  if (!clerkUserId) {
+    console.error('No clerk_user_id in custom_data')
+    
+    // Try to find user by email as fallback
+    const email = data.attributes?.user_email
+    if (email) {
+      console.log('Attempting to find user by email:', email)
+      const { data: userProfile } = await supabaseAdmin
+        .from('user_profiles')
+        .select('*')
+        .eq('email', email)
+        .single()
+      
+      if (userProfile) {
+        await updateUserSubscription(userProfile.clerk_user_id, data, event)
+      }
+    }
+    return
+  }
+
+  await updateUserSubscription(clerkUserId, data, event)
+}
+
+async function updateUserSubscription(clerkUserId: string, data: any, event: any) {
   const subscriptionStatus = getSubscriptionStatusFromProduct(
     data.attributes.product_name, 
     data.attributes.variant_name
   )
-  
-  console.log('📦 Subscription status:', subscriptionStatus)
 
   const updateData = {
     subscription_status: subscriptionStatus,
     subscription_plan: subscriptionStatus,
-    lemon_squeezy_customer_id: data.attributes.customer_id,
-    lemon_squeezy_subscription_id: data.id,
+    lemon_squeezy_customer_id: data.attributes.customer_id?.toString(),
+    lemon_squeezy_subscription_id: data.id?.toString(),
     subscription_expires_at: data.attributes.renews_at,
     subscription_started_at: data.attributes.created_at,
     updated_at: new Date().toISOString(),
   }
 
-  console.log('📝 Update data:', updateData)
+  console.log('Updating subscription for user:', clerkUserId)
 
-  const { data: updatedProfile, error } = await supabaseAdmin
+  const { error } = await supabaseAdmin
     .from('user_profiles')
     .update(updateData)
     .eq('clerk_user_id', clerkUserId)
-    .select()
 
   if (error) {
-    console.error('❌ Error updating user profile:', error)
+    console.error('Error updating user subscription:', error)
   } else {
-    console.log('✅ Subscription created for user:', clerkUserId)
-    console.log('Updated profile:', updatedProfile)
+    console.log('Subscription created/updated successfully')
   }
 }
 
 async function handleSubscriptionUpdated(data: any, event: any) {
-  console.log('🎯 handleSubscriptionUpdated called')
+  console.log('Processing subscription update')
   
-  // Get clerk_user_id from meta.custom_data
+  // Get custom data from meta
   const customData = event.meta?.custom_data || {}
   const clerkUserId = customData.clerk_user_id
   
-  if (!clerkUserId) {
-    // If no clerk_user_id, try to update by lemon_squeezy_subscription_id
-    console.log('⚠️ No clerk_user_id, updating by subscription ID')
-  }
-  
   const subscriptionStatus = data.attributes.status === 'active' ? 
     getSubscriptionStatusFromProduct(data.attributes.product_name, data.attributes.variant_name) : 
-    'cancelled'
+    data.attributes.status === 'cancelled' ? 'cancelled' : 'expired'
 
   const updateData = {
     subscription_status: subscriptionStatus,
@@ -207,10 +298,10 @@ async function handleSubscriptionUpdated(data: any, event: any) {
     updated_at: new Date().toISOString(),
   }
   
-  // If we have clerk_user_id from custom_data, update by that
+  // Try to update by clerk_user_id first
   if (clerkUserId) {
-    updateData['lemon_squeezy_subscription_id'] = data.id
-    updateData['lemon_squeezy_customer_id'] = data.attributes.customer_id
+    updateData['lemon_squeezy_subscription_id'] = data.id?.toString()
+    updateData['lemon_squeezy_customer_id'] = data.attributes.customer_id?.toString()
     
     const { error } = await supabaseAdmin
       .from('user_profiles')
@@ -218,42 +309,46 @@ async function handleSubscriptionUpdated(data: any, event: any) {
       .eq('clerk_user_id', clerkUserId)
     
     if (error) {
-      console.error('❌ Error updating subscription by clerk_user_id:', error)
+      console.error('Error updating subscription:', error)
     } else {
-      console.log('✅ Subscription updated for user:', clerkUserId)
+      console.log('Subscription updated successfully')
     }
   } else {
-    // Fallback: update by lemon_squeezy_subscription_id
+    // Fallback: update by subscription ID
     const { error } = await supabaseAdmin
       .from('user_profiles')
       .update(updateData)
-      .eq('lemon_squeezy_subscription_id', data.id)
+      .eq('lemon_squeezy_subscription_id', data.id?.toString())
     
     if (error) {
-      console.error('❌ Error updating subscription by subscription_id:', error)
+      console.error('Error updating subscription by ID:', error)
     } else {
-      console.log('✅ Subscription updated by subscription_id:', data.id)
+      console.log('Subscription updated by subscription ID')
     }
   }
 }
 
 async function handleSubscriptionCancelled(data: any, event: any) {
+  console.log('Processing subscription cancellation')
+  
   const { error } = await supabaseAdmin
     .from('user_profiles')
     .update({
       subscription_status: 'cancelled',
       updated_at: new Date().toISOString(),
     })
-    .eq('lemon_squeezy_subscription_id', data.id)
+    .eq('lemon_squeezy_subscription_id', data.id?.toString())
 
   if (error) {
-    console.error('❌ Error cancelling subscription:', error)
+    console.error('Error cancelling subscription:', error)
   } else {
-    console.log('✅ Subscription cancelled')
+    console.log('Subscription cancelled successfully')
   }
 }
 
 async function handleSubscriptionResumed(data: any, event: any) {
+  console.log('Processing subscription resumption')
+  
   const subscriptionStatus = getSubscriptionStatusFromProduct(
     data.attributes.product_name, 
     data.attributes.variant_name
@@ -266,32 +361,36 @@ async function handleSubscriptionResumed(data: any, event: any) {
       subscription_expires_at: data.attributes.renews_at,
       updated_at: new Date().toISOString(),
     })
-    .eq('lemon_squeezy_subscription_id', data.id)
+    .eq('lemon_squeezy_subscription_id', data.id?.toString())
 
   if (error) {
-    console.error('❌ Error resuming subscription:', error)
+    console.error('Error resuming subscription:', error)
   } else {
-    console.log('✅ Subscription resumed')
+    console.log('Subscription resumed successfully')
   }
 }
 
 async function handleSubscriptionExpired(data: any, event: any) {
+  console.log('Processing subscription expiration')
+  
   const { error } = await supabaseAdmin
     .from('user_profiles')
     .update({
       subscription_status: 'expired',
       updated_at: new Date().toISOString(),
     })
-    .eq('lemon_squeezy_subscription_id', data.id)
+    .eq('lemon_squeezy_subscription_id', data.id?.toString())
 
   if (error) {
-    console.error('❌ Error expiring subscription:', error)
+    console.error('Error expiring subscription:', error)
   } else {
-    console.log('✅ Subscription expired')
+    console.log('Subscription expired successfully')
   }
 }
 
 async function handlePaymentSuccess(data: any, event: any) {
+  console.log('Processing payment success')
+  
   const subscriptionStatus = getSubscriptionStatusFromProduct(
     data.attributes.product_name, 
     data.attributes.variant_name
@@ -304,115 +403,30 @@ async function handlePaymentSuccess(data: any, event: any) {
       subscription_expires_at: data.attributes.renews_at,
       updated_at: new Date().toISOString(),
     })
-    .eq('lemon_squeezy_subscription_id', data.id)
+    .eq('lemon_squeezy_subscription_id', data.attributes.subscription_id?.toString() || data.id?.toString())
 
   if (error) {
-    console.error('❌ Error processing payment success:', error)
+    console.error('Error processing payment:', error)
   } else {
-    console.log('✅ Payment processed')
-  }
-}
-
-async function handleOrderCreated(data: any, event: any) {
-  console.log('🎯 handleOrderCreated called')
-  
-  // Custom data is in event.meta.custom_data for Lemon Squeezy webhooks!
-  const customData = event.meta?.custom_data || data.attributes?.custom_data || {}
-  console.log('Custom data found:', customData)
-  
-  const clerkUserId = customData.clerk_user_id
-
-  if (!clerkUserId) {
-    console.error('❌ No clerk_user_id in order custom_data')
-    console.error('Full data.attributes:', JSON.stringify(data.attributes, null, 2))
-    return
-  }
-
-  console.log('👤 Processing order for user:', clerkUserId)
-
-  // Get user profile to get internal user ID
-  const { data: userProfile, error: profileError } = await supabaseAdmin
-    .from('user_profiles')
-    .select('id')
-    .eq('clerk_user_id', clerkUserId)
-    .single()
-
-  if (profileError || !userProfile) {
-    console.error('❌ User profile not found for order:', profileError)
-    return
-  }
-
-  console.log('👤 Found user profile:', userProfile.id)
-
-  // Create purchase record
-  const purchaseData = {
-    user_id: userProfile.id,
-    lemon_squeezy_order_id: data.id,
-    product_name: data.attributes.product_name,
-    variant_name: data.attributes.variant_name,
-    amount: data.attributes.total,
-    currency: data.attributes.currency,
-    status: data.attributes.status,
-    purchase_date: data.attributes.created_at,
-    lemon_squeezy_data: event,
-  }
-
-  console.log('📝 Creating purchase record:', purchaseData)
-
-  const { error } = await supabaseAdmin.from('purchases').insert(purchaseData)
-
-  if (error) {
-    console.error('❌ Error creating purchase record:', error)
-  } else {
-    console.log('✅ Purchase record created for order:', data.id)
-  }
-  
-  // Also update subscription status if it's a subscription product
-  if (data.attributes.product_name && !data.attributes.product_name.toLowerCase().includes('one-time')) {
-    console.log('📊 Also updating subscription status from order')
-    
-    const subscriptionStatus = getSubscriptionStatusFromProduct(
-      data.attributes.product_name,
-      data.attributes.variant_name
-    )
-    
-    const { error: subError } = await supabaseAdmin
-      .from('user_profiles')
-      .update({
-        subscription_status: subscriptionStatus,
-        subscription_plan: subscriptionStatus,
-        lemon_squeezy_customer_id: data.attributes.customer_id,
-        updated_at: new Date().toISOString(),
-      })
-      .eq('clerk_user_id', clerkUserId)
-    
-    if (subError) {
-      console.error('❌ Error updating subscription from order:', subError)
-    } else {
-      console.log('✅ Subscription status updated from order')
-    }
+    console.log('Payment processed successfully')
   }
 }
 
 // Helper function to map product names to subscription status
 function getSubscriptionStatusFromProduct(productName: string, variantName?: string): string {
-  console.log('🏷️ Mapping product to status:', { productName, variantName })
-  
   const product = productName?.toLowerCase() || ''
   const variant = variantName?.toLowerCase() || ''
   
-  let status = 'plus' // default
-  
   if (product.includes('basic') || variant.includes('basic')) {
-    status = 'basic'
+    return 'basic'
   } else if (product.includes('plus') || variant.includes('plus')) {
-    status = 'plus'
+    return 'plus'
   } else if (product.includes('pro') && (product.includes('dpms') || variant.includes('dpms'))) {
-    status = 'pro_dpms'
+    return 'pro_dpms'
   } else if (product.includes('pro') || variant.includes('pro')) {
-    status = 'pro'
+    return 'pro'
   }
   
-  console.log('📊 Mapped to status:', status)
-  return status
+  // Default fallback
+  return 'plus'
 }
