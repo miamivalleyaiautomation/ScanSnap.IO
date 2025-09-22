@@ -44,14 +44,14 @@ export default function PurchasesPage() {
       const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       const supabase = createClient(supabaseUrl, supabaseAnonKey)
       
-      // Get user profile first
-      const { data: profile, error: profileError } = await supabase
+      // Get user profile first - FIXED: Don't use .single()
+      const { data: profiles, error: profileError } = await supabase
         .from("user_profiles")
         .select("*")
         .eq("clerk_user_id", user?.id)
-        .single()
 
-      if (!profileError && profile) {
+      if (!profileError && profiles && profiles.length > 0) {
+        const profile = profiles[0]
         setUserProfile(profile)
         
         // Get purchases
@@ -63,7 +63,12 @@ export default function PurchasesPage() {
 
         if (!purchaseError) {
           setPurchases(purchaseData || [])
+          console.log('Purchases loaded:', purchaseData?.length || 0)
+        } else {
+          console.error('Error fetching purchases:', purchaseError)
         }
+      } else {
+        console.error('No profile found or error:', profileError)
       }
     } catch (error) {
       console.error('Error fetching data:', error)
@@ -173,7 +178,7 @@ export default function PurchasesPage() {
               Manage Subscription
             </Link>
             <a
-              href="https://pay.scansnap.io/my-orders"
+              href="https://app.lemonsqueezy.com/my-orders"
               target="_blank"
               rel="noopener noreferrer"
               className="btn"
@@ -351,7 +356,7 @@ export default function PurchasesPage() {
               Contact Support
             </a>
             <a
-              href="https://pay.scansnap.io/my-orders"
+              href="https://app.lemonsqueezy.com/my-orders"
               target="_blank"
               rel="noopener noreferrer"
               className="btn primary"
