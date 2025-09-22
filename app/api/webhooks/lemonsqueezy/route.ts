@@ -174,27 +174,51 @@ async function handleOrderCreated(data: any, event: any) {
   }
 }
 
-async function createPurchaseRecord(userId: string, data: any, event: any) {
+async function createPurchaseFromSubscription(userId: string, data: any, event: any) {
+  // Check if purchase already exists for this order
+  if (data.attributes?.order_id) {
+    const { data: existing } = await supabaseAdmin
+      .from('purchases')
+      .select('id')
+      .eq('lemon_squeezy_order_id', data.attributes.order_id.toString())
+      .single()
+    
+    if (existing) {
+      console.log('Purchase already exists for order:', data.attributes.order_id)
+      return
+    }
+  }
+  
   const purchaseData = {
     user_id: userId,
-    lemon_squeezy_order_id: data.id.toString(),
+    lemon_squeezy_order_id: data.attributes?.order_id?.toString() || data.id.toString(),
     product_name: data.attributes.product_name,
     variant_name: data.attributes.variant_name || 'Default',
-    amount: data.attributes.total,
-    currency: data.attributes.currency || 'USD',
-    status: data.attributes.status || 'paid',
+    amount: 999, // Default to $9.99 for Plus plan - adjust based on product
+    currency: 'USD',
+    status: 'paid',
     purchase_date: data.attributes.created_at || new Date().toISOString(),
     lemon_squeezy_data: event,
   }
+  
+  // Try to determine amount from product name
+  if (data.attributes.product_name?.toLowerCase().includes('pro') && 
+      data.attributes.product_name?.toLowerCase().includes('dpms')) {
+    purchaseData.amount = 4999 // $49.99
+  } else if (data.attributes.product_name?.toLowerCase().includes('pro')) {
+    purchaseData.amount = 1499 // $14.99
+  } else if (data.attributes.product_name?.toLowerCase().includes('plus')) {
+    purchaseData.amount = 999 // $9.99
+  }
 
-  console.log('Creating purchase record:', purchaseData)
+  console.log('Creating purchase from subscription:', purchaseData)
 
   const { error } = await supabaseAdmin.from('purchases').insert(purchaseData)
 
   if (error) {
-    console.error('Error creating purchase record:', error)
+    console.error('Error creating purchase from subscription:', error)
   } else {
-    console.log('Purchase record created successfully')
+    console.log('Purchase record created from subscription')
   }
 }
 
@@ -243,12 +267,25 @@ async function handleSubscriptionCreated(data: any, event: any) {
       
       if (userProfile) {
         await updateUserSubscription(userProfile.clerk_user_id, data, event)
+        // Also create purchase record
+        await createPurchaseFromSubscription(userProfile.id, data, event)
       }
     }
     return
   }
 
   await updateUserSubscription(clerkUserId, data, event)
+  
+  // Also create a purchase record since order_created might not fire
+  const { data: userProfile } = await supabaseAdmin
+    .from('user_profiles')
+    .select('id')
+    .eq('clerk_user_id', clerkUserId)
+    .single()
+    
+  if (userProfile) {
+    await createPurchaseFromSubscription(userProfile.id, data, event)
+  }
 }
 
 async function updateUserSubscription(clerkUserId: string, data: any, event: any) {
