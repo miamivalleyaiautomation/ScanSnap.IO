@@ -810,3 +810,137 @@ padding-bottom: 50vh !important; /* Extra space for keyboard */
 /*
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 */
+/* Add these styles to your globals.css file to properly hide/show mobile elements */
+
+/* ===== RESPONSIVE MEDIA QUERIES - FIXED ===== */
+
+/* Desktop styles - HIDE all mobile elements completely */
+@media (min-width: 1024px) {
+  /* Show desktop navigation */
+  .chip-nav { 
+    display: flex !important; 
+  }
+  
+  /* COMPLETELY HIDE all mobile elements on desktop */
+  .right-controls,
+  .mobile-only,
+  .hamburger {
+    display: none !important;
+    visibility: hidden !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    overflow: hidden !important;
+    position: absolute !important;
+    left: -9999px !important;
+  }
+  
+  /* Desktop user menu should be visible */
+  .desktop-user-menu {
+    display: flex !important;
+    align-items: center;
+  }
+  
+  /* Hide mobile menu completely on desktop */
+  .menu-backdrop,
+  .menu-sheet {
+    display: none !important;
+    visibility: hidden !important;
+  }
+}
+
+/* Mobile and tablet styles - SHOW mobile controls, HIDE desktop nav */
+@media (max-width: 1023px) {
+  /* Hide desktop navigation */
+  .chip-nav { 
+    display: none !important; 
+  }
+  
+  /* Show mobile controls */
+  .right-controls { 
+    display: flex !important;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  /* Show hamburger on mobile */
+  .hamburger {
+    display: inline-flex !important;
+    visibility: visible !important;
+  }
+  
+  /* Hide desktop user menu on mobile */
+  .desktop-user-menu {
+    display: none !important;
+  }
+  
+  /* Mobile nav rail adjustments */
+  .nav-rail {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 60px;
+  }
+  
+  /* Brand container - only shows the icon on left */
+  .nav-rail .brand-inline,
+  .nav-rail .brand-badge {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  /* Logo smaller on mobile */
+  .nav-rail .mark{ 
+    height: 33px;
+    max-width: 33px; 
+  }
+  
+  /* Move text image to center with absolute positioning */
+  .nav-rail .word {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    height: 46px;
+    max-width: 140px;
+    z-index: 1;
+  }
+  
+  /* Right controls stay on right */
+  .right-controls {
+    position: relative;
+    z-index: 3;
+  }
+}
+
+/* Ensure proper initialization state */
+.right-controls {
+  /* Default state - will be overridden by media queries */
+  display: none;
+}
+
+.chip-nav {
+  /* Default state - will be overridden by media queries */
+  display: flex;
+}
+
+/* Fix for SiteHeader specific styles */
+.site-header .right-controls {
+  /* Ensure these are hidden on desktop even with component styles */
+}
+
+@media (min-width: 1024px) {
+  .site-header .right-controls {
+    display: none !important;
+    position: absolute !important;
+    visibility: hidden !important;
+  }
+  
+  .site-header .hamburger {
+    display: none !important;
+    position: absolute !important;
+    visibility: hidden !important;
+  }
+}
