@@ -140,7 +140,7 @@ async function handleOrderCreated(data: any, event: any) {
       
       if (userProfile) {
         console.log('Found user by email, creating purchase')
-        await createPurchaseRecord(userProfile.id, data, event)
+        await createPurchaseFromSubscription(userProfile.id, data, event)
         
         // Update subscription if needed
         if (!data.attributes.product_name?.toLowerCase().includes('one-time')) {
