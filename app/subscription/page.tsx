@@ -1,3 +1,4 @@
+// app/subscription/page.tsx - COMPLETE FIXED VERSION
 "use client"
 
 import { useUser } from "@clerk/nextjs"
@@ -81,6 +82,7 @@ export default function SubscriptionPage() {
   const { user, isLoaded } = useUser()
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
+  const [debugInfo, setDebugInfo] = useState<string>("")
 
   useEffect(() => {
     if (isLoaded && user) {
@@ -95,13 +97,20 @@ export default function SubscriptionPage() {
       const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       const supabase = createClient(supabaseUrl, supabaseAnonKey)
       
-      const { data: allProfiles, error } = await supabase
+      // Fetch profiles as array
+      const { data: profiles, error } = await supabase
         .from("user_profiles")
         .select("*")
         .eq("clerk_user_id", user?.id)
 
-      if (!error && allProfiles && allProfiles.length > 0) {
-        setUserProfile(allProfiles[0])
+      console.log('Fetched profiles:', profiles)
+      setDebugInfo(JSON.stringify(profiles, null, 2))
+
+      if (!error && profiles && profiles.length > 0) {
+        setUserProfile(profiles[0])
+        console.log('Set user profile:', profiles[0])
+      } else if (error) {
+        console.error('Error fetching profile:', error)
       }
     } catch (err) {
       console.error('Error fetching user profile:', err)
@@ -127,7 +136,8 @@ export default function SubscriptionPage() {
       return
     }
 
-   const checkoutUrl = `https://pay.scansnap.io/buy/${variantId}?` + 
+    // Use the custom domain format
+    const checkoutUrl = `https://pay.scansnap.io/buy/${variantId}?` + 
       new URLSearchParams({
         'checkout[email]': user.emailAddresses[0].emailAddress,
         'checkout[custom][clerk_user_id]': user.id,
@@ -195,6 +205,10 @@ export default function SubscriptionPage() {
     )
   }
 
+  // Get actual status with fallback
+  const currentStatus = userProfile?.subscription_status || 'basic'
+  console.log('Current subscription status:', currentStatus)
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
       <SiteHeader />
@@ -202,45 +216,50 @@ export default function SubscriptionPage() {
       <main className="container section">
         
         {/* Current Plan Status */}
-        {userProfile && (
-          <div className="card" style={{ marginBottom: '2rem' }}>
-            <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-              Current Plan
-            </h2>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-              <div>
-                <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-                  {getSubscriptionDisplayName(userProfile.subscription_status)}
-                </h3>
-                <p className="muted" style={{ marginBottom: '0.5rem' }}>
-                  Status: <span style={{ textTransform: 'capitalize' }}>{userProfile.subscription_status}</span>
+        <div className="card" style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            Current Plan
+          </h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                {getSubscriptionDisplayName(currentStatus)}
+              </h3>
+              <p className="muted" style={{ marginBottom: '0.5rem' }}>
+                Status: <span style={{ textTransform: 'capitalize' }}>{currentStatus}</span>
+              </p>
+              {userProfile?.subscription_expires_at && (
+                <p className="muted">
+                  {currentStatus === 'cancelled' ? 'Expires' : 'Renews'}: {' '}
+                  {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
                 </p>
-                {userProfile.subscription_expires_at && (
-                  <p className="muted">
-                    {userProfile.subscription_status === 'cancelled' ? 'Expires' : 'Renews'}: {' '}
-                    {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
-                  </p>
-                )}
-              </div>
-              {userProfile.subscription_status !== 'basic' && (
-                <div style={{ textAlign: 'right' }}>
-                  <p className="muted" style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-                    Manage your subscription directly with Lemon Squeezy
-                  </p>
-                  <a
-                    href="https://app.lemonsqueezy.com/my-orders"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn"
-                    style={{ background: '#ffd700', color: '#000' }}
-                  >
-                    Manage Subscription
-                  </a>
-                </div>
+              )}
+              {/* Debug info - remove in production */}
+              {process.env.NODE_ENV === 'development' && (
+                <details style={{ marginTop: '1rem', fontSize: '0.75rem', color: 'var(--muted)' }}>
+                  <summary>Debug Info</summary>
+                  <pre>{debugInfo}</pre>
+                </details>
               )}
             </div>
+            {currentStatus !== 'basic' && (
+              <div style={{ textAlign: 'right' }}>
+                <p className="muted" style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                  Manage your subscription directly with Lemon Squeezy
+                </p>
+                <a
+                  href="https://app.lemonsqueezy.com/my-orders"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn"
+                  style={{ background: '#ffd700', color: '#000' }}
+                >
+                  Manage Subscription
+                </a>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Available Plans */}
         <div style={{ marginBottom: '2rem' }}>
@@ -262,7 +281,7 @@ export default function SubscriptionPage() {
                   position: 'relative',
                   border: plan.popular 
                     ? '2px solid var(--brand0)' 
-                    : userProfile?.subscription_status === plan.id
+                    : currentStatus === plan.id
                     ? '2px solid #10b981'
                     : '1px solid var(--line)',
                   background: 'var(--card)',
@@ -289,7 +308,7 @@ export default function SubscriptionPage() {
                   </div>
                 )}
                 
-                {userProfile?.subscription_status === plan.id && (
+                {currentStatus === plan.id && (
                   <div style={{
                     position: 'absolute',
                     top: '-12px',
@@ -338,7 +357,7 @@ export default function SubscriptionPage() {
                   </ul>
                 </div>
                 
-                {userProfile?.subscription_status === plan.id ? (
+                {currentStatus === plan.id ? (
                   <button
                     disabled
                     className="btn block"
