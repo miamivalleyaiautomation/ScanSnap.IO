@@ -366,6 +366,32 @@ async function handleOrderCreated(data: any, event: any) {
   } else {
     console.log('✅ Purchase record created for order:', data.id)
   }
+  
+  // Also update subscription status if it's a subscription product
+  if (data.attributes.product_name && !data.attributes.product_name.toLowerCase().includes('one-time')) {
+    console.log('📊 Also updating subscription status from order')
+    
+    const subscriptionStatus = getSubscriptionStatusFromProduct(
+      data.attributes.product_name,
+      data.attributes.variant_name
+    )
+    
+    const { error: subError } = await supabaseAdmin
+      .from('user_profiles')
+      .update({
+        subscription_status: subscriptionStatus,
+        subscription_plan: subscriptionStatus,
+        lemon_squeezy_customer_id: data.attributes.customer_id,
+        updated_at: new Date().toISOString(),
+      })
+      .eq('clerk_user_id', clerkUserId)
+    
+    if (subError) {
+      console.error('❌ Error updating subscription from order:', subError)
+    } else {
+      console.log('✅ Subscription status updated from order')
+    }
+  }
 }
 
 // Helper function to map product names to subscription status
