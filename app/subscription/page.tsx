@@ -126,7 +126,8 @@ export default function SubscriptionPage() {
     }
 
     if (plan.id === 'basic') {
-      alert('You are already on the Basic plan')
+      // Basic is free - no checkout needed, just show a message
+      alert('Basic is our free plan. To downgrade to Basic, please cancel your current subscription through the Lemon Squeezy portal.')
       return
     }
 
@@ -386,7 +387,14 @@ export default function SubscriptionPage() {
                         : 'var(--fg)'
                     }}
                   >
-                    {plan.id === 'basic' ? 'Downgrade' : 'Upgrade'}
+                    {plan.id === 'basic' 
+                      ? 'Cancel Subscription' 
+                      : currentStatus === 'basic' 
+                        ? 'Upgrade' 
+                        : Number(plan.price.replace(/[^0-9.]/g, '')) > Number(PLANS.find(p => p.id === currentStatus)?.price.replace(/[^0-9.]/g, '') || 0)
+                          ? 'Upgrade'
+                          : 'Change Plan'
+                    }
                   </button>
                 )}
               </div>
