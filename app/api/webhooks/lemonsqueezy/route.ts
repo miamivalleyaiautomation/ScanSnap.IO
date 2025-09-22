@@ -166,7 +166,7 @@ async function handleOrderCreated(data: any, event: any) {
   }
 
   // Create purchase record
-  await createPurchaseRecord(userProfile.id, data, event)
+  await createPurchaseFromSubscription(userProfile.id, data, event)
   
   // Update subscription status if it's a subscription product
   if (!data.attributes.product_name?.toLowerCase().includes('one-time')) {
