@@ -127,7 +127,7 @@ export default function SubscriptionPage() {
       return
     }
 
-    const checkoutUrl = `https://app.lemonsqueezy.com/checkout/buy/${variantId}?` + 
+   const checkoutUrl = `https://pay.scansnap.io/buy/${variantId}?` + 
       new URLSearchParams({
         'checkout[email]': user.emailAddresses[0].emailAddress,
         'checkout[custom][clerk_user_id]': user.id,

@@ -94,8 +94,8 @@ export default function PricingSection() {
       return;
     }
 
-    // Use Lemon Squeezy's checkout URL directly
-    const checkoutUrl = `https://app.lemonsqueezy.com/checkout/buy/${variantId}?` + 
+    // Use your custom pay.scansnap.io domain with UUID format
+    const checkoutUrl = `https://pay.scansnap.io/buy/${variantId}?` + 
       new URLSearchParams({
         'checkout[email]': user.emailAddresses[0].emailAddress,
         'checkout[custom][clerk_user_id]': user.id,
@@ -114,8 +114,8 @@ export default function PricingSection() {
     );
   }
 
-  // Debug: Log all variant IDs on mount
-  if (typeof window !== 'undefined') {
+  // Debug: Log all variant IDs on mount (only in development)
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
     console.log('Available Lemon Squeezy Variants:', {
       basic: process.env.NEXT_PUBLIC_LS_VARIANT_BASIC || 'NOT SET',
       plus: process.env.NEXT_PUBLIC_LS_VARIANT_PLUS || 'NOT SET',
