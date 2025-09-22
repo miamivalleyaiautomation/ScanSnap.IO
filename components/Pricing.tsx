@@ -92,7 +92,7 @@ export default function Pricing() {
     }
 
     // Construct the checkout URL with your custom domain
-    const baseUrl = `https://pay.scansnap.io/checkout/buy/${variantId}`;
+    const baseUrl = `https://pay.scansnap.io/buy/${variantId}`;
     
     // Add user data as URL parameters
     const params = new URLSearchParams({

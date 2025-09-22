@@ -45,7 +45,7 @@ export default function TestCheckoutPage() {
     }
 
     // Generate checkout URL with user data
-    const baseUrl = `https://app.lemonsqueezy.com/checkout/buy/${variantId}`
+    const baseUrl = `https://pay.scansnap.io/buy/${variantId}`
     const params = new URLSearchParams({
       'checkout[email]': user.emailAddresses[0].emailAddress,
       'checkout[custom][clerk_user_id]': user.id,

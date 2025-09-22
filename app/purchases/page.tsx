@@ -173,7 +173,7 @@ export default function PurchasesPage() {
               Manage Subscription
             </Link>
             <a
-              href="https://app.lemonsqueezy.com/my-orders"
+              href="https://pay.scansnap.io/my-orders"
               target="_blank"
               rel="noopener noreferrer"
               className="btn"
@@ -351,7 +351,7 @@ export default function PurchasesPage() {
               Contact Support
             </a>
             <a
-              href="https://app.lemonsqueezy.com/my-orders"
+              href="https://pay.scansnap.io/my-orders"
               target="_blank"
               rel="noopener noreferrer"
               className="btn primary"
