@@ -110,15 +110,30 @@ export default function Dashboard() {
     fetchUserProfile()
   }
 
-  const handleLaunchApp = () => {
-    const userData = {
-      clerk_user_id: user?.id,
-      subscription_status: userProfile?.subscription_status || "basic",
-      subscription_plan: userProfile?.subscription_plan || "basic",
-      email: user?.emailAddresses[0]?.emailAddress,
-      first_name: user?.firstName,
-      last_name: user?.lastName
-    };
+  // In app/dashboard/page.tsx, update the handleLaunchApp function:
+
+const handleLaunchApp = async () => {
+  if (!user || !userProfile) {
+    alert('Please wait for profile to load')
+    return
+  }
+  
+  // Generate a temporary session token (you might want to implement this server-side)
+  const sessionToken = btoa(JSON.stringify({
+    userId: user.id,
+    timestamp: Date.now(),
+    // Add a signature here in production
+  }))
+  
+  // Build the app URL with auth params
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io"
+  const params = new URLSearchParams({
+    token: sessionToken,
+    userId: user.id
+  })
+  
+  window.open(`${appUrl}?${params.toString()}`, "_blank")
+}
     
     localStorage.setItem("scansnap_user_data", JSON.stringify(userData));
     window.open("https://app.scansnap.io", "_blank");
