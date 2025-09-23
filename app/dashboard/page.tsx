@@ -328,10 +328,10 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Quick Actions */}
+        {/* Quick Actions - REMOVED VIEW PLANS BUTTON */}
         <div className="card" style={{ marginBottom: '2rem' }}>
           <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>Quick Actions</h3>
-          <div className="grid cols-2" style={{ gap: '1rem' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
             <button onClick={handleLaunchApp} className="btn primary block">
               🚀 Launch App
             </button>
