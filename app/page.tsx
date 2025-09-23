@@ -2,6 +2,23 @@
 import SiteHeader from "@/components/SiteHeader";
 import HeroPreview from "@/components/HeroPreview";
 import PricingSection from "@/components/PricingSection";
+// And in the pricing section of your page:
+{/* ===== PRICING ===== */}
+<section id="pricing" className="section">
+  <div className="container">
+    <div className="section-heading">
+      <h2>Pricing</h2>
+      <p>Choose the plan that fits your scanning needs</p>
+    </div>
+    <PricingSection />  {/* This should be using the fixed component */}
+  </div>
+</section>
+
+
+
+
+
+
 import LoginButton from "@/components/LoginButton";
 
 export const metadata = {

@@ -4,9 +4,27 @@
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
+// CRITICAL: Static mapping of variant IDs - REQUIRED FOR PRODUCTION
+// These must match your Netlify environment variables exactly
+const VARIANT_IDS = {
+  basic: undefined, // Basic is free, no variant
+  plus: process.env.NEXT_PUBLIC_LS_VARIANT_PLUS,
+  pro: process.env.NEXT_PUBLIC_LS_VARIANT_PRO,
+  pro_dpms: process.env.NEXT_PUBLIC_LS_VARIANT_PRO_DPMS,
+} as const
+
+// Verify on mount that IDs are loaded (development only)
+if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+  console.log('PricingSection - Variant IDs loaded:', {
+    plus: VARIANT_IDS.plus || 'NOT SET',
+    pro: VARIANT_IDS.pro || 'NOT SET', 
+    pro_dpms: VARIANT_IDS.pro_dpms || 'NOT SET',
+  });
+}
+
 const PLANS = [
   {
-    id: 'basic',
+    id: 'basic' as const,
     name: 'Basic',
     price: 'Free',
     interval: '',
@@ -16,11 +34,10 @@ const PLANS = [
       'Manual barcode entry', 
       'Export to PDF, CSV, Excel',
       'Single user'
-    ],
-    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_BASIC'
+    ]
   },
   {
-    id: 'plus',
+    id: 'plus' as const,
     name: 'Plus',
     price: '$9.99',
     interval: '/ user / mo',
@@ -31,11 +48,10 @@ const PLANS = [
       'Order Builder: Upload catalogs, build orders by scanning',
       'Track quantities and catch discrepancies'
     ],
-    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_PLUS',
     popular: true
   },
   {
-    id: 'pro',
+    id: 'pro' as const,
     name: 'Pro', 
     price: '$14.99',
     interval: '/ user / mo',
@@ -45,11 +61,10 @@ const PLANS = [
       'QR code scanning',
       'DataMatrix code scanning',
       'Ideal for modern packaging and parts'
-    ],
-    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_PRO'
+    ]
   },
   {
-    id: 'pro_dpms',
+    id: 'pro_dpms' as const,
     name: 'Pro + DPMS',
     price: '$49.99', 
     interval: '/ user / mo',
@@ -59,8 +74,7 @@ const PLANS = [
       'Dot-peen marked codes',
       'Laser-etched difficult marks',
       'Custom scanning algorithms'
-    ],
-    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_PRO_DPMS'
+    ]
   }
 ];
 
@@ -70,8 +84,7 @@ export default function PricingSection() {
 
   const handlePlanClick = (plan: typeof PLANS[0]) => {
     console.log('Plan clicked:', plan.name);
-    console.log('User signed in:', isSignedIn);
-    console.log('Variant env key:', plan.variantEnv);
+    console.log('Plan ID:', plan.id);
     
     if (!isSignedIn) {
       // Redirect to login with the plan information
@@ -85,16 +98,18 @@ export default function PricingSection() {
       return;
     }
 
-    const variantId = process.env[plan.variantEnv as keyof typeof process.env];
-    console.log('Variant ID:', variantId);
+    // CRITICAL: Use static mapping, NOT dynamic env variable access
+    const variantId = VARIANT_IDS[plan.id];
+    
+    console.log('Variant ID for', plan.name, ':', variantId);
     
     if (!variantId) {
-      // Show more helpful error message
-      alert(`This plan is not available for purchase yet. Please contact support.\n\nTechnical info: Missing ${plan.variantEnv} environment variable.`);
+      console.error('No variant ID found for plan:', plan.id);
+      alert(`This plan is not available for purchase yet. Please contact support.`);
       return;
     }
 
-    // Use your custom pay.scansnap.io domain with UUID format
+    // Build the Lemon Squeezy checkout URL
     const checkoutUrl = `https://pay.scansnap.io/buy/${variantId}?` + 
       new URLSearchParams({
         'checkout[email]': user.emailAddresses[0].emailAddress,
@@ -114,16 +129,6 @@ export default function PricingSection() {
     );
   }
 
-  // Debug: Log all variant IDs on mount (only in development)
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-    console.log('Available Lemon Squeezy Variants:', {
-      basic: process.env.NEXT_PUBLIC_LS_VARIANT_BASIC || 'NOT SET',
-      plus: process.env.NEXT_PUBLIC_LS_VARIANT_PLUS || 'NOT SET',
-      pro: process.env.NEXT_PUBLIC_LS_VARIANT_PRO || 'NOT SET',
-      proDpms: process.env.NEXT_PUBLIC_LS_VARIANT_PRO_DPMS || 'NOT SET',
-    });
-  }
-
   return (
     <div className="pricing-grid">
       {PLANS.map((plan) => (
@@ -133,7 +138,10 @@ export default function PricingSection() {
           style={{
             position: 'relative',
             border: plan.popular ? '2px solid var(--brand0)' : '1px solid var(--line)',
-            background: 'var(--card)'
+            background: 'var(--card)',
+            display: 'flex',
+            flexDirection: 'column',
+            height: '100%'
           }}
         >
           {plan.popular && (
@@ -163,7 +171,7 @@ export default function PricingSection() {
             <p className="muted">{plan.description}</p>
           </div>
           
-          <ul className="feature">
+          <ul className="feature" style={{ flexGrow: 1 }}>
             {plan.features.map((feature, index) => (
               <li key={index}>{feature}</li>
             ))}
@@ -173,6 +181,7 @@ export default function PricingSection() {
             <button
               className="btn primary block"
               onClick={() => handlePlanClick(plan)}
+              style={{ width: '100%' }}
             >
               {plan.id === 'basic' 
                 ? (isSignedIn ? 'Go to Dashboard' : 'Start Free')
