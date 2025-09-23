@@ -1,35 +1,25 @@
-// app/page.tsx
+// app/page.tsx - Updated with client-side Start Scanning button
+"use client";
+
+import { useUser } from "@clerk/nextjs";
 import SiteHeader from "@/components/SiteHeader";
 import HeroPreview from "@/components/HeroPreview";
 import PricingSection from "@/components/PricingSection";
-// And in the pricing section of your page:
-{/* ===== PRICING ===== */}
-<section id="pricing" className="section">
-  <div className="container">
-    <div className="section-heading">
-      <h2>Pricing</h2>
-      <p>Choose the plan that fits your scanning needs</p>
-    </div>
-    <PricingSection />  {/* This should be using the fixed component */}
-  </div>
-</section>
-
-
-
-
-
-
 import LoginButton from "@/components/LoginButton";
 
-export const metadata = {
-  title: "ScanSnap — Professional barcode scanning and verification tool",
-  description:
-    "Scan, verify, and build orders with barcodes. Import your catalogs, verify deliveries, and streamline warehouse operations. Nothing leaves your device.",
-};
-
 export default function Page() {
-  const portalUrl = process.env.NEXT_PUBLIC_PORTAL_URL ?? "https://portal.scansnap.io";
+  const { user, isSignedIn } = useUser();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
+
+  const handleStartScanning = () => {
+    if (isSignedIn) {
+      // If signed in, go directly to the scanning app
+      window.open(appUrl, "_blank");
+    } else {
+      // If not signed in, go to login page
+      window.location.href = "/login?redirect_url=/dashboard";
+    }
+  };
 
   return (
     <>
@@ -47,7 +37,9 @@ export default function Page() {
               Scan, verify deliveries, and build orders with confidence. Import your catalogs, verify against shipments, and streamline warehouse operations—<strong>all data stays on your device</strong>.
             </p>
             <div className="actions">
-              <a className="btn primary" href={`${portalUrl}/login`}>Start scanning</a>
+              <button className="btn primary" onClick={handleStartScanning}>
+                {isSignedIn ? '🚀 Launch App' : 'Start scanning'}
+              </button>
               <a className="btn" href="#features">See what it does</a>
             </div>
             <div style={{ height: 12 }} />
@@ -181,7 +173,7 @@ export default function Page() {
               <h3>Contact Sales</h3>
               <p className="muted">Questions about team licensing, custom workflows, or bulk deployments?</p>
               <div style={{ height: 8 }} />
-              <a className="btn" href="mailto:support@scansnap.io">support@scansnap.io</a>
+              <a className="btn" href="mailto:hello@scansnap.io">hello@scansnap.io</a>
             </div>
 
             <div className="card">
