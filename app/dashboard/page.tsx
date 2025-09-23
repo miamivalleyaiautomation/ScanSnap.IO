@@ -270,10 +270,7 @@ export default function Dashboard() {
                 {/* Show expiry/renewal date if available */}
                 {userProfile?.subscription_expires_at && userProfile?.subscription_status !== 'basic' && (
                   <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '2px' }}>
-                    {new Date(userProfile.subscription_expires_at) > new Date() 
-                      ? `Renews: ${new Date(userProfile.subscription_expires_at).toLocaleDateString()}`
-                      : `Expires: ${new Date(userProfile.subscription_expires_at).toLocaleDateString()}`
-                    }
+                    Expires: {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
                   </div>
                 )}
               </div>
@@ -343,9 +340,6 @@ export default function Dashboard() {
             </Link>
             <Link href="/purchases" className="btn block">
               📄 View Purchases
-            </Link>
-            <Link href="/#pricing" className="btn block">
-              💎 View Plans
             </Link>
           </div>
         </div>
