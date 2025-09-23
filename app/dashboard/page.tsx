@@ -13,6 +13,7 @@ interface UserProfile {
   last_name?: string
   subscription_status: string
   subscription_plan: string
+  subscription_expires_at?: string
   created_at: string
 }
 
@@ -244,7 +245,7 @@ export default function Dashboard() {
         {/* Stats Grid */}
         <div className="grid cols-3" style={{ marginBottom: '2rem' }}>
           
-          {/* Current Plan */}
+          {/* Current Plan - Enhanced with expiry date */}
           <div className="card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
               <div style={{ 
@@ -261,11 +262,20 @@ export default function Dashboard() {
               }}>
                 {(userProfile?.subscription_status || 'basic') === 'basic' ? '○' : '✓'}
               </div>
-              <div>
+              <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>Current Plan</div>
                 <div style={{ fontSize: '1.125rem', fontWeight: '600' }}>
                   {getSubscriptionDisplayName(userProfile?.subscription_status || 'basic')}
                 </div>
+                {/* Show expiry/renewal date if available */}
+                {userProfile?.subscription_expires_at && userProfile?.subscription_status !== 'basic' && (
+                  <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '2px' }}>
+                    {new Date(userProfile.subscription_expires_at) > new Date() 
+                      ? `Renews: ${new Date(userProfile.subscription_expires_at).toLocaleDateString()}`
+                      : `Expires: ${new Date(userProfile.subscription_expires_at).toLocaleDateString()}`
+                    }
+                  </div>
+                )}
               </div>
             </div>
           </div>
