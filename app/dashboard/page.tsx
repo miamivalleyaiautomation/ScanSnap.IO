@@ -110,33 +110,26 @@ export default function Dashboard() {
     fetchUserProfile()
   }
 
-  // In app/dashboard/page.tsx, update the handleLaunchApp function:
-
-const handleLaunchApp = async () => {
-  if (!user || !userProfile) {
-    alert('Please wait for profile to load')
-    return
-  }
-  
-  // Generate a temporary session token (you might want to implement this server-side)
-  const sessionToken = btoa(JSON.stringify({
-    userId: user.id,
-    timestamp: Date.now(),
-    // Add a signature here in production
-  }))
-  
-  // Build the app URL with auth params
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io"
-  const params = new URLSearchParams({
-    token: sessionToken,
-    userId: user.id
-  })
-  
-  window.open(`${appUrl}?${params.toString()}`, "_blank")
-}
+  const handleLaunchApp = async () => {
+    if (!user) {
+      alert('Please sign in first')
+      return
+    }
     
-    localStorage.setItem("scansnap_user_data", JSON.stringify(userData));
-    window.open("https://app.scansnap.io", "_blank");
+    // Generate a temporary session token
+    const sessionToken = btoa(JSON.stringify({
+      userId: user.id,
+      timestamp: Date.now(),
+    }))
+    
+    // Build the app URL with auth params
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io"
+    const params = new URLSearchParams({
+      token: sessionToken,
+      userId: user.id
+    })
+    
+    window.open(`${appUrl}?${params.toString()}`, "_blank")
   }
 
   const getSubscriptionDisplayName = (status: string): string => {
@@ -174,6 +167,12 @@ const handleLaunchApp = async () => {
             <p>{retryCount > 0 ? 'Setting up your profile...' : 'Loading dashboard...'}</p>
           </div>
         </div>
+        <style jsx>{`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}</style>
       </div>
     )
   }
@@ -343,7 +342,7 @@ const handleLaunchApp = async () => {
           </div>
         </div>
 
-        {/* Quick Actions - REMOVED VIEW PLANS BUTTON */}
+        {/* Quick Actions */}
         <div className="card" style={{ marginBottom: '2rem' }}>
           <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem' }}>Quick Actions</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
