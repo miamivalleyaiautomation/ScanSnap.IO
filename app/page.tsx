@@ -181,7 +181,7 @@ export default function Page() {
               <h3>Contact Sales</h3>
               <p className="muted">Questions about team licensing, custom workflows, or bulk deployments?</p>
               <div style={{ height: 8 }} />
-              <a className="btn" href="mailto:hello@scansnap.io">hello@scansnap.io</a>
+              <a className="btn" href="mailto:support@scansnap.io">support@scansnap.io</a>
             </div>
 
             <div className="card">
