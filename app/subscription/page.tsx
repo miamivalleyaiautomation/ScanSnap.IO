@@ -18,6 +18,14 @@ interface UserProfile {
   created_at: string
 }
 
+// Static mapping of variant IDs - REQUIRED FOR PRODUCTION
+const VARIANT_IDS = {
+  basic: undefined,
+  plus: process.env.NEXT_PUBLIC_LS_VARIANT_PLUS,
+  pro: process.env.NEXT_PUBLIC_LS_VARIANT_PRO,
+  pro_dpms: process.env.NEXT_PUBLIC_LS_VARIANT_PRO_DPMS,
+} as const
+
 const PLANS = [
   {
     id: 'basic',
@@ -30,8 +38,7 @@ const PLANS = [
       'Manual barcode entry', 
       'Export to PDF, CSV, Excel',
       'Single user'
-    ],
-    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_BASIC'
+    ]
   },
   {
     id: 'plus',
@@ -45,7 +52,6 @@ const PLANS = [
       'Order Builder: Upload catalogs, build orders',
       'Track quantities and discrepancies'
     ],
-    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_PLUS',
     popular: true
   },
   {
@@ -59,8 +65,7 @@ const PLANS = [
       'QR code scanning',
       'DataMatrix code scanning',
       'Ideal for modern packaging'
-    ],
-    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_PRO'
+    ]
   },
   {
     id: 'pro_dpms',
@@ -73,8 +78,7 @@ const PLANS = [
       'Dot-peen marked codes',
       'Laser-etched difficult marks',
       'Custom scanning algorithms'
-    ],
-    variantEnv: 'NEXT_PUBLIC_LS_VARIANT_PRO_DPMS'
+    ]
   }
 ]
 
@@ -82,7 +86,6 @@ export default function SubscriptionPage() {
   const { user, isLoaded } = useUser()
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
-  const [debugInfo, setDebugInfo] = useState<string>("")
 
   useEffect(() => {
     if (isLoaded && user) {
@@ -103,14 +106,8 @@ export default function SubscriptionPage() {
         .select("*")
         .eq("clerk_user_id", user?.id)
 
-      console.log('Fetched profiles:', profiles)
-      setDebugInfo(JSON.stringify(profiles, null, 2))
-
       if (!error && profiles && profiles.length > 0) {
         setUserProfile(profiles[0])
-        console.log('Set user profile:', profiles[0])
-      } else if (error) {
-        console.error('Error fetching profile:', error)
       }
     } catch (err) {
       console.error('Error fetching user profile:', err)
@@ -126,18 +123,20 @@ export default function SubscriptionPage() {
     }
 
     if (plan.id === 'basic') {
-      // Basic is free - no checkout needed, just show a message
+      // Basic is free - no checkout needed
       alert('Basic is our free plan. To downgrade to Basic, please cancel your current subscription through the Lemon Squeezy portal.')
       return
     }
 
-    const variantId = process.env[plan.variantEnv as keyof typeof process.env]
+    // Use static mapping instead of dynamic env access
+    const variantId = VARIANT_IDS[plan.id as keyof typeof VARIANT_IDS]
+    
     if (!variantId) {
-      alert('Checkout not configured for this plan')
+      alert(`Checkout not configured for ${plan.name} plan. Please contact support.`)
       return
     }
 
-    // Use the custom domain format
+    // Use the custom domain format - same as Plus
     const checkoutUrl = `https://pay.scansnap.io/buy/${variantId}?` + 
       new URLSearchParams({
         'checkout[email]': user.emailAddresses[0].emailAddress,
@@ -145,6 +144,10 @@ export default function SubscriptionPage() {
         'checkout[custom][user_name]': `${user.firstName || ''} ${user.lastName || ''}`.trim()
       }).toString()
 
+    console.log('Opening checkout for:', plan.name)
+    console.log('Variant ID:', variantId)
+    console.log('Checkout URL:', checkoutUrl)
+    
     window.open(checkoutUrl, '_blank')
   }
 
@@ -208,7 +211,6 @@ export default function SubscriptionPage() {
 
   // Get actual status with fallback
   const currentStatus = userProfile?.subscription_status || 'basic'
-  console.log('Current subscription status:', currentStatus)
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
@@ -229,18 +231,11 @@ export default function SubscriptionPage() {
               <p className="muted" style={{ marginBottom: '0.5rem' }}>
                 Status: <span style={{ textTransform: 'capitalize' }}>{currentStatus}</span>
               </p>
-              {userProfile?.subscription_expires_at && (
+              {userProfile?.subscription_expires_at && currentStatus !== 'basic' && (
                 <p className="muted">
                   {currentStatus === 'cancelled' ? 'Expires' : 'Renews'}: {' '}
                   {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
                 </p>
-              )}
-              {/* Debug info - remove in production */}
-              {process.env.NODE_ENV === 'development' && (
-                <details style={{ marginTop: '1rem', fontSize: '0.75rem', color: 'var(--muted)' }}>
-                  <summary>Debug Info</summary>
-                  <pre>{debugInfo}</pre>
-                </details>
               )}
             </div>
             {currentStatus !== 'basic' && (

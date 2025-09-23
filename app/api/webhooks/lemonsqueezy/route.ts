@@ -457,16 +457,22 @@ async function handlePaymentSuccess(data: any, event: any) {
   }
 }
 
+// Add/update this helper function in app/api/webhooks/lemonsqueezy/route.ts
+
 // Helper function to map product names to subscription status
 function getSubscriptionStatusFromProduct(productName: string, variantName?: string): string {
   const product = productName?.toLowerCase() || ''
   const variant = variantName?.toLowerCase() || ''
   
+  // Check both product name and variant name for plan identification
   if (product.includes('basic') || variant.includes('basic')) {
     return 'basic'
   } else if (product.includes('plus') || variant.includes('plus')) {
     return 'plus'
-  } else if (product.includes('pro') && (product.includes('dpms') || variant.includes('dpms'))) {
+  } else if ((product.includes('pro') && product.includes('dpms')) || 
+             (variant.includes('pro') && variant.includes('dpms')) ||
+             product.includes('pro_dpms') || variant.includes('pro_dpms') ||
+             product.includes('pro + dpms') || variant.includes('pro + dpms')) {
     return 'pro_dpms'
   } else if (product.includes('pro') || variant.includes('pro')) {
     return 'pro'
