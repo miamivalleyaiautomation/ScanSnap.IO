@@ -1,4 +1,3 @@
-// app/test-session/page.tsx
 "use client"
 
 import { useUser } from "@clerk/nextjs"
@@ -89,4 +88,90 @@ export default function TestSessionPage() {
         {/* Session Creation */}
         <div className="card" style={{ marginBottom: '2rem' }}>
           <h2>1. Create Session</h2>
-          <button onClick={createSession} class
+          <button onClick={createSession} className="btn primary">
+            Create New Session
+          </button>
+          
+          {sessionData && (
+            <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--bg)', borderRadius: '8px' }}>
+              <pre>{JSON.stringify(sessionData, null, 2)}</pre>
+            </div>
+          )}
+        </div>
+        
+        {/* Session Validation */}
+        <div className="card" style={{ marginBottom: '2rem' }}>
+          <h2>2. Validate Session</h2>
+          <input
+            type="text"
+            value={sessionToken}
+            onChange={(e) => setSessionToken(e.target.value)}
+            placeholder="Enter session token"
+            style={{
+              width: '100%',
+              padding: '0.5rem',
+              marginBottom: '1rem',
+              background: 'var(--bg)',
+              border: '1px solid var(--line)',
+              borderRadius: '4px',
+              color: 'var(--fg)'
+            }}
+          />
+          <button onClick={validateSession} className="btn primary" disabled={!sessionToken}>
+            Validate Session
+          </button>
+          
+          {validationResult && (
+            <div style={{ marginTop: '1rem', padding: '1rem', background: 'var(--bg)', borderRadius: '8px' }}>
+              <pre>{JSON.stringify(validationResult, null, 2)}</pre>
+            </div>
+          )}
+        </div>
+        
+        {/* Test Launch */}
+        <div className="card" style={{ marginBottom: '2rem' }}>
+          <h2>3. Test App Launch</h2>
+          {sessionToken && (
+            <>
+              <p>App URL with session:</p>
+              <code style={{ 
+                display: 'block', 
+                padding: '1rem', 
+                background: 'var(--bg)', 
+                borderRadius: '4px', 
+                wordBreak: 'break-all' 
+              }}>
+                {`${process.env.NEXT_PUBLIC_APP_URL || 'https://app.scansnap.io'}?session=${sessionToken}`}
+              </code>
+              <button 
+                onClick={() => {
+                  const url = `${process.env.NEXT_PUBLIC_APP_URL || 'https://app.scansnap.io'}?session=${sessionToken}`
+                  window.open(url, '_blank')
+                }}
+                className="btn primary"
+                style={{ marginTop: '1rem' }}
+              >
+                Launch App with Session
+              </button>
+            </>
+          )}
+        </div>
+        
+        {/* Debug Actions */}
+        <div className="card">
+          <h2>Debug Actions</h2>
+          <button onClick={checkActiveSessions} className="btn">
+            Check Active Sessions
+          </button>
+          <button 
+            onClick={() => window.location.reload()} 
+            className="btn" 
+            style={{ marginLeft: '1rem' }}
+          >
+            Refresh Page
+          </button>
+        </div>
+      </main>
+    </div>
+  )
+}
