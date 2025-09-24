@@ -111,26 +111,44 @@ export default function Dashboard() {
   }
 
   const handleLaunchApp = async () => {
-    if (!user) {
-      alert('Please sign in first')
-      return
-    }
-    
-    // Generate a temporary session token
-    const sessionToken = btoa(JSON.stringify({
-      userId: user.id,
-      timestamp: Date.now(),
-    }))
-    
-    // Build the app URL with auth params
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io"
-    const params = new URLSearchParams({
-      token: sessionToken,
-      userId: user.id
+  if (!user) {
+    alert('Please sign in first')
+    return
+  }
+  
+  console.log('🚀 Launching app for user:', user.emailAddresses[0]?.emailAddress)
+  
+  try {
+    // Create session through our API
+    console.log('📡 Creating session...')
+    const response = await fetch('/api/app/session/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
     })
     
-    window.open(`${appUrl}?${params.toString()}`, "_blank")
+    const data = await response.json()
+    console.log('📦 Session response:', data)
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to create session')
+    }
+    
+    // Build app URL with session token
+    const appUrl = data.appUrl || process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io"
+    const launchUrl = `${appUrl}?session=${data.sessionToken}`
+    
+    console.log('🚀 Launching app with URL:', launchUrl)
+    
+    // Open in new tab
+    window.open(launchUrl, "_blank")
+    
+  } catch (error) {
+    console.error('❌ Launch error:', error)
+    alert('Failed to launch app. Please try again.')
   }
+}
 
   const getSubscriptionDisplayName = (status: string): string => {
     switch (status) {
