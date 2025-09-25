@@ -1,4 +1,6 @@
 // netlify/functions/validate-session.js
+const { createClient } = require('@supabase/supabase-js'); // Or your DB client
+
 exports.handler = async (event) => {
   const headers = {
     'Access-Control-Allow-Origin': 'https://app.scansnap.io',
@@ -14,35 +16,60 @@ exports.handler = async (event) => {
   try {
     const { sessionToken } = JSON.parse(event.body || '{}');
     
-    // TODO: Validate sessionToken against your database
-    // For now, parse the token to extract user info
-    // Example: session_1758740487283_yfgah
+    // CONNECT TO YOUR REAL DATABASE HERE
+    const supabase = createClient(
+      process.env.SUPABASE_URL,
+      process.env.SUPABASE_SERVICE_KEY
+    );
     
-    // This is where you'd check your database
-    // const session = await validateTokenInDatabase(sessionToken);
+    // LOOK UP THE REAL SESSION
+    const { data: session, error } = await supabase
+      .from('sessions')  // Your sessions table
+      .select(`
+        *,
+        users (
+          id,
+          email,
+          first_name,
+          last_name,
+          subscription_type
+        )
+      `)
+      .eq('token', sessionToken)
+      .single();
     
-    // Mock response for now
-    const session = {
-      userId: "user_" + sessionToken.split('_')[1],
-      email: "user@example.com", // Get from your DB
-      firstName: "User",
-      lastName: "Name",
-      subscription: "plus", // Get from your DB
-      dashboardUrl: "https://scansnap.io/dashboard",
-      expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
-    };
-
+    if (error || !session) {
+      return {
+        statusCode: 401,
+        headers,
+        body: JSON.stringify({ success: false, error: 'Invalid session' })
+      };
+    }
+    
+    // RETURN THE REAL USER DATA
     return {
       statusCode: 200,
       headers,
-      body: JSON.stringify({ success: true, session })
+      body: JSON.stringify({
+        success: true,
+        session: {
+          userId: session.users.id,
+          email: session.users.email,
+          firstName: session.users.first_name,
+          lastName: session.users.last_name,
+          subscription: session.users.subscription_type,
+          dashboardUrl: "https://scansnap.io/dashboard",
+          expiresAt: session.expires_at
+        }
+      })
     };
     
   } catch (error) {
+    console.error('Session validation error:', error);
     return {
-      statusCode: 401,
+      statusCode: 500,
       headers,
-      body: JSON.stringify({ success: false, error: 'Invalid session' })
+      body: JSON.stringify({ success: false, error: 'Server error' })
     };
   }
 };
