@@ -1,8 +1,8 @@
 // app/api/app/session/validate/route.ts
 import { NextRequest, NextResponse } from "next/server"
-import { sessions, cleanupExpiredSessions } from "../session-store"
+import { supabaseAdmin } from "@/lib/supabase"
 
-// CORS headers - ensure app.scansnap.io is allowed
+// CORS headers configuration
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': process.env.NEXT_PUBLIC_APP_URL || 'https://app.scansnap.io',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
@@ -13,7 +13,7 @@ const CORS_HEADERS = {
 
 // Handle preflight OPTIONS request
 export async function OPTIONS(request: NextRequest) {
-  console.log('🔧 CORS preflight request received for session validation')
+  console.log('🔧 CORS preflight request received')
   console.log('Origin:', request.headers.get('origin'))
   
   return new NextResponse(null, {
@@ -22,13 +22,11 @@ export async function OPTIONS(request: NextRequest) {
   })
 }
 
-// Make this accessible via GET for easier cross-domain access
+// GET method for cross-domain compatibility
 export async function GET(request: NextRequest) {
   console.log('🔐 Session validation via GET')
   
   try {
-    cleanupExpiredSessions()
-    
     // Get session token from query params
     const { searchParams } = new URL(request.url)
     const sessionToken = searchParams.get('token')
@@ -36,6 +34,7 @@ export async function GET(request: NextRequest) {
     console.log('🎫 Token received:', sessionToken ? sessionToken.substring(0, 20) + '...' : 'None')
     
     if (!sessionToken) {
+      console.error('❌ No session token provided')
       return NextResponse.json({ 
         success: false, 
         error: "No session token provided" 
@@ -45,10 +44,24 @@ export async function GET(request: NextRequest) {
       })
     }
     
-    const session = sessions.get(sessionToken)
+    // Clean up expired sessions
+    await supabaseAdmin
+      .from('app_sessions')
+      .delete()
+      .lt('expires_at', new Date().toISOString())
+    
+    // Get session from Supabase
+    const { data: session, error } = await supabaseAdmin
+      .from('app_sessions')
+      .select('*')
+      .eq('session_token', sessionToken)
+      .gt('expires_at', new Date().toISOString())
+      .single()
+    
     console.log('🔍 Session lookup result:', session ? 'Found' : 'Not found')
     
-    if (!session) {
+    if (error || !session) {
+      console.error('❌ Invalid session token or expired')
       return NextResponse.json({ 
         success: false, 
         error: "Invalid or expired session" 
@@ -58,32 +71,27 @@ export async function GET(request: NextRequest) {
       })
     }
     
-    const now = new Date()
-    const expiresAt = new Date(session.expiresAt)
+    console.log('✅ Session validation successful')
+    console.log('👤 User info:', {
+      userId: session.user_id,
+      email: session.email,
+      subscription: session.subscription
+    })
     
-    if (now > expiresAt) {
-      sessions.delete(sessionToken)
-      return NextResponse.json({ 
-        success: false, 
-        error: "Session expired" 
-      }, { 
-        status: 401,
-        headers: CORS_HEADERS 
-      })
-    }
-    
-    return NextResponse.json({
+    const response = { 
       success: true,
       session: {
-        userId: session.userId,
+        userId: session.user_id,
         email: session.email,
-        firstName: session.firstName,
-        lastName: session.lastName,
+        firstName: session.first_name,
+        lastName: session.last_name,
         subscription: session.subscription,
-        dashboardUrl: session.dashboardUrl,
-        expiresAt: session.expiresAt
+        dashboardUrl: session.dashboard_url,
+        expiresAt: session.expires_at
       }
-    }, {
+    }
+    
+    return NextResponse.json(response, {
       status: 200,
       headers: CORS_HEADERS
     })
@@ -92,7 +100,8 @@ export async function GET(request: NextRequest) {
     console.error('💥 Session validation error:', error)
     return NextResponse.json({
       success: false,
-      error: "Internal server error"
+      error: "Validation failed",
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, {
       status: 500,
       headers: CORS_HEADERS
@@ -100,17 +109,19 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// Keep POST method for backward compatibility
+// POST method for backward compatibility
 export async function POST(request: NextRequest) {
   console.log('🔐 Session validation via POST')
+  console.log('Origin:', request.headers.get('origin'))
   
   try {
-    cleanupExpiredSessions()
-    
     const body = await request.json()
     const { sessionToken } = body
     
+    console.log('🎫 Token received:', sessionToken ? sessionToken.substring(0, 20) + '...' : 'None')
+    
     if (!sessionToken) {
+      console.error('❌ No session token provided')
       return NextResponse.json({ 
         success: false, 
         error: "No session token provided" 
@@ -120,9 +131,24 @@ export async function POST(request: NextRequest) {
       })
     }
     
-    const session = sessions.get(sessionToken)
+    // Clean up expired sessions
+    await supabaseAdmin
+      .from('app_sessions')
+      .delete()
+      .lt('expires_at', new Date().toISOString())
     
-    if (!session) {
+    // Get session from Supabase
+    const { data: session, error } = await supabaseAdmin
+      .from('app_sessions')
+      .select('*')
+      .eq('session_token', sessionToken)
+      .gt('expires_at', new Date().toISOString())
+      .single()
+    
+    console.log('🔍 Session lookup result:', session ? 'Found' : 'Not found')
+    
+    if (error || !session) {
+      console.error('❌ Invalid session token or expired')
       return NextResponse.json({ 
         success: false, 
         error: "Invalid or expired session" 
@@ -132,32 +158,27 @@ export async function POST(request: NextRequest) {
       })
     }
     
-    const now = new Date()
-    const expiresAt = new Date(session.expiresAt)
+    console.log('✅ Session validation successful')
+    console.log('👤 User info:', {
+      userId: session.user_id,
+      email: session.email,
+      subscription: session.subscription
+    })
     
-    if (now > expiresAt) {
-      sessions.delete(sessionToken)
-      return NextResponse.json({ 
-        success: false, 
-        error: "Session expired" 
-      }, { 
-        status: 401,
-        headers: CORS_HEADERS 
-      })
-    }
-    
-    return NextResponse.json({
+    const response = { 
       success: true,
       session: {
-        userId: session.userId,
+        userId: session.user_id,
         email: session.email,
-        firstName: session.firstName,
-        lastName: session.lastName,
+        firstName: session.first_name,
+        lastName: session.last_name,
         subscription: session.subscription,
-        dashboardUrl: session.dashboardUrl,
-        expiresAt: session.expiresAt
+        dashboardUrl: session.dashboard_url,
+        expiresAt: session.expires_at
       }
-    }, {
+    }
+    
+    return NextResponse.json(response, {
       status: 200,
       headers: CORS_HEADERS
     })
@@ -166,7 +187,8 @@ export async function POST(request: NextRequest) {
     console.error('💥 Session validation error:', error)
     return NextResponse.json({
       success: false,
-      error: "Internal server error"
+      error: "Validation failed",
+      details: error instanceof Error ? error.message : 'Unknown error'
     }, {
       status: 500,
       headers: CORS_HEADERS
