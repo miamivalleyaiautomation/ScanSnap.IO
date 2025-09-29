@@ -12,14 +12,29 @@ export default function Page() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
 
   const handleStartScanning = () => {
-    if (isSignedIn) {
-      // If signed in, go directly to the scanning app
-      window.open(appUrl, "_blank");
-    } else {
-      // If not signed in, go to login page
-      window.location.href = "/login?redirect_url=/dashboard";
-    }
-  };
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io";
+  
+  if (isSignedIn) {
+    // If signed in, try to create session and launch
+    fetch('/api/app/session/create', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.sessionToken) {
+          window.open(`${appUrl}?session=${data.sessionToken}`, "_blank");
+        } else {
+          // Fallback if session creation fails
+          window.open(`${appUrl}?login-required=true`, "_blank");
+        }
+      })
+      .catch(() => {
+        // On error, still open app but indicate login required
+        window.open(`${appUrl}?login-required=true`, "_blank");
+      });
+  } else {
+    // If not signed in, go directly to app with login-required flag
+    window.open(`${appUrl}?login-required=true`, "_blank");
+  }
+};
 
   return (
     <>

@@ -33,10 +33,30 @@ export default function SiteHeader() {
     };
   }, [mobileMenuOpen]);
 
-  const handleSignOut = async () => {
-    await signOut();
-    window.location.href = '/';
-  };
+const handleSignOut = async () => {
+  // Clear all app-related localStorage
+  if (typeof window !== 'undefined') {
+    // Clear session data
+    localStorage.removeItem('scansnap_session');
+    localStorage.removeItem('scansnap_session_token');
+    localStorage.removeItem('scansnap_session_timestamp');
+    
+    // Clear any cached user data
+    const keysToRemove = Object.keys(localStorage).filter(key => 
+      key.startsWith('ui.') || 
+      key.startsWith('data.') || 
+      key.startsWith('catalog.') || 
+      key.startsWith('setup.')
+    );
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+  }
+  
+  await signOut();
+  
+  // Redirect to app with no-session parameter
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.scansnap.io';
+  window.location.href = `${appUrl}?no-session=true`;
+};
 
   return (
     <header className="site-header glass">
