@@ -110,7 +110,7 @@ export default function Dashboard() {
     fetchUserProfile()
   }
 
-  const handleLaunchApp = async () => {
+const handleLaunchApp = async () => {
   if (!user) {
     alert('Please sign in first')
     return
@@ -118,8 +118,11 @@ export default function Dashboard() {
   
   console.log('🚀 Launching app for user:', user.emailAddresses[0]?.emailAddress)
   
+  // Detect mobile
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io"
+  
   try {
-    // Create session through our API
     console.log('📡 Creating session...')
     const response = await fetch('/api/app/session/create', {
       method: 'POST',
@@ -135,14 +138,16 @@ export default function Dashboard() {
       throw new Error(data.error || 'Failed to create session')
     }
     
-    // Build app URL with session token
-    const appUrl = data.appUrl || process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io"
     const launchUrl = `${appUrl}?session=${data.sessionToken}`
-    
     console.log('🚀 Launching app with URL:', launchUrl)
     
-    // Open in new tab
-    window.open(launchUrl, "_blank")
+    if (isMobile) {
+      // On mobile: direct navigation (better UX)
+      window.location.href = launchUrl
+    } else {
+      // On desktop: new tab
+      window.open(launchUrl, "_blank")
+    }
     
   } catch (error) {
     console.error('❌ Launch error:', error)
