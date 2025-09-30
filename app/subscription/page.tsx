@@ -1,4 +1,4 @@
-// app/subscription/page.tsx - COMPLETE FILE WITH CANCELLED COLUMN
+// app/subscription/page.tsx - COMPLETE FIXED FILE
 "use client"
 
 import { useUser } from "@clerk/nextjs"
@@ -231,137 +231,137 @@ export default function SubscriptionPage() {
       <main className="container section">
         
         {/* Current Plan Status */}
-<div className="card" style={{ marginBottom: '2rem' }}>
-  <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-    Current Plan
-  </h2>
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-    <div>
-      <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-        {getSubscriptionDisplayName(currentStatus)}
-        {isSubscriptionCancelled(userProfile) && (
-          <span style={{ 
-            marginLeft: '1rem', 
-            fontSize: '0.875rem', 
-            color: '#ef4444',
-            fontWeight: '500'
-          }}>
-            (Cancelled)
-          </span>
-        )}
-      </h3>
-      <p className="muted" style={{ marginBottom: '0.5rem' }}>
-        Status: <span style={{ 
-          textTransform: 'capitalize',
-          color: isSubscriptionCancelled(userProfile) ? '#ef4444' : 'inherit'
-        }}>
-          {isSubscriptionCancelled(userProfile) ? 'Cancelled - Active until expiry' : currentStatus}
-        </span>
-      </p>
-      {userProfile?.subscription_expires_at && currentStatus !== 'basic' && (
-        <p className="muted">
-          {isSubscriptionCancelled(userProfile) ? 'Expires' : 'Renews'}: {' '}
-          {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
-        </p>
-      )}
-      {userProfile?.subscription_cancelled_at && (
-        <p className="muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
-          Cancelled on: {new Date(userProfile.subscription_cancelled_at).toLocaleDateString()}
-        </p>
-      )}
-    </div>
-    
-    {/* Action Buttons Section */}
-    {currentStatus !== 'basic' && (
-      <div style={{ textAlign: 'right' }}>
-        {isSubscriptionCancelled(userProfile) ? (
-          <>
-            <p className="muted" style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              Resume your subscription or manage billing
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
-              <a
-                href="https://app.lemonsqueezy.com/my-orders"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn primary"
-                style={{ 
-                  background: 'linear-gradient(135deg, #10b981, #059669)', 
-                  color: '#fff',
-                  textAlign: 'center' 
-                }}
-              >
-                ✓ Resume Subscription
-              </a>
-              <a
-                href="https://app.lemonsqueezy.com/my-orders"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn"
-                style={{ 
-                  background: '#ffd700', 
-                  color: '#000',
-                  textAlign: 'center' 
-                }}
-              >
-                Manage Billing
-              </a>
+        <div className="card" style={{ marginBottom: '2rem' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
+            Current Plan
+          </h2>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+            <div>
+              <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                {getSubscriptionDisplayName(currentStatus)}
+                {isSubscriptionCancelled(userProfile) && (
+                  <span style={{ 
+                    marginLeft: '1rem', 
+                    fontSize: '0.875rem', 
+                    color: '#ef4444',
+                    fontWeight: '500'
+                  }}>
+                    (Cancelled)
+                  </span>
+                )}
+              </h3>
+              <p className="muted" style={{ marginBottom: '0.5rem' }}>
+                Status: <span style={{ 
+                  textTransform: 'capitalize',
+                  color: isSubscriptionCancelled(userProfile) ? '#ef4444' : 'inherit'
+                }}>
+                  {isSubscriptionCancelled(userProfile) ? 'Cancelled - Active until expiry' : currentStatus}
+                </span>
+              </p>
+              {userProfile?.subscription_expires_at && currentStatus !== 'basic' && (
+                <p className="muted">
+                  {isSubscriptionCancelled(userProfile) ? 'Expires' : 'Renews'}: {' '}
+                  {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
+                </p>
+              )}
+              {userProfile?.subscription_cancelled_at && (
+                <p className="muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                  Cancelled on: {new Date(userProfile.subscription_cancelled_at).toLocaleDateString()}
+                </p>
+              )}
             </div>
-          </>
-        ) : (
-          <>
-            <p className="muted" style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              Manage your subscription directly with Lemon Squeezy
-            </p>
-            <a
-              href="https://app.lemonsqueezy.com/my-orders"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn"
-              style={{ background: '#ffd700', color: '#000' }}
-            >
-              Manage Subscription
-            </a>
-          </>
-        )}
-      </div>
-    )}
-  </div>
-  
-  {/* Cancelled Warning Box */}
-  {isSubscriptionCancelled(userProfile) && userProfile?.subscription_expires_at && (
-    <div style={{
-      marginTop: '1rem',
-      padding: '1rem',
-      background: 'rgba(239, 68, 68, 0.1)',
-      border: '1px solid rgba(239, 68, 68, 0.3)',
-      borderRadius: '8px'
-    }}>
-      <p style={{ color: '#ef4444', fontWeight: '600', marginBottom: '0.5rem' }}>
-        ⚠️ Your subscription has been cancelled
-      </p>
-      <p style={{ color: '#ef4444', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
-        You will continue to have access to {getSubscriptionDisplayName(currentStatus)} features until {new Date(userProfile.subscription_expires_at).toLocaleDateString()}. 
-        After this date, your account will revert to the Basic plan.
-      </p>
-      <div style={{
-        marginTop: '1rem',
-        padding: '0.75rem',
-        background: 'rgba(16, 185, 129, 0.1)',
-        border: '1px solid rgba(16, 185, 129, 0.3)',
-        borderRadius: '6px'
-      }}>
-        <p style={{ color: '#10b981', fontSize: '0.875rem', fontWeight: '500' }}>
-          💡 <strong>Want to keep your subscription?</strong>
-        </p>
-        <p style={{ color: '#10b981', fontSize: '0.825rem', marginTop: '0.25rem' }}>
-          You can resume your subscription anytime before {new Date(userProfile.subscription_expires_at).toLocaleDateString()} 
-          to continue without interruption. Click "Resume Subscription" above.
-        </p>
-      </div>
-    </div>
-  )}
-</div>
+            
+            {/* Action Buttons Section */}
+            {currentStatus !== 'basic' && (
+              <div style={{ textAlign: 'right' }}>
+                {isSubscriptionCancelled(userProfile) ? (
+                  <>
+                    <p className="muted" style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                      Resume your subscription or manage billing
+                    </p>
+                    <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
+                      <a
+                        href="https://app.lemonsqueezy.com/my-orders"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn primary"
+                        style={{ 
+                          background: 'linear-gradient(135deg, #10b981, #059669)', 
+                          color: '#fff',
+                          textAlign: 'center' 
+                        }}
+                      >
+                        ✓ Resume Subscription
+                      </a>
+                      <a
+                        href="https://app.lemonsqueezy.com/my-orders"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn"
+                        style={{ 
+                          background: '#ffd700', 
+                          color: '#000',
+                          textAlign: 'center' 
+                        }}
+                      >
+                        Manage Billing
+                      </a>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p className="muted" style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
+                      Manage your subscription directly with Lemon Squeezy
+                    </p>
+                    <a
+                      href="https://app.lemonsqueezy.com/my-orders"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="btn"
+                      style={{ background: '#ffd700', color: '#000' }}
+                    >
+                      Manage Subscription
+                    </a>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+          
+          {/* Cancelled Warning Box */}
+          {isSubscriptionCancelled(userProfile) && userProfile?.subscription_expires_at && (
+            <div style={{
+              marginTop: '1rem',
+              padding: '1rem',
+              background: 'rgba(239, 68, 68, 0.1)',
+              border: '1px solid rgba(239, 68, 68, 0.3)',
+              borderRadius: '8px'
+            }}>
+              <p style={{ color: '#ef4444', fontWeight: '600', marginBottom: '0.5rem' }}>
+                ⚠️ Your subscription has been cancelled
+              </p>
+              <p style={{ color: '#ef4444', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
+                You will continue to have access to {getSubscriptionDisplayName(currentStatus)} features until {new Date(userProfile.subscription_expires_at).toLocaleDateString()}. 
+                After this date, your account will revert to the Basic plan.
+              </p>
+              <div style={{
+                marginTop: '1rem',
+                padding: '0.75rem',
+                background: 'rgba(16, 185, 129, 0.1)',
+                border: '1px solid rgba(16, 185, 129, 0.3)',
+                borderRadius: '6px'
+              }}>
+                <p style={{ color: '#10b981', fontSize: '0.875rem', fontWeight: '500' }}>
+                  💡 <strong>Want to keep your subscription?</strong>
+                </p>
+                <p style={{ color: '#10b981', fontSize: '0.825rem', marginTop: '0.25rem' }}>
+                  You can resume your subscription anytime before {new Date(userProfile.subscription_expires_at).toLocaleDateString()} 
+                  to continue without interruption. Click "Resume Subscription" above.
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Available Plans */}
         <div style={{ marginBottom: '2rem' }}>
@@ -383,8 +383,10 @@ export default function SubscriptionPage() {
                   position: 'relative',
                   border: plan.popular 
                     ? '2px solid var(--brand0)' 
-                    : currentStatus === plan.id
+                    : currentStatus === plan.id && !isSubscriptionCancelled(userProfile)
                     ? '2px solid #10b981'
+                    : currentStatus === plan.id && isSubscriptionCancelled(userProfile)
+                    ? '2px solid #ef4444'
                     : '1px solid var(--line)',
                   background: 'var(--card)',
                   display: 'flex',
@@ -426,207 +428,114 @@ export default function SubscriptionPage() {
                   </div>
                 )}
                 
-                // In app/subscription/page.tsx - Replace the Current Plan Status section with this:
-
-{/* Current Plan Status */}
-<div className="card" style={{ marginBottom: '2rem' }}>
-  <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-    Current Plan
-  </h2>
-  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
-    <div>
-      <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-        {getSubscriptionDisplayName(currentStatus)}
-        {isSubscriptionCancelled(userProfile) && (
-          <span style={{ 
-            marginLeft: '1rem', 
-            fontSize: '0.875rem', 
-            color: '#ef4444',
-            fontWeight: '500'
-          }}>
-            (Cancelled)
-          </span>
-        )}
-      </h3>
-      <p className="muted" style={{ marginBottom: '0.5rem' }}>
-        Status: <span style={{ 
-          textTransform: 'capitalize',
-          color: isSubscriptionCancelled(userProfile) ? '#ef4444' : 'inherit'
-        }}>
-          {isSubscriptionCancelled(userProfile) ? 'Cancelled - Active until expiry' : currentStatus}
-        </span>
-      </p>
-      {userProfile?.subscription_expires_at && currentStatus !== 'basic' && (
-        <p className="muted">
-          {isSubscriptionCancelled(userProfile) ? 'Expires' : 'Renews'}: {' '}
-          {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
-        </p>
-      )}
-      {userProfile?.subscription_cancelled_at && (
-        <p className="muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
-          Cancelled on: {new Date(userProfile.subscription_cancelled_at).toLocaleDateString()}
-        </p>
-      )}
-    </div>
-    
-    {/* Action Buttons Section */}
-    {currentStatus !== 'basic' && (
-      <div style={{ textAlign: 'right' }}>
-        {isSubscriptionCancelled(userProfile) ? (
-          <>
-            <p className="muted" style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              Resume your subscription or manage billing
-            </p>
-            <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
-              <a
-                href="https://app.lemonsqueezy.com/my-orders"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn primary"
-                style={{ 
-                  background: 'linear-gradient(135deg, #10b981, #059669)', 
-                  color: '#fff',
-                  textAlign: 'center' 
-                }}
-              >
-                ✓ Resume Subscription
-              </a>
-              <a
-                href="https://app.lemonsqueezy.com/my-orders"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="btn"
-                style={{ 
-                  background: '#ffd700', 
-                  color: '#000',
-                  textAlign: 'center' 
-                }}
-              >
-                Manage Billing
-              </a>
-            </div>
-          </>
-        ) : (
-          <>
-            <p className="muted" style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-              Manage your subscription directly with Lemon Squeezy
-            </p>
-            <a
-              href="https://app.lemonsqueezy.com/my-orders"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn"
-              style={{ background: '#ffd700', color: '#000' }}
-            >
-              Manage Subscription
-            </a>
-          </>
-        )}
-      </div>
-    )}
-  </div>
-  
-  {/* Cancelled Warning Box */}
-  {isSubscriptionCancelled(userProfile) && userProfile?.subscription_expires_at && (
-    <div style={{
-      marginTop: '1rem',
-      padding: '1rem',
-      background: 'rgba(239, 68, 68, 0.1)',
-      border: '1px solid rgba(239, 68, 68, 0.3)',
-      borderRadius: '8px'
-    }}>
-      <p style={{ color: '#ef4444', fontWeight: '600', marginBottom: '0.5rem' }}>
-        ⚠️ Your subscription has been cancelled
-      </p>
-      <p style={{ color: '#ef4444', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
-        You will continue to have access to {getSubscriptionDisplayName(currentStatus)} features until {new Date(userProfile.subscription_expires_at).toLocaleDateString()}. 
-        After this date, your account will revert to the Basic plan.
-      </p>
-      <div style={{
-        marginTop: '1rem',
-        padding: '0.75rem',
-        background: 'rgba(16, 185, 129, 0.1)',
-        border: '1px solid rgba(16, 185, 129, 0.3)',
-        borderRadius: '6px'
-      }}>
-        <p style={{ color: '#10b981', fontSize: '0.875rem', fontWeight: '500' }}>
-          💡 <strong>Want to keep your subscription?</strong>
-        </p>
-        <p style={{ color: '#10b981', fontSize: '0.825rem', marginTop: '0.25rem' }}>
-          You can resume your subscription anytime before {new Date(userProfile.subscription_expires_at).toLocaleDateString()} 
-          to continue without interruption. Click "Resume Subscription" above.
-        </p>
-      </div>
-    </div>
-  )}
-</div>
-
-// Also update the plan grid to show better options for cancelled users:
-// In the PLANS.map section, update the button logic:
-
-{currentStatus === plan.id && !isSubscriptionCancelled(userProfile) ? (
-  // Current active plan
-  <button
-    disabled
-    className="btn block"
-    style={{ 
-      opacity: 0.5,
-      cursor: 'not-allowed',
-      background: 'var(--muted)',
-      color: 'var(--bg)'
-    }}
-  >
-    Current Plan
-  </button>
-) : currentStatus === plan.id && isSubscriptionCancelled(userProfile) ? (
-  // Current cancelled plan - show resume option
-  <a
-    href="https://app.lemonsqueezy.com/my-orders"
-    target="_blank"
-    rel="noopener noreferrer"
-    className="btn block"
-    style={{ 
-      background: 'linear-gradient(135deg, #10b981, #059669)',
-      color: '#fff',
-      border: 'none',
-      textAlign: 'center',
-      textDecoration: 'none',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}
-  >
-    Resume This Plan
-  </a>
-) : (
-  // Other plans - allow switching
-  <button
-    onClick={() => handleUpgrade(plan)}
-    className="btn block"
-    style={{
-      background: plan.popular 
-        ? 'var(--brand-grad)' 
-        : 'var(--card)',
-      border: plan.popular 
-        ? 'none' 
-        : '1px solid var(--line)',
-      color: plan.popular 
-        ? '#fff' 
-        : 'var(--fg)'
-    }}
-  >
-    {plan.id === 'basic' 
-      ? 'Downgrade to Free' 
-      : isSubscriptionCancelled(userProfile)
-        ? `Switch to ${plan.name}`  // They can switch even while cancelled
-        : currentStatus === 'basic'
-          ? 'Upgrade' 
-          : Number(plan.price.replace(/[^0-9.]/g, '')) > Number(PLANS.find(p => p.id === currentStatus)?.price.replace(/[^0-9.]/g, '') || 0)
-            ? 'Upgrade'
-            : 'Change Plan'
-    }
-  </button>
-)}
+                {currentStatus === plan.id && isSubscriptionCancelled(userProfile) && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '-12px',
+                    right: '16px',
+                    background: '#ef4444',
+                    color: '#fff',
+                    padding: '4px 12px',
+                    borderRadius: 'var(--radius-pill)',
+                    fontSize: '0.75rem',
+                    fontWeight: '600'
+                  }}>
+                    Cancelled
+                  </div>
+                )}
+                
+                <div>
+                  <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+                    {plan.name}
+                  </h3>
+                  <div style={{ marginBottom: '1rem' }}>
+                    <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
+                      {plan.price}
+                    </span>
+                    {plan.interval !== 'forever' && (
+                      <span className="muted">
+                        /{plan.interval}
+                      </span>
+                    )}
+                  </div>
+                  <p className="muted" style={{ marginBottom: '1.5rem' }}>
+                    {plan.description}
+                  </p>
+                  
+                  <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 1.5rem 0' }}>
+                    {plan.features.map((feature, index) => (
+                      <li key={index} style={{ 
+                        display: 'flex', 
+                        alignItems: 'flex-start', 
+                        gap: '8px',
+                        marginBottom: '8px'
+                      }}>
+                        <span style={{ color: '#10b981', flexShrink: 0, marginTop: '2px' }}>✓</span>
+                        <span style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                
+                {currentStatus === plan.id && !isSubscriptionCancelled(userProfile) ? (
+                  <button
+                    disabled
+                    className="btn block"
+                    style={{ 
+                      opacity: 0.5,
+                      cursor: 'not-allowed',
+                      background: 'var(--muted)',
+                      color: 'var(--bg)'
+                    }}
+                  >
+                    Current Plan
+                  </button>
+                ) : currentStatus === plan.id && isSubscriptionCancelled(userProfile) ? (
+                  <a
+                    href="https://app.lemonsqueezy.com/my-orders"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn block"
+                    style={{ 
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      color: '#fff',
+                      border: 'none',
+                      textAlign: 'center',
+                      textDecoration: 'none',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  >
+                    Resume This Plan
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => handleUpgrade(plan)}
+                    className="btn block"
+                    style={{
+                      background: plan.popular 
+                        ? 'var(--brand-grad)' 
+                        : 'var(--card)',
+                      border: plan.popular 
+                        ? 'none' 
+                        : '1px solid var(--line)',
+                      color: plan.popular 
+                        ? '#fff' 
+                        : 'var(--fg)'
+                    }}
+                  >
+                    {plan.id === 'basic' 
+                      ? 'Downgrade to Free' 
+                      : isSubscriptionCancelled(userProfile)
+                        ? `Switch to ${plan.name}`
+                        : currentStatus === 'basic'
+                          ? 'Upgrade' 
+                          : Number(plan.price.replace(/[^0-9.]/g, '')) > Number(PLANS.find(p => p.id === currentStatus)?.price.replace(/[^0-9.]/g, '') || 0)
+                            ? 'Upgrade'
+                            : 'Change Plan'
+                    }
+                  </button>
                 )}
               </div>
             ))}
