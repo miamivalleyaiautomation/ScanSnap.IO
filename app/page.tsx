@@ -11,27 +11,45 @@ export default function Page() {
   const { user, isSignedIn } = useUser();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
 
-  const handleStartScanning = () => {
+ const handleStartScanning = () => {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io";
   
   if (isSignedIn) {
-    // If signed in, try to create session and launch
+    // Mobile-friendly: Open window immediately
+    const newWindow = window.open('about:blank', '_blank');
+    
+    if (!newWindow) {
+      // Popup blocked - use direct navigation
+      fetch('/api/app/session/create', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.sessionToken) {
+            window.location.href = `${appUrl}?session=${data.sessionToken}`;
+          } else {
+            window.location.href = `${appUrl}?login-required=true`;
+          }
+        })
+        .catch(() => {
+          window.location.href = `${appUrl}?login-required=true`;
+        });
+      return;
+    }
+    
+    // Create session and update the blank window
     fetch('/api/app/session/create', { method: 'POST' })
       .then(res => res.json())
       .then(data => {
         if (data.sessionToken) {
-          window.open(`${appUrl}?session=${data.sessionToken}`, "_blank");
+          newWindow.location.href = `${appUrl}?session=${data.sessionToken}`;
         } else {
-          // Fallback if session creation fails
-          window.open(`${appUrl}?login-required=true`, "_blank");
+          newWindow.location.href = `${appUrl}?login-required=true`;
         }
       })
       .catch(() => {
-        // On error, still open app but indicate login required
-        window.open(`${appUrl}?login-required=true`, "_blank");
+        newWindow.location.href = `${appUrl}?login-required=true`;
       });
   } else {
-    // If not signed in, go directly to app with login-required flag
+    // Not signed in - direct to app with login prompt
     window.open(`${appUrl}?login-required=true`, "_blank");
   }
 };
