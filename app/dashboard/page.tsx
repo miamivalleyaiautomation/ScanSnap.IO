@@ -1,3 +1,4 @@
+// app/dashboard/page.tsx - COMPLETE FILE WITH CANCELLATION HANDLING
 "use client"
 
 import { useUser } from "@clerk/nextjs"
@@ -23,6 +24,26 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
+
+  // Helper functions for cancelled subscriptions
+  const getSubscriptionDisplayName = (status: string): string => {
+    // Remove _cancelled suffix for display
+    const cleanStatus = status.replace('_cancelled', '')
+    
+    switch (cleanStatus) {
+      case 'basic': return 'Basic (Free)';
+      case 'plus': return 'Plus';
+      case 'pro': return 'Pro';
+      case 'pro_dpms': return 'Pro + DPMS';
+      case 'cancelled': return 'Cancelled';
+      case 'expired': return 'Expired';
+      default: return cleanStatus;
+    }
+  }
+
+  const isSubscriptionCancelled = (status: string): boolean => {
+    return status.includes('_cancelled') || status === 'cancelled'
+  }
 
   useEffect(() => {
     if (isLoaded && user) {
@@ -110,60 +131,48 @@ export default function Dashboard() {
     fetchUserProfile()
   }
 
-const handleLaunchApp = async () => {
-  if (!user) {
-    alert('Please sign in first')
-    return
-  }
-  
-  console.log('🚀 Launching app for user:', user.emailAddresses[0]?.emailAddress)
-  
-  // Detect mobile
-  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io"
-  
-  try {
-    console.log('📡 Creating session...')
-    const response = await fetch('/api/app/session/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
+  const handleLaunchApp = async () => {
+    if (!user) {
+      alert('Please sign in first')
+      return
+    }
+    
+    console.log('🚀 Launching app for user:', user.emailAddresses[0]?.emailAddress)
+    
+    // Detect mobile
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io"
+    
+    try {
+      console.log('📡 Creating session...')
+      const response = await fetch('/api/app/session/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      const data = await response.json()
+      console.log('📦 Session response:', data)
+      
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create session')
       }
-    })
-    
-    const data = await response.json()
-    console.log('📦 Session response:', data)
-    
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to create session')
-    }
-    
-    const launchUrl = `${appUrl}?session=${data.sessionToken}`
-    console.log('🚀 Launching app with URL:', launchUrl)
-    
-    if (isMobile) {
-      // On mobile: direct navigation (better UX)
-      window.location.href = launchUrl
-    } else {
-      // On desktop: new tab
-      window.open(launchUrl, "_blank")
-    }
-    
-  } catch (error) {
-    console.error('❌ Launch error:', error)
-    alert('Failed to launch app. Please try again.')
-  }
-}
-
-  const getSubscriptionDisplayName = (status: string): string => {
-    switch (status) {
-      case 'basic': return 'Basic (Free)';
-      case 'plus': return 'Plus';
-      case 'pro': return 'Pro';
-      case 'pro_dpms': return 'Pro + DPMS';
-      case 'cancelled': return 'Cancelled';
-      case 'expired': return 'Expired';
-      default: return status;
+      
+      const launchUrl = `${appUrl}?session=${data.sessionToken}`
+      console.log('🚀 Launching app with URL:', launchUrl)
+      
+      if (isMobile) {
+        // On mobile: direct navigation (better UX)
+        window.location.href = launchUrl
+      } else {
+        // On desktop: new tab
+        window.open(launchUrl, "_blank")
+      }
+      
+    } catch (error) {
+      console.error('❌ Launch error:', error)
+      alert('Failed to launch app. Please try again.')
     }
   }
 
@@ -282,14 +291,15 @@ const handleLaunchApp = async () => {
         {/* Stats Grid */}
         <div className="grid cols-3" style={{ marginBottom: '2rem' }}>
           
-          {/* Current Plan - Enhanced with expiry date */}
+          {/* Current Plan - Enhanced with expiry date and cancellation status */}
           <div className="card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
               <div style={{ 
                 width: '32px', 
                 height: '32px', 
                 borderRadius: '50%',
-                background: (userProfile?.subscription_status || 'basic') === 'basic' ? 'var(--muted)' : 'var(--brand0)',
+                background: (userProfile?.subscription_status || 'basic') === 'basic' ? 'var(--muted)' : 
+                            isSubscriptionCancelled(userProfile?.subscription_status || '') ? '#ef4444' : 'var(--brand0)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -297,7 +307,8 @@ const handleLaunchApp = async () => {
                 fontSize: '0.875rem',
                 fontWeight: '600'
               }}>
-                {(userProfile?.subscription_status || 'basic') === 'basic' ? '○' : '✓'}
+                {(userProfile?.subscription_status || 'basic') === 'basic' ? '○' : 
+                 isSubscriptionCancelled(userProfile?.subscription_status || '') ? '✗' : '✓'}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>Current Plan</div>
@@ -306,8 +317,14 @@ const handleLaunchApp = async () => {
                 </div>
                 {/* Show expiry/renewal date if available */}
                 {userProfile?.subscription_expires_at && userProfile?.subscription_status !== 'basic' && (
-                  <div style={{ fontSize: '0.75rem', color: 'var(--muted)', marginTop: '2px' }}>
-                    Expires: {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
+                  <div style={{ fontSize: '0.75rem', color: isSubscriptionCancelled(userProfile?.subscription_status || '') ? '#ef4444' : 'var(--muted)', marginTop: '2px' }}>
+                    {isSubscriptionCancelled(userProfile?.subscription_status || '') ? 'Expires' : 'Renews'}: {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
+                  </div>
+                )}
+                {/* Show cancelled warning */}
+                {isSubscriptionCancelled(userProfile?.subscription_status || '') && (
+                  <div style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '4px', fontWeight: '600' }}>
+                    ⚠️ Subscription cancelled
                   </div>
                 )}
               </div>

@@ -368,29 +368,67 @@ async function handleSubscriptionUpdated(data: any, event: any) {
 async function handleSubscriptionCancelled(data: any, event: any) {
   console.log('Processing subscription cancellation')
   
-  // When cancelled, the subscription stays active until expiry
-  // We should NOT change the subscription_status to cancelled
-  // The status should remain as the current plan (plus, pro, etc) until it expires
+  // Get the current subscription to preserve the plan type
+  const { data: currentProfile } = await supabaseAdmin
+    .from('user_profiles')
+    .select('subscription_status')
+    .eq('lemon_squeezy_subscription_id', data.id?.toString())
+    .single()
   
-  // Just update the expiry date - the subscription remains active until then
+  if (!currentProfile) {
+    console.error('No profile found for subscription:', data.id)
+    return
+  }
+  
+  // Create a cancelled status that preserves the plan type
+  // e.g., "plus" becomes "plus_cancelled"
+  const currentPlan = currentProfile.subscription_status
+  const cancelledStatus = currentPlan.includes('_cancelled') 
+    ? currentPlan 
+    : `${currentPlan}_cancelled`
+  
   const { error } = await supabaseAdmin
     .from('user_profiles')
     .update({
-      // Keep current status - don't change it!
-      // The subscription is still active until expiry
+      // Mark as cancelled but keep plan info
+      subscription_status: cancelledStatus,
       subscription_expires_at: data.attributes?.ends_at || data.attributes?.renews_at,
       updated_at: new Date().toISOString(),
-      // Note: We're NOT changing subscription_status here
     })
     .eq('lemon_squeezy_subscription_id', data.id?.toString())
 
   if (error) {
-    console.error('Error updating subscription expiry:', error)
+    console.error('Error updating cancelled subscription:', error)
   } else {
-    console.log('Subscription will remain active until:', data.attributes?.ends_at || data.attributes?.renews_at)
+    console.log('Subscription marked as cancelled, will remain active until:', data.attributes?.ends_at || data.attributes?.renews_at)
   }
 }
 
+// Also update handleSubscriptionResumed to remove the _cancelled suffix:
+async function handleSubscriptionResumed(data: any, event: any) {
+  console.log('Processing subscription resumption')
+  
+  // Remove _cancelled suffix if present
+  const subscriptionStatus = getSubscriptionStatusFromProduct(
+    data.attributes.product_name, 
+    data.attributes.variant_name
+  )
+
+  const { error } = await supabaseAdmin
+    .from('user_profiles')
+    .update({
+      subscription_status: subscriptionStatus, // This will be just "plus", "pro", etc.
+      subscription_expires_at: data.attributes.renews_at,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('lemon_squeezy_subscription_id', data.id?.toString())
+
+  if (error) {
+    console.error('Error resuming subscription:', error)
+  } else {
+    console.log('Subscription resumed successfully')
+  }
+}
 async function handleSubscriptionResumed(data: any, event: any) {
   console.log('Processing subscription resumption')
   
