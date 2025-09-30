@@ -82,8 +82,10 @@ export default function LoginPage() {
                 colorBackground: 'var(--card)',
                 colorText: 'var(--fg)',
                 colorTextSecondary: 'var(--muted)',
+                colorTextOnPrimaryBackground: '#ffffff',
                 colorInputBackground: 'var(--bg)',
                 colorInputText: 'var(--fg)',
+                colorNeutral: 'var(--fg)',
                 borderRadius: '12px',
               },
               elements: {
@@ -147,6 +149,7 @@ export default function LoginPage() {
                   fontWeight: '600',
                   padding: '0.75rem 1.5rem',
                   transition: 'transform 0.2s ease, filter 0.2s ease',
+                  color: '#fff',
                 },
                 formFieldInput: {
                   background: 'var(--bg)',
@@ -194,6 +197,97 @@ export default function LoginPage() {
                   fontSize: '1.5rem',
                   textAlign: 'center',
                 },
+                // CRITICAL: Add these styles for the "Use another method" screen
+                alternativeMethodsBlockButton: {
+                  background: 'var(--bg)',
+                  border: '1px solid var(--line)',
+                  borderRadius: '12px',
+                  color: 'var(--fg)',
+                  fontSize: '0.95rem',
+                  fontWeight: '500',
+                  padding: '1rem',
+                  marginBottom: '0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.75rem',
+                  transition: 'all 0.2s ease',
+                  cursor: 'pointer',
+                },
+                alternativeMethodsBlockButtonText: {
+                  color: 'var(--fg)',
+                },
+                alternativeMethodsBlockButtonArrow: {
+                  color: 'var(--muted)',
+                },
+                alternativeMethodsBlockButtonContent: {
+                  color: 'var(--fg)',
+                },
+                alternativeMethods: {
+                  background: 'var(--card)',
+                  color: 'var(--fg)',
+                },
+                backRow: {
+                  marginBottom: '1rem',
+                },
+                backLink: {
+                  color: 'var(--brand0)',
+                  textDecoration: 'none',
+                  fontWeight: '500',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.25rem',
+                },
+                identityPreview: {
+                  background: 'var(--bg)',
+                  border: '1px solid var(--line)',
+                  borderRadius: '8px',
+                  padding: '0.75rem',
+                  marginBottom: '1rem',
+                  color: 'var(--fg)',
+                },
+                identityPreviewText: {
+                  color: 'var(--fg)',
+                  fontSize: '0.875rem',
+                },
+                identityPreviewEditButton: {
+                  color: 'var(--brand0)',
+                  textDecoration: 'none',
+                  fontWeight: '500',
+                  fontSize: '0.875rem',
+                },
+                // Additional styles for other screens
+                formHeaderTitle: {
+                  color: 'var(--fg)',
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
+                },
+                formHeaderSubtitle: {
+                  color: 'var(--muted)',
+                  fontSize: '0.875rem',
+                },
+                footerAction: {
+                  marginTop: '1rem',
+                  paddingTop: '1rem',
+                  borderTop: '1px solid var(--line)',
+                },
+                footerActionText: {
+                  color: 'var(--muted)',
+                  fontSize: '0.875rem',
+                },
+                // Ensure all text elements are visible
+                text: {
+                  color: 'var(--fg)',
+                },
+                providerIcon: {
+                  filter: 'brightness(1)',
+                },
+                providerIcon__google: {
+                  filter: 'none',
+                },
+              },
+              layout: {
+                socialButtonsPlacement: 'top',
+                socialButtonsVariant: 'blockButton',
               }
             }}
             redirectUrl={redirectUrl}
