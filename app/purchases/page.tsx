@@ -18,11 +18,16 @@ interface Purchase {
 }
 
 interface UserProfile {
-  id: string
+id: string
   clerk_user_id: string
   email: string
+  first_name?: string
+  last_name?: string
   subscription_status: string
   subscription_plan: string
+  subscription_expires_at?: string
+  subscription_cancelled_at?: string  // NEW FIELD
+  created_at: string
 }
 
 export default function PurchasesPage() {

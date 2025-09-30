@@ -1,4 +1,4 @@
-// app/dashboard/page.tsx - COMPLETE FILE WITH CANCELLATION HANDLING
+// app/dashboard/page.tsx - COMPLETE FILE WITH CANCELLED COLUMN
 "use client"
 
 import { useUser } from "@clerk/nextjs"
@@ -15,6 +15,7 @@ interface UserProfile {
   subscription_status: string
   subscription_plan: string
   subscription_expires_at?: string
+  subscription_cancelled_at?: string  // NEW FIELD
   created_at: string
 }
 
@@ -25,24 +26,27 @@ export default function Dashboard() {
   const [error, setError] = useState<string | null>(null)
   const [retryCount, setRetryCount] = useState(0)
 
-  // Helper functions for cancelled subscriptions
+  // Helper function to get display name
   const getSubscriptionDisplayName = (status: string): string => {
-    // Remove _cancelled suffix for display
-    const cleanStatus = status.replace('_cancelled', '')
-    
-    switch (cleanStatus) {
+    switch (status) {
       case 'basic': return 'Basic (Free)';
       case 'plus': return 'Plus';
       case 'pro': return 'Pro';
       case 'pro_dpms': return 'Pro + DPMS';
       case 'cancelled': return 'Cancelled';
       case 'expired': return 'Expired';
-      default: return cleanStatus;
+      default: return status;
     }
   }
 
-  const isSubscriptionCancelled = (status: string): boolean => {
-    return status.includes('_cancelled') || status === 'cancelled'
+  // Check if subscription is cancelled using the new column
+  const isSubscriptionCancelled = (profile: UserProfile | null): boolean => {
+    if (!profile) return false;
+    
+    // Check if cancelled_at is set and subscription hasn't expired yet
+    return !!profile.subscription_cancelled_at && 
+           profile.subscription_status !== 'basic' &&
+           profile.subscription_status !== 'expired';
   }
 
   useEffect(() => {
@@ -291,7 +295,7 @@ export default function Dashboard() {
         {/* Stats Grid */}
         <div className="grid cols-3" style={{ marginBottom: '2rem' }}>
           
-          {/* Current Plan - Enhanced with expiry date and cancellation status */}
+          {/* Current Plan - Using the new cancelled_at column */}
           <div className="card">
             <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
               <div style={{ 
@@ -299,7 +303,7 @@ export default function Dashboard() {
                 height: '32px', 
                 borderRadius: '50%',
                 background: (userProfile?.subscription_status || 'basic') === 'basic' ? 'var(--muted)' : 
-                            isSubscriptionCancelled(userProfile?.subscription_status || '') ? '#ef4444' : 'var(--brand0)',
+                            isSubscriptionCancelled(userProfile) ? '#ef4444' : 'var(--brand0)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
@@ -308,7 +312,7 @@ export default function Dashboard() {
                 fontWeight: '600'
               }}>
                 {(userProfile?.subscription_status || 'basic') === 'basic' ? '○' : 
-                 isSubscriptionCancelled(userProfile?.subscription_status || '') ? '✗' : '✓'}
+                 isSubscriptionCancelled(userProfile) ? '✗' : '✓'}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ fontSize: '0.875rem', color: 'var(--muted)' }}>Current Plan</div>
@@ -317,12 +321,16 @@ export default function Dashboard() {
                 </div>
                 {/* Show expiry/renewal date if available */}
                 {userProfile?.subscription_expires_at && userProfile?.subscription_status !== 'basic' && (
-                  <div style={{ fontSize: '0.75rem', color: isSubscriptionCancelled(userProfile?.subscription_status || '') ? '#ef4444' : 'var(--muted)', marginTop: '2px' }}>
-                    {isSubscriptionCancelled(userProfile?.subscription_status || '') ? 'Expires' : 'Renews'}: {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
+                  <div style={{ 
+                    fontSize: '0.75rem', 
+                    color: isSubscriptionCancelled(userProfile) ? '#ef4444' : 'var(--muted)', 
+                    marginTop: '2px' 
+                  }}>
+                    {isSubscriptionCancelled(userProfile) ? 'Expires' : 'Renews'}: {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
                   </div>
                 )}
                 {/* Show cancelled warning */}
-                {isSubscriptionCancelled(userProfile?.subscription_status || '') && (
+                {isSubscriptionCancelled(userProfile) && (
                   <div style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '4px', fontWeight: '600' }}>
                     ⚠️ Subscription cancelled
                   </div>

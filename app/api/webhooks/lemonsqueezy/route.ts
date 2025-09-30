@@ -1,4 +1,4 @@
-// app/api/webhooks/lemonsqueezy/route.ts
+// app/api/webhooks/lemonsqueezy/route.ts - COMPLETE FILE
 import { headers } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import crypto from 'crypto'
@@ -234,6 +234,7 @@ async function updateSubscriptionFromOrder(clerkUserId: string, data: any) {
       subscription_status: subscriptionStatus,
       subscription_plan: subscriptionStatus,
       lemon_squeezy_customer_id: data.attributes.customer_id?.toString(),
+      subscription_cancelled_at: null, // Clear any previous cancellation
       updated_at: new Date().toISOString(),
     })
     .eq('clerk_user_id', clerkUserId)
@@ -301,6 +302,7 @@ async function updateUserSubscription(clerkUserId: string, data: any, event: any
     lemon_squeezy_subscription_id: data.id?.toString(),
     subscription_expires_at: data.attributes.renews_at,
     subscription_started_at: data.attributes.created_at,
+    subscription_cancelled_at: null, // Clear any cancellation when creating/updating
     updated_at: new Date().toISOString(),
   }
 
@@ -329,11 +331,31 @@ async function handleSubscriptionUpdated(data: any, event: any) {
     getSubscriptionStatusFromProduct(data.attributes.product_name, data.attributes.variant_name) : 
     data.attributes.status === 'cancelled' ? 'cancelled' : 'expired'
 
-  const updateData = {
-    subscription_status: subscriptionStatus,
+  const updateData: any = {
+    subscription_status: subscriptionStatus === 'cancelled' ? 
+      // Keep current plan if cancelled (don't update status)
+      undefined : 
+      subscriptionStatus,
     subscription_expires_at: data.attributes.renews_at,
     updated_at: new Date().toISOString(),
   }
+  
+  // If status is active, clear any cancellation
+  if (data.attributes.status === 'active') {
+    updateData.subscription_cancelled_at = null
+  }
+  
+  // If status is cancelled, mark it
+  if (data.attributes.status === 'cancelled') {
+    updateData.subscription_cancelled_at = new Date().toISOString()
+  }
+  
+  // Remove undefined values
+  Object.keys(updateData).forEach(key => {
+    if (updateData[key] === undefined) {
+      delete updateData[key]
+    }
+  })
   
   // Try to update by clerk_user_id first
   if (clerkUserId) {
@@ -368,70 +390,28 @@ async function handleSubscriptionUpdated(data: any, event: any) {
 async function handleSubscriptionCancelled(data: any, event: any) {
   console.log('Processing subscription cancellation')
   
-  // Get the current subscription to preserve the plan type
-  const { data: currentProfile } = await supabaseAdmin
-    .from('user_profiles')
-    .select('subscription_status')
-    .eq('lemon_squeezy_subscription_id', data.id?.toString())
-    .single()
-  
-  if (!currentProfile) {
-    console.error('No profile found for subscription:', data.id)
-    return
-  }
-  
-  // Create a cancelled status that preserves the plan type
-  // e.g., "plus" becomes "plus_cancelled"
-  const currentPlan = currentProfile.subscription_status
-  const cancelledStatus = currentPlan.includes('_cancelled') 
-    ? currentPlan 
-    : `${currentPlan}_cancelled`
-  
+  // Mark the subscription as cancelled by setting the cancelled_at timestamp
+  // Keep the current subscription_status (plus, pro, etc) - it's still active until expiry
   const { error } = await supabaseAdmin
     .from('user_profiles')
     .update({
-      // Mark as cancelled but keep plan info
-      subscription_status: cancelledStatus,
+      subscription_cancelled_at: new Date().toISOString(),
       subscription_expires_at: data.attributes?.ends_at || data.attributes?.renews_at,
       updated_at: new Date().toISOString(),
     })
     .eq('lemon_squeezy_subscription_id', data.id?.toString())
 
   if (error) {
-    console.error('Error updating cancelled subscription:', error)
+    console.error('Error marking subscription as cancelled:', error)
   } else {
     console.log('Subscription marked as cancelled, will remain active until:', data.attributes?.ends_at || data.attributes?.renews_at)
   }
 }
 
-// Also update handleSubscriptionResumed to remove the _cancelled suffix:
 async function handleSubscriptionResumed(data: any, event: any) {
   console.log('Processing subscription resumption')
   
-  // Remove _cancelled suffix if present
-  const subscriptionStatus = getSubscriptionStatusFromProduct(
-    data.attributes.product_name, 
-    data.attributes.variant_name
-  )
-
-  const { error } = await supabaseAdmin
-    .from('user_profiles')
-    .update({
-      subscription_status: subscriptionStatus, // This will be just "plus", "pro", etc.
-      subscription_expires_at: data.attributes.renews_at,
-      updated_at: new Date().toISOString(),
-    })
-    .eq('lemon_squeezy_subscription_id', data.id?.toString())
-
-  if (error) {
-    console.error('Error resuming subscription:', error)
-  } else {
-    console.log('Subscription resumed successfully')
-  }
-}
-async function handleSubscriptionResumed(data: any, event: any) {
-  console.log('Processing subscription resumption')
-  
+  // Clear the cancelled_at timestamp to mark it as active again
   const subscriptionStatus = getSubscriptionStatusFromProduct(
     data.attributes.product_name, 
     data.attributes.variant_name
@@ -441,6 +421,8 @@ async function handleSubscriptionResumed(data: any, event: any) {
     .from('user_profiles')
     .update({
       subscription_status: subscriptionStatus,
+      subscription_plan: subscriptionStatus,
+      subscription_cancelled_at: null,  // Clear the cancellation
       subscription_expires_at: data.attributes.renews_at,
       updated_at: new Date().toISOString(),
     })
@@ -459,7 +441,10 @@ async function handleSubscriptionExpired(data: any, event: any) {
   const { error } = await supabaseAdmin
     .from('user_profiles')
     .update({
-      subscription_status: 'expired',
+      subscription_status: 'basic',  // Revert to basic plan
+      subscription_plan: 'basic',
+      subscription_cancelled_at: null,  // Clear cancellation since it's expired
+      subscription_expires_at: null,    // Clear expiry date
       updated_at: new Date().toISOString(),
     })
     .eq('lemon_squeezy_subscription_id', data.id?.toString())
@@ -467,7 +452,7 @@ async function handleSubscriptionExpired(data: any, event: any) {
   if (error) {
     console.error('Error expiring subscription:', error)
   } else {
-    console.log('Subscription expired successfully')
+    console.log('Subscription expired and reverted to basic plan')
   }
 }
 
@@ -484,6 +469,7 @@ async function handlePaymentSuccess(data: any, event: any) {
     .update({
       subscription_status: subscriptionStatus,
       subscription_expires_at: data.attributes.renews_at,
+      subscription_cancelled_at: null, // Clear any cancellation on successful payment
       updated_at: new Date().toISOString(),
     })
     .eq('lemon_squeezy_subscription_id', data.attributes.subscription_id?.toString() || data.id?.toString())
@@ -494,8 +480,6 @@ async function handlePaymentSuccess(data: any, event: any) {
     console.log('Payment processed successfully')
   }
 }
-
-// Add/update this helper function in app/api/webhooks/lemonsqueezy/route.ts
 
 // Helper function to map product names to subscription status
 function getSubscriptionStatusFromProduct(productName: string, variantName?: string): string {

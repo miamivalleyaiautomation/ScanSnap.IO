@@ -1,4 +1,4 @@
-// app/subscription/page.tsx - COMPLETE FILE WITH CANCELLATION HANDLING
+// app/subscription/page.tsx - COMPLETE FILE WITH CANCELLED COLUMN
 "use client"
 
 import { useUser } from "@clerk/nextjs"
@@ -15,6 +15,7 @@ interface UserProfile {
   subscription_status: string
   subscription_plan: string
   subscription_expires_at?: string
+  subscription_cancelled_at?: string  // NEW FIELD
   created_at: string
 }
 
@@ -87,29 +88,27 @@ export default function SubscriptionPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Helper functions for handling cancelled subscriptions
+  // Helper function to get display name
   const getSubscriptionDisplayName = (status: string): string => {
-    // Remove _cancelled suffix for display
-    const cleanStatus = status.replace('_cancelled', '')
-    
-    switch (cleanStatus) {
+    switch (status) {
       case 'basic': return 'Basic (Free)';
       case 'plus': return 'Plus';
       case 'pro': return 'Pro';
       case 'pro_dpms': return 'Pro + DPMS';
       case 'cancelled': return 'Cancelled';
       case 'expired': return 'Expired';
-      default: return cleanStatus;
+      default: return status;
     }
   }
 
-  const isSubscriptionCancelled = (status: string): boolean => {
-    return status.includes('_cancelled') || status === 'cancelled'
-  }
-
-  const getCleanPlanStatus = (status: string): string => {
-    // Remove _cancelled suffix to get the actual plan
-    return status.replace('_cancelled', '')
+  // Check if subscription is cancelled using the new column
+  const isSubscriptionCancelled = (profile: UserProfile | null): boolean => {
+    if (!profile) return false;
+    
+    // Check if cancelled_at is set and subscription hasn't expired yet
+    return !!profile.subscription_cancelled_at && 
+           profile.subscription_status !== 'basic' &&
+           profile.subscription_status !== 'expired';
   }
 
   useEffect(() => {
@@ -161,7 +160,7 @@ export default function SubscriptionPage() {
       return
     }
 
-    // Use the custom domain format - same as Plus
+    // Use the custom domain format
     const checkoutUrl = `https://pay.scansnap.io/buy/${variantId}?` + 
       new URLSearchParams({
         'checkout[email]': user.emailAddresses[0].emailAddress,
@@ -222,7 +221,7 @@ export default function SubscriptionPage() {
     )
   }
 
-  // Get actual status with fallback
+  // Get actual status
   const currentStatus = userProfile?.subscription_status || 'basic'
 
   return (
@@ -240,7 +239,7 @@ export default function SubscriptionPage() {
             <div>
               <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '0.5rem' }}>
                 {getSubscriptionDisplayName(currentStatus)}
-                {isSubscriptionCancelled(currentStatus) && (
+                {isSubscriptionCancelled(userProfile) && (
                   <span style={{ 
                     marginLeft: '1rem', 
                     fontSize: '0.875rem', 
@@ -254,15 +253,20 @@ export default function SubscriptionPage() {
               <p className="muted" style={{ marginBottom: '0.5rem' }}>
                 Status: <span style={{ 
                   textTransform: 'capitalize',
-                  color: isSubscriptionCancelled(currentStatus) ? '#ef4444' : 'inherit'
+                  color: isSubscriptionCancelled(userProfile) ? '#ef4444' : 'inherit'
                 }}>
-                  {isSubscriptionCancelled(currentStatus) ? 'Cancelled - Active until expiry' : getCleanPlanStatus(currentStatus)}
+                  {isSubscriptionCancelled(userProfile) ? 'Cancelled - Active until expiry' : currentStatus}
                 </span>
               </p>
               {userProfile?.subscription_expires_at && currentStatus !== 'basic' && (
                 <p className="muted">
-                  {isSubscriptionCancelled(currentStatus) ? 'Expires' : 'Renews'}: {' '}
+                  {isSubscriptionCancelled(userProfile) ? 'Expires' : 'Renews'}: {' '}
                   {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
+                </p>
+              )}
+              {userProfile?.subscription_cancelled_at && (
+                <p className="muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
+                  Cancelled on: {new Date(userProfile.subscription_cancelled_at).toLocaleDateString()}
                 </p>
               )}
             </div>
@@ -283,7 +287,7 @@ export default function SubscriptionPage() {
               </div>
             )}
           </div>
-          {isSubscriptionCancelled(currentStatus) && (
+          {isSubscriptionCancelled(userProfile) && userProfile?.subscription_expires_at && (
             <div style={{
               marginTop: '1rem',
               padding: '1rem',
@@ -295,7 +299,7 @@ export default function SubscriptionPage() {
                 ⚠️ Your subscription has been cancelled
               </p>
               <p style={{ color: '#ef4444', fontSize: '0.875rem' }}>
-                You will continue to have access to {getSubscriptionDisplayName(getCleanPlanStatus(currentStatus))} features until {new Date(userProfile?.subscription_expires_at || '').toLocaleDateString()}. 
+                You will continue to have access to {getSubscriptionDisplayName(currentStatus)} features until {new Date(userProfile.subscription_expires_at).toLocaleDateString()}. 
                 After this date, your account will revert to the Basic plan.
               </p>
             </div>
@@ -322,7 +326,7 @@ export default function SubscriptionPage() {
                   position: 'relative',
                   border: plan.popular 
                     ? '2px solid var(--brand0)' 
-                    : getCleanPlanStatus(currentStatus) === plan.id
+                    : currentStatus === plan.id
                     ? '2px solid #10b981'
                     : '1px solid var(--line)',
                   background: 'var(--card)',
@@ -349,19 +353,35 @@ export default function SubscriptionPage() {
                   </div>
                 )}
                 
-                {getCleanPlanStatus(currentStatus) === plan.id && (
+                {currentStatus === plan.id && !isSubscriptionCancelled(userProfile) && (
                   <div style={{
                     position: 'absolute',
                     top: '-12px',
                     right: '16px',
-                    background: isSubscriptionCancelled(currentStatus) ? '#ef4444' : '#10b981',
+                    background: '#10b981',
                     color: '#fff',
                     padding: '4px 12px',
                     borderRadius: 'var(--radius-pill)',
                     fontSize: '0.75rem',
                     fontWeight: '600'
                   }}>
-                    {isSubscriptionCancelled(currentStatus) ? 'Cancelled' : 'Current'}
+                    Current
+                  </div>
+                )}
+                
+                {currentStatus === plan.id && isSubscriptionCancelled(userProfile) && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '-12px',
+                    right: '16px',
+                    background: '#ef4444',
+                    color: '#fff',
+                    padding: '4px 12px',
+                    borderRadius: 'var(--radius-pill)',
+                    fontSize: '0.75rem',
+                    fontWeight: '600'
+                  }}>
+                    Cancelled
                   </div>
                 )}
                 
@@ -398,18 +418,18 @@ export default function SubscriptionPage() {
                   </ul>
                 </div>
                 
-                {getCleanPlanStatus(currentStatus) === plan.id ? (
+                {currentStatus === plan.id ? (
                   <button
                     disabled
                     className="btn block"
                     style={{ 
                       opacity: 0.5,
                       cursor: 'not-allowed',
-                      background: isSubscriptionCancelled(currentStatus) ? '#ef4444' : 'var(--muted)',
-                      color: isSubscriptionCancelled(currentStatus) ? '#fff' : 'var(--bg)'
+                      background: isSubscriptionCancelled(userProfile) ? '#ef4444' : 'var(--muted)',
+                      color: isSubscriptionCancelled(userProfile) ? '#fff' : 'var(--bg)'
                     }}
                   >
-                    {isSubscriptionCancelled(currentStatus) ? 'Cancelled - Expires Soon' : 'Current Plan'}
+                    {isSubscriptionCancelled(userProfile) ? 'Cancelled - Expires Soon' : 'Current Plan'}
                   </button>
                 ) : (
                   <button
@@ -429,9 +449,9 @@ export default function SubscriptionPage() {
                   >
                     {plan.id === 'basic' 
                       ? 'Cancel Subscription' 
-                      : currentStatus === 'basic' || getCleanPlanStatus(currentStatus) === 'basic'
+                      : currentStatus === 'basic'
                         ? 'Upgrade' 
-                        : Number(plan.price.replace(/[^0-9.]/g, '')) > Number(PLANS.find(p => p.id === getCleanPlanStatus(currentStatus))?.price.replace(/[^0-9.]/g, '') || 0)
+                        : Number(plan.price.replace(/[^0-9.]/g, '')) > Number(PLANS.find(p => p.id === currentStatus)?.price.replace(/[^0-9.]/g, '') || 0)
                           ? 'Upgrade'
                           : 'Change Plan'
                     }
