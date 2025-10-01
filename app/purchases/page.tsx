@@ -43,45 +43,44 @@ export default function PurchasesPage() {
   }, [isLoaded, user])
 
   const fetchData = async () => {
-    try {
+  try {
+    // First, get the user profile via API
+    const profileResponse = await fetch('/api/user/profile')
+    
+    if (!profileResponse.ok) {
+      throw new Error('Failed to fetch profile')
+    }
+    
+    const { profile } = await profileResponse.json()
+    
+    if (profile) {
+      setUserProfile(profile)
+      
+      // Now fetch purchases using the profile ID
       const { createClient } = await import("@supabase/supabase-js")
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
       const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       const supabase = createClient(supabaseUrl, supabaseAnonKey)
       
-      // Get user profile first - FIXED: Don't use .single()
-      const { data: profiles, error: profileError } = await supabase
-        .from("user_profiles")
+      const { data: purchaseData, error: purchaseError } = await supabase
+        .from("purchases")
         .select("*")
-        .eq("clerk_user_id", user?.id)
+        .eq("user_id", profile.id)
+        .order("purchase_date", { ascending: false })
 
-      if (!profileError && profiles && profiles.length > 0) {
-        const profile = profiles[0]
-        setUserProfile(profile)
-        
-        // Get purchases
-        const { data: purchaseData, error: purchaseError } = await supabase
-          .from("purchases")
-          .select("*")
-          .eq("user_id", profile.id)
-          .order("purchase_date", { ascending: false })
-
-        if (!purchaseError) {
-          setPurchases(purchaseData || [])
-          console.log('Purchases loaded:', purchaseData?.length || 0)
-        } else {
-          console.error('Error fetching purchases:', purchaseError)
-        }
+      if (!purchaseError) {
+        setPurchases(purchaseData || [])
+        console.log('Purchases loaded:', purchaseData?.length || 0)
       } else {
-        console.error('No profile found or error:', profileError)
+        console.error('Error fetching purchases:', purchaseError)
       }
-    } catch (error) {
-      console.error('Error fetching data:', error)
-    } finally {
-      setLoading(false)
     }
+  } catch (error) {
+    console.error('Error fetching data:', error)
+  } finally {
+    setLoading(false)
   }
-
+}
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       year: 'numeric',

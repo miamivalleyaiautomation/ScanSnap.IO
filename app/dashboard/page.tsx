@@ -1,4 +1,4 @@
-// app/dashboard/page.tsx - COMPLETE FILE WITH CANCELLED COLUMN
+// app/dashboard/page.tsx
 "use client"
 
 import { useUser } from "@clerk/nextjs"
@@ -15,7 +15,7 @@ interface UserProfile {
   subscription_status: string
   subscription_plan: string
   subscription_expires_at?: string
-  subscription_cancelled_at?: string  // NEW FIELD
+  subscription_cancelled_at?: string
   created_at: string
 }
 
@@ -24,7 +24,7 @@ export default function Dashboard() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [retryCount, setRetryCount] = useState(0)
+  // REMOVED: retryCount - no longer needed
 
   // Helper function to get display name
   const getSubscriptionDisplayName = (status: string): string => {
@@ -39,11 +39,10 @@ export default function Dashboard() {
     }
   }
 
-  // Check if subscription is cancelled using the new column
+  // Check if subscription is cancelled
   const isSubscriptionCancelled = (profile: UserProfile | null): boolean => {
     if (!profile) return false;
     
-    // Check if cancelled_at is set and subscription hasn't expired yet
     return !!profile.subscription_cancelled_at && 
            profile.subscription_status !== 'basic' &&
            profile.subscription_status !== 'expired';
@@ -52,77 +51,46 @@ export default function Dashboard() {
   useEffect(() => {
     if (isLoaded && user) {
       fetchUserProfile()
+    } else if (isLoaded && !user) {
+      setLoading(false)
     }
-  }, [isLoaded, user, retryCount])
+  }, [isLoaded, user]) // REMOVED: retryCount from dependencies
 
   const fetchUserProfile = async () => {
+    if (!user?.id) {
+      setLoading(false)
+      return
+    }
+
     try {
-      const { createClient } = await import("@supabase/supabase-js")
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      console.log('Fetching profile for:', user.id)
       
-      if (!supabaseUrl || !supabaseAnonKey) {
-        setError("Supabase configuration missing. Please check environment variables.")
-        setLoading(false)
-        return
+      // NEW: Use the API endpoint instead of direct Supabase
+      const response = await fetch('/api/user/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to fetch profile')
       }
 
-      const supabase = createClient(supabaseUrl, supabaseAnonKey)
+      const { profile } = await response.json()
       
-      const { data: allProfiles, error: listError } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("clerk_user_id", user?.id)
-
-      if (listError) {
-        console.error("Supabase query error:", listError)
-        
-        // If it's a network or configuration error
-        if (listError.message.includes('fetch') || listError.message.includes('CORS')) {
-          setError("Unable to connect to database. Please check your Supabase configuration.")
-        } else {
-          setError(`Database error: ${listError.message}`)
-        }
-        
-        // Auto-retry for new users (webhook might be processing)
-        if (retryCount < 3 && !allProfiles?.length) {
-          setTimeout(() => {
-            setRetryCount(prev => prev + 1)
-          }, 2000)
-        }
-        return
+      if (profile) {
+        setUserProfile(profile)
+        setError(null)
+        console.log('Profile loaded successfully')
+      } else {
+        setError("Profile not found")
       }
-
-      if (!allProfiles || allProfiles.length === 0) {
-        // For new users, the webhook might still be processing
-        if (retryCount < 3) {
-          setError("Setting up your profile... Please wait.")
-          setTimeout(() => {
-            setRetryCount(prev => prev + 1)
-          }, 2000)
-        } else {
-          // After retries, create a basic profile locally
-          const basicProfile: UserProfile = {
-            id: `temp-${user?.id}`,
-            clerk_user_id: user?.id || '',
-            email: user?.emailAddresses[0]?.emailAddress || '',
-            first_name: user?.firstName || undefined,
-            last_name: user?.lastName || undefined,
-            subscription_status: 'basic',
-            subscription_plan: 'basic',
-            created_at: new Date().toISOString()
-          }
-          setUserProfile(basicProfile)
-          setError(null)
-        }
-        return
-      }
-
-      setUserProfile(allProfiles[0])
-      setError(null)
+      
     } catch (err) {
-      console.error("Unexpected error:", err)
-      setError(`Failed to load profile: ${err}`)
+      console.error("Error fetching profile:", err)
+      setError(err instanceof Error ? err.message : "Failed to load profile")
     } finally {
       setLoading(false)
     }
@@ -131,8 +99,7 @@ export default function Dashboard() {
   const handleRetry = () => {
     setLoading(true)
     setError(null)
-    setRetryCount(0)
-    fetchUserProfile()
+    fetchUserProfile() // REMOVED: retryCount reset
   }
 
   const handleLaunchApp = async () => {
@@ -143,7 +110,6 @@ export default function Dashboard() {
     
     console.log('🚀 Launching app for user:', user.emailAddresses[0]?.emailAddress)
     
-    // Detect mobile
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io"
     
@@ -167,10 +133,8 @@ export default function Dashboard() {
       console.log('🚀 Launching app with URL:', launchUrl)
       
       if (isMobile) {
-        // On mobile: direct navigation (better UX)
         window.location.href = launchUrl
       } else {
-        // On desktop: new tab
         window.open(launchUrl, "_blank")
       }
       
@@ -180,7 +144,8 @@ export default function Dashboard() {
     }
   }
 
-  if (!isLoaded || (loading && retryCount < 3)) {
+  // REMOVED: All the retry logic for loading state
+  if (!isLoaded || loading) {
     return (
       <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
         <SiteHeader />
@@ -200,7 +165,7 @@ export default function Dashboard() {
               animation: 'spin 1s linear infinite',
               margin: '0 auto 16px'
             }}></div>
-            <p>{retryCount > 0 ? 'Setting up your profile...' : 'Loading dashboard...'}</p>
+            <p>Loading dashboard...</p>
           </div>
         </div>
         <style jsx>{`
@@ -232,7 +197,7 @@ export default function Dashboard() {
     )
   }
 
-  // If we have an error but can still show basic functionality
+  // If we have an error but no profile
   if (error && !userProfile) {
     return (
       <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
@@ -247,7 +212,7 @@ export default function Dashboard() {
             <div className="card">
               <h1 style={{ color: '#ef4444', marginBottom: '1rem' }}>Error Loading Dashboard</h1>
               <p style={{ color: 'var(--muted)', marginBottom: '1.5rem' }}>
-                User profile not found. Please wait a moment and refresh.
+                {error}
               </p>
               <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                 <button onClick={handleRetry} className="btn primary">
@@ -272,6 +237,7 @@ export default function Dashboard() {
     )
   }
 
+  // Rest of your component remains exactly the same...
   // Normal dashboard display
   return (
     <div style={{ minHeight: '100vh', background: 'var(--bg)', color: 'var(--fg)' }}>
