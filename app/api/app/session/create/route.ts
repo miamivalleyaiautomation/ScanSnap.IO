@@ -77,19 +77,20 @@ export async function POST() {
     const sessionToken = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`
     const expiresAt = new Date(Date.now() + 4 * 60 * 60 * 1000) // 4 hours
     
-    // Store session in Supabase app_sessions table
+    // IMPORTANT FIX: Use clerk_user_id instead of user_id if your app_sessions table expects string
+    // Or use profile.id if your app_sessions table has a foreign key to user_profiles.id
     const { error: sessionError } = await supabaseAdmin
-      .from('app_sessions')
-      .insert({
-        session_token: sessionToken,
-        user_id: userId,
-        email: profile.email,
-        first_name: profile.first_name || null,
-        last_name: profile.last_name || null,
-        subscription: profile.subscription_status || 'basic',
-        dashboard_url: 'https://scansnap.io/dashboard',
-        expires_at: expiresAt.toISOString()
-      })
+  .from('app_sessions')
+  .insert({
+    session_token: sessionToken,
+    user_id: profile.id,  // <-- CHANGED: Use the UUID from user_profiles table
+    email: profile.email,
+    first_name: profile.first_name || null,
+    last_name: profile.last_name || null,
+    subscription: profile.subscription_status || 'basic',
+    dashboard_url: 'https://scansnap.io/dashboard',
+    expires_at: expiresAt.toISOString()
+  })
     
     if (sessionError) {
       console.error('❌ Error storing session:', sessionError)
@@ -133,58 +134,6 @@ export async function POST() {
     return NextResponse.json({
       error: "Internal server error",
       details: error instanceof Error ? error.message : 'Unknown error'
-    }, {
-      status: 500,
-      headers: CORS_HEADERS
-    })
-  }
-}
-
-// GET endpoint to check active sessions (for debugging)
-export async function GET() {
-  try {
-    // Clean up expired sessions
-    await supabaseAdmin
-      .from('app_sessions')
-      .delete()
-      .lt('expires_at', new Date().toISOString())
-    
-    // Get recent sessions
-    const { data: sessions, error } = await supabaseAdmin
-      .from('app_sessions')
-      .select('session_token, email, subscription, expires_at, created_at')
-      .order('created_at', { ascending: false })
-      .limit(10)
-    
-    if (error) {
-      return NextResponse.json({
-        error: "Failed to fetch sessions",
-        details: error.message
-      }, {
-        status: 500,
-        headers: CORS_HEADERS
-      })
-    }
-    
-    const sessionList = sessions?.map(s => ({
-      token: s.session_token.substring(0, 20) + '...',
-      email: s.email,
-      subscription: s.subscription,
-      expiresAt: s.expires_at,
-      createdAt: s.created_at
-    })) || []
-    
-    return NextResponse.json({
-      activeSessionCount: sessions?.length || 0,
-      sessions: sessionList
-    }, {
-      status: 200,
-      headers: CORS_HEADERS
-    })
-  } catch (error) {
-    console.error('Error fetching sessions:', error)
-    return NextResponse.json({
-      error: "Internal server error"
     }, {
       status: 500,
       headers: CORS_HEADERS
