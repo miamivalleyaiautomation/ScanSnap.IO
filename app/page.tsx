@@ -15,25 +15,24 @@ export default function Page() {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io";
   
   if (isSignedIn) {
-    // Mobile-friendly: Open window immediately
-    const newWindow = window.open('about:blank', '_blank');
-    
-    if (!newWindow) {
-      // Popup blocked - use direct navigation
-      fetch('/api/app/session/create', { method: 'POST' })
-        .then(res => res.json())
-        .then(data => {
-          if (data.sessionToken) {
-            window.location.href = `${appUrl}?session=${data.sessionToken}`;
-          } else {
-            window.location.href = `${appUrl}?login-required=true`;
-          }
-        })
-        .catch(() => {
+    // Create session and navigate in same window
+    fetch('/api/app/session/create', { method: 'POST' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.sessionToken) {
+          window.location.href = `${appUrl}?session=${data.sessionToken}`;
+        } else {
           window.location.href = `${appUrl}?login-required=true`;
-        });
-      return;
-    }
+        }
+      })
+      .catch(() => {
+        window.location.href = `${appUrl}?login-required=true`;
+      });
+  } else {
+    // Not signed in - direct to app with login prompt in same window
+    window.location.href = `${appUrl}?login-required=true`;
+  }
+};
     
     // Create session and update the blank window
     fetch('/api/app/session/create', { method: 'POST' })

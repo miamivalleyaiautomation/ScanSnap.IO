@@ -103,46 +103,43 @@ export default function Dashboard() {
   }
 
   const handleLaunchApp = async () => {
-    if (!user) {
-      alert('Please sign in first')
-      return
-    }
-    
-    console.log('🚀 Launching app for user:', user.emailAddresses[0]?.emailAddress)
-    
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io"
-    
-    try {
-      console.log('📡 Creating session...')
-      const response = await fetch('/api/app/session/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      
-      const data = await response.json()
-      console.log('📦 Session response:', data)
-      
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to create session')
-      }
-      
-      const launchUrl = `${appUrl}?session=${data.sessionToken}`
-      console.log('🚀 Launching app with URL:', launchUrl)
-      
-      if (isMobile) {
-        window.location.href = launchUrl
-      } else {
-        window.open(launchUrl, "_blank")
-      }
-      
-    } catch (error) {
-      console.error('❌ Launch error:', error)
-      alert('Failed to launch app. Please try again.')
-    }
+  if (!user) {
+    alert('Please sign in first')
+    return
   }
+  
+  console.log('🚀 Launching app for user:', user.emailAddresses[0]?.emailAddress)
+  
+  // REMOVED: isMobile check - now always opens in same tab
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io"
+  
+  try {
+    console.log('📡 Creating session...')
+    const response = await fetch('/api/app/session/create', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    
+    const data = await response.json()
+    console.log('📦 Session response:', data)
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to create session')
+    }
+    
+    const launchUrl = `${appUrl}?session=${data.sessionToken}`
+    console.log('🚀 Launching app with URL:', launchUrl)
+    
+    // CHANGED: Always navigate in the same window
+    window.location.href = launchUrl
+    
+  } catch (error) {
+    console.error('❌ Launch error:', error)
+    alert('Failed to launch app. Please try again.')
+  }
+}
 
   // REMOVED: All the retry logic for loading state
   if (!isLoaded || loading) {
