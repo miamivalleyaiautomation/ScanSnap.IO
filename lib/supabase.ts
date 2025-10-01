@@ -1,29 +1,47 @@
-// lib/supabase.ts - Updated with Clerk JWT integration
+// lib/supabase.ts
 import { createClient } from '@supabase/supabase-js'
-import { auth } from '@clerk/nextjs/server'
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
-// =====================================================
-// CLIENT-SIDE: Authenticated Supabase client with Clerk JWT
-// Use this in client components and API routes for user operations
-// =====================================================
-export const createClerkSupabaseClient = async () => {
-  const { getToken } = auth()
-  
+// Extend Window type to include Clerk
+declare global {
+  interface Window {
+    Clerk?: {
+      session?: {
+        getToken: (options: { template: string }) => Promise<string | null>
+      }
+    }
+  }
+}
+
+// Client for browser usage with Clerk integration
+export const createClerkSupabaseClient = () => {
   return createClient(supabaseUrl, supabaseAnonKey, {
     global: {
-      fetch: async (url, options = {}) => {
-        // Get Clerk JWT token for Supabase
-        const clerkToken = await getToken({ template: 'supabase' })
+      // Get the custom Supabase token from Clerk
+      fetch: async (url: RequestInfo | URL, options: RequestInit = {}) => {
+        let clerkToken = null
         
-        const headers = new Headers(options.headers)
+        // Only try to get Clerk token if we're in browser and Clerk is available
+        if (typeof window !== 'undefined' && window.Clerk?.session?.getToken) {
+          try {
+            clerkToken = await window.Clerk.session.getToken({
+              template: 'supabase',
+            })
+          } catch (error) {
+            console.warn('Failed to get Clerk token:', error)
+          }
+        }
+
+        // FIX: Safely handle headers - they might not exist in options
+        const headers = new Headers(options?.headers || {})
         if (clerkToken) {
           headers.set('Authorization', `Bearer ${clerkToken}`)
         }
 
+        // Now call the default fetch
         return fetch(url, {
           ...options,
           headers,
@@ -33,13 +51,7 @@ export const createClerkSupabaseClient = async () => {
   })
 }
 
-// =====================================================
-// SERVER-SIDE: Admin client for webhooks and system operations
-// This bypasses RLS - use ONLY for:
-// - Webhook handlers (Clerk, Lemon Squeezy)
-// - System operations that need elevated privileges
-// - Cross-user operations (admin features)
-// =====================================================
+// Server-side client with service key
 export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   auth: {
     autoRefreshToken: false,
@@ -47,45 +59,10 @@ export const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
   }
 })
 
-// =====================================================
-// SERVER-SIDE: User-scoped client for API routes
-// Use this in API routes that serve authenticated users
-// Respects RLS policies
-// =====================================================
-export const createServerSupabaseClient = async () => {
-  const { getToken } = auth()
-  const token = await getToken({ template: 'supabase' })
-  
-  if (!token) {
-    throw new Error('No authentication token available')
-  }
-  
-  return createClient(supabaseUrl, supabaseAnonKey, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    },
-  })
-}
+// Regular client for server components
+export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// =====================================================
-// BROWSER CLIENT: For client-side operations
-// Use in browser contexts where Clerk is available
-// =====================================================
-export const createBrowserSupabaseClient = (clerkToken: string) => {
-  return createClient(supabaseUrl, supabaseAnonKey, {
-    global: {
-      headers: {
-        Authorization: `Bearer ${clerkToken}`,
-      },
-    },
-  })
-}
-
-// =====================================================
-// TYPES
-// =====================================================
+// Types for our database
 export interface UserProfile {
   id: string
   clerk_user_id: string
@@ -99,7 +76,7 @@ export interface UserProfile {
   lemon_squeezy_subscription_id?: string
   subscription_expires_at?: string
   subscription_started_at?: string
-  subscription_cancelled_at?: string
+  subscription_cancelled_at?: string  // Add this field
   app_preferences: Record<string, any>
   onboarding_completed: boolean
   created_at: string
@@ -129,23 +106,25 @@ export interface SubscriptionEvent {
   processed_at: string
 }
 
-// =====================================================
-// HELPER FUNCTIONS
-// =====================================================
+// Helper functions for subscription checks
 export const canAccessFeature = (userProfile: UserProfile, feature: string): boolean => {
   const { subscription_status } = userProfile;
   
+  // Basic features available to all
   if (feature === 'basic_scanning') return true;
   if (feature === 'pdf_export') return true;
   
+  // Plus features
   if (feature === 'catalog_import' || feature === 'verify_mode' || feature === 'order_builder') {
     return ['plus', 'pro', 'pro_dpms'].includes(subscription_status);
   }
   
+  // Pro features
   if (feature === 'qr_codes' || feature === 'datamatrix') {
     return ['pro', 'pro_dpms'].includes(subscription_status);
   }
   
+  // Pro + DPMS features
   if (feature === 'dot_peen' || feature === 'laser_marked') {
     return subscription_status === 'pro_dpms';
   }
