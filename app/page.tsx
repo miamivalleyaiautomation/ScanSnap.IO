@@ -1,4 +1,4 @@
-// app/page.tsx - Updated with client-side Start Scanning button
+// app/page.tsx - Fixed version
 "use client";
 
 import { useUser } from "@clerk/nextjs";
@@ -11,47 +11,28 @@ export default function Page() {
   const { user, isSignedIn } = useUser();
   const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://app.scansnap.io";
 
- const handleStartScanning = () => {
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io";
-  
-  if (isSignedIn) {
-    // Create session and navigate in same window
-    fetch('/api/app/session/create', { method: 'POST' })
-      .then(res => res.json())
-      .then(data => {
-        if (data.sessionToken) {
-          window.location.href = `${appUrl}?session=${data.sessionToken}`;
-        } else {
-          window.location.href = `${appUrl}?login-required=true`;
-        }
-      })
-      .catch(() => {
-        window.location.href = `${appUrl}?login-required=true`;
-      });
-  } else {
-    // Not signed in - direct to app with login prompt in same window
-    window.location.href = `${appUrl}?login-required=true`;
-  }
-};
+  const handleStartScanning = () => {
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://app.scansnap.io";
     
-    // Create session and update the blank window
-    fetch('/api/app/session/create', { method: 'POST' })
-      .then(res => res.json())
-      .then(data => {
-        if (data.sessionToken) {
-          newWindow.location.href = `${appUrl}?session=${data.sessionToken}`;
-        } else {
-          newWindow.location.href = `${appUrl}?login-required=true`;
-        }
-      })
-      .catch(() => {
-        newWindow.location.href = `${appUrl}?login-required=true`;
-      });
-  } else {
-    // Not signed in - direct to app with login prompt
-    window.open(`${appUrl}?login-required=true`, "_blank");
-  }
-};
+    if (isSignedIn) {
+      // Create session and navigate in same window
+      fetch('/api/app/session/create', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.sessionToken) {
+            window.location.href = `${appUrl}?session=${data.sessionToken}`;
+          } else {
+            window.location.href = `${appUrl}?login-required=true`;
+          }
+        })
+        .catch(() => {
+          window.location.href = `${appUrl}?login-required=true`;
+        });
+    } else {
+      // Not signed in - direct to app with login prompt in same window
+      window.location.href = `${appUrl}?login-required=true`;
+    }
+  };
 
   return (
     <>
