@@ -117,18 +117,26 @@ export default function SubscriptionPage() {
 
   const fetchUserProfile = async () => {
     try {
-      const { createClient } = await import("@supabase/supabase-js")
-      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-      const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-      const supabase = createClient(supabaseUrl, supabaseAnonKey)
-      
-      const { data: profiles, error } = await supabase
-        .from("user_profiles")
-        .select("*")
-        .eq("clerk_user_id", user?.id)
+      // Use the same API endpoint as dashboard for consistency
+      const response = await fetch('/api/user/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
 
-      if (!error && profiles && profiles.length > 0) {
-        setUserProfile(profiles[0])
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to fetch profile')
+      }
+
+      const { profile } = await response.json()
+      
+      if (profile) {
+        setUserProfile(profile)
+        console.log('Profile loaded:', profile.subscription_status)
+      } else {
+        console.error('No profile found')
       }
     } catch (err) {
       console.error('Error fetching user profile:', err)
