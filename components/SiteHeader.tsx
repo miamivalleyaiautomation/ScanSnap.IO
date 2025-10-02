@@ -33,29 +33,39 @@ export default function SiteHeader() {
     };
   }, [mobileMenuOpen]);
 
+// In /components/SiteHeader.tsx
+// Find the handleSignOut function and replace it with this:
+
 const handleSignOut = async () => {
-  // Clear all app-related localStorage
-  if (typeof window !== 'undefined') {
-    // Clear session data
-    localStorage.removeItem('scansnap_session');
-    localStorage.removeItem('scansnap_session_token');
-    localStorage.removeItem('scansnap_session_timestamp');
+  try {
+    // Clear all app-related localStorage
+    if (typeof window !== 'undefined') {
+      // Clear session data
+      localStorage.removeItem('scansnap_session');
+      localStorage.removeItem('scansnap_session_token');
+      localStorage.removeItem('scansnap_session_timestamp');
+      
+      // Clear any cached user data from the app
+      const keysToRemove = Object.keys(localStorage).filter(key => 
+        key.startsWith('ui.') || 
+        key.startsWith('data.') || 
+        key.startsWith('catalog.') || 
+        key.startsWith('setup.')
+      );
+      keysToRemove.forEach(key => localStorage.removeItem(key));
+    }
     
-    // Clear any cached user data
-    const keysToRemove = Object.keys(localStorage).filter(key => 
-      key.startsWith('ui.') || 
-      key.startsWith('data.') || 
-      key.startsWith('catalog.') || 
-      key.startsWith('setup.')
-    );
-    keysToRemove.forEach(key => localStorage.removeItem(key));
+    // Sign out from Clerk
+    await signOut();
+    
+    // CHANGED: Stay on the main site, redirect to home page
+    window.location.href = '/';
+    
+  } catch (error) {
+    console.error('Sign out error:', error);
+    // Even if there's an error, redirect to home
+    window.location.href = '/';
   }
-  
-  await signOut();
-  
-  // Redirect to app with no-session parameter
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://app.scansnap.io';
-  window.location.href = `${appUrl}?no-session=true`;
 };
 
   return (
