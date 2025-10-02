@@ -38,27 +38,18 @@ export default function SiteHeader() {
 
 const handleSignOut = async () => {
   try {
-    // Clear all app-related localStorage
-    if (typeof window !== 'undefined') {
-      // Clear session data
-      localStorage.removeItem('scansnap_session');
-      localStorage.removeItem('scansnap_session_token');
-      localStorage.removeItem('scansnap_session_timestamp');
-      
-      // Clear any cached user data from the app
-      const keysToRemove = Object.keys(localStorage).filter(key => 
-        key.startsWith('ui.') || 
-        key.startsWith('data.') || 
-        key.startsWith('catalog.') || 
-        key.startsWith('setup.')
-      );
-      keysToRemove.forEach(key => localStorage.removeItem(key));
+    // Invalidate app sessions on the server
+    try {
+      await fetch('/api/app/session/invalidate', { method: 'POST' });
+      console.log('✅ App sessions invalidated on server');
+    } catch (err) {
+      console.error('Failed to invalidate sessions:', err);
     }
     
     // Sign out from Clerk
     await signOut();
     
-    // CHANGED: Stay on the main site, redirect to home page
+    // Redirect to home page
     window.location.href = '/';
     
   } catch (error) {
