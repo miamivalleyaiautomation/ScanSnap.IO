@@ -1,4 +1,4 @@
-// app/subscription/page.tsx - COMPLETE FIXED FILE
+// app/subscription/page.tsx - Updated with Pro+DPMS as Coming Soon
 "use client"
 
 import { useUser } from "@clerk/nextjs"
@@ -15,16 +15,16 @@ interface UserProfile {
   subscription_status: string
   subscription_plan: string
   subscription_expires_at?: string
-  subscription_cancelled_at?: string  // NEW FIELD
+  subscription_cancelled_at?: string
   created_at: string
 }
 
-// Static mapping of variant IDs - REQUIRED FOR PRODUCTION
+// Static mapping of variant IDs
 const VARIANT_IDS = {
   basic: undefined,
   plus: process.env.NEXT_PUBLIC_LS_VARIANT_PLUS,
   pro: process.env.NEXT_PUBLIC_LS_VARIANT_PRO,
-  pro_dpms: process.env.NEXT_PUBLIC_LS_VARIANT_PRO_DPMS,
+  // pro_dpms is coming soon, no variant ID
 } as const
 
 const PLANS = [
@@ -32,26 +32,26 @@ const PLANS = [
     id: 'basic',
     name: 'Basic',
     price: '$0',
-    interval: 'forever',
+    interval: '',
     description: 'Essential barcode scanning',
     features: [
       'Scan standard barcodes',
       'Manual barcode entry', 
       'Export to PDF, CSV, Excel',
-      'Single user'
+      'Works offline'
     ]
   },
   {
     id: 'plus',
     name: 'Plus',
     price: '$9.99',
-    interval: 'month',
-    description: 'Verification and order building',
+    interval: '/ month',
+    description: 'Add verification and order building',
     features: [
       'Everything in Basic',
-      'Verify Mode: Import and verify delivery lists',
-      'Order Builder: Upload catalogs, build orders',
-      'Track quantities and discrepancies'
+      'Verify Mode - Check against lists',
+      'Order Builder - Build from catalogs',
+      'Upload CSV/Excel files'
     ],
     popular: true
   },
@@ -59,27 +59,28 @@ const PLANS = [
     id: 'pro',
     name: 'Pro', 
     price: '$14.99',
-    interval: 'month',
+    interval: '/ month',
     description: 'Advanced code support',
     features: [
       'Everything in Plus',
       'QR code scanning',
-      'DataMatrix code scanning',
-      'Ideal for modern packaging'
+      'DataMatrix scanning',
+      'Priority support'
     ]
   },
   {
     id: 'pro_dpms',
     name: 'Pro + DPMS',
     price: '$49.99', 
-    interval: 'month',
-    description: 'Specialized algorithms for industrial codes',
+    interval: '/ month',
+    description: 'Specialized industrial scanning',
     features: [
       'Everything in Pro',
       'Dot-peen marked codes',
-      'Laser-etched difficult marks',
-      'Custom scanning algorithms'
-    ]
+      'Laser-etched marks',
+      'Custom algorithms'
+    ],
+    comingSoon: true
   }
 ]
 
@@ -88,7 +89,6 @@ export default function SubscriptionPage() {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null)
   const [loading, setLoading] = useState(true)
 
-  // Helper function to get display name
   const getSubscriptionDisplayName = (status: string): string => {
     switch (status) {
       case 'basic': return 'Basic (Free)';
@@ -101,11 +101,9 @@ export default function SubscriptionPage() {
     }
   }
 
-  // Check if subscription is cancelled using the new column
   const isSubscriptionCancelled = (profile: UserProfile | null): boolean => {
     if (!profile) return false;
     
-    // Check if cancelled_at is set and subscription hasn't expired yet
     return !!profile.subscription_cancelled_at && 
            profile.subscription_status !== 'basic' &&
            profile.subscription_status !== 'expired';
@@ -124,7 +122,6 @@ export default function SubscriptionPage() {
       const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
       const supabase = createClient(supabaseUrl, supabaseAnonKey)
       
-      // Fetch profiles as array
       const { data: profiles, error } = await supabase
         .from("user_profiles")
         .select("*")
@@ -146,13 +143,16 @@ export default function SubscriptionPage() {
       return
     }
 
+    if (plan.comingSoon) {
+      alert('Pro + DPMS is coming soon! Contact hello@scansnap.io for early access.')
+      return
+    }
+
     if (plan.id === 'basic') {
-      // Basic is free - no checkout needed
       alert('Basic is our free plan. To downgrade to Basic, please cancel your current subscription through the Lemon Squeezy portal.')
       return
     }
 
-    // Use static mapping instead of dynamic env access
     const variantId = VARIANT_IDS[plan.id as keyof typeof VARIANT_IDS]
     
     if (!variantId) {
@@ -160,7 +160,6 @@ export default function SubscriptionPage() {
       return
     }
 
-    // Use the custom domain format
     const checkoutUrl = `https://pay.scansnap.io/buy/${variantId}?` + 
       new URLSearchParams({
         'checkout[email]': user.emailAddresses[0].emailAddress,
@@ -169,9 +168,6 @@ export default function SubscriptionPage() {
       }).toString()
 
     console.log('Opening checkout for:', plan.name)
-    console.log('Variant ID:', variantId)
-    console.log('Checkout URL:', checkoutUrl)
-    
     window.open(checkoutUrl, '_blank')
   }
 
@@ -221,7 +217,6 @@ export default function SubscriptionPage() {
     )
   }
 
-  // Get actual status
   const currentStatus = userProfile?.subscription_status || 'basic'
 
   return (
@@ -264,103 +259,22 @@ export default function SubscriptionPage() {
                   {new Date(userProfile.subscription_expires_at).toLocaleDateString()}
                 </p>
               )}
-              {userProfile?.subscription_cancelled_at && (
-                <p className="muted" style={{ fontSize: '0.875rem', marginTop: '0.25rem' }}>
-                  Cancelled on: {new Date(userProfile.subscription_cancelled_at).toLocaleDateString()}
-                </p>
-              )}
             </div>
             
-            {/* Action Buttons Section */}
             {currentStatus !== 'basic' && (
               <div style={{ textAlign: 'right' }}>
-                {isSubscriptionCancelled(userProfile) ? (
-                  <>
-                    <p className="muted" style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-                      Resume your subscription or manage billing
-                    </p>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexDirection: 'column' }}>
-                      <a
-                        href="https://app.lemonsqueezy.com/my-orders"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn primary"
-                        style={{ 
-                          background: 'linear-gradient(135deg, #10b981, #059669)', 
-                          color: '#fff',
-                          textAlign: 'center' 
-                        }}
-                      >
-                        ✓ Resume Subscription
-                      </a>
-                      <a
-                        href="https://app.lemonsqueezy.com/my-orders"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="btn"
-                        style={{ 
-                          background: '#ffd700', 
-                          color: '#000',
-                          textAlign: 'center' 
-                        }}
-                      >
-                        Manage Billing
-                      </a>
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <p className="muted" style={{ fontSize: '0.875rem', marginBottom: '0.5rem' }}>
-                      Manage your subscription directly with Lemon Squeezy
-                    </p>
-                    <a
-                      href="https://app.lemonsqueezy.com/my-orders"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="btn"
-                      style={{ background: '#ffd700', color: '#000' }}
-                    >
-                      Manage Subscription
-                    </a>
-                  </>
-                )}
+                <a
+                  href="https://app.lemonsqueezy.com/my-orders"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn"
+                  style={{ background: '#ffd700', color: '#000' }}
+                >
+                  Manage Subscription
+                </a>
               </div>
             )}
           </div>
-          
-          {/* Cancelled Warning Box */}
-          {isSubscriptionCancelled(userProfile) && userProfile?.subscription_expires_at && (
-            <div style={{
-              marginTop: '1rem',
-              padding: '1rem',
-              background: 'rgba(239, 68, 68, 0.1)',
-              border: '1px solid rgba(239, 68, 68, 0.3)',
-              borderRadius: '8px'
-            }}>
-              <p style={{ color: '#ef4444', fontWeight: '600', marginBottom: '0.5rem' }}>
-                ⚠️ Your subscription has been cancelled
-              </p>
-              <p style={{ color: '#ef4444', fontSize: '0.875rem', marginBottom: '0.75rem' }}>
-                You will continue to have access to {getSubscriptionDisplayName(currentStatus)} features until {new Date(userProfile.subscription_expires_at).toLocaleDateString()}. 
-                After this date, your account will revert to the Basic plan.
-              </p>
-              <div style={{
-                marginTop: '1rem',
-                padding: '0.75rem',
-                background: 'rgba(16, 185, 129, 0.1)',
-                border: '1px solid rgba(16, 185, 129, 0.3)',
-                borderRadius: '6px'
-              }}>
-                <p style={{ color: '#10b981', fontSize: '0.875rem', fontWeight: '500' }}>
-                  💡 <strong>Want to keep your subscription?</strong>
-                </p>
-                <p style={{ color: '#10b981', fontSize: '0.825rem', marginTop: '0.25rem' }}>
-                  You can resume your subscription anytime before {new Date(userProfile.subscription_expires_at).toLocaleDateString()} 
-                  to continue without interruption. Click "Resume Subscription" above.
-                </p>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Available Plans */}
@@ -368,6 +282,10 @@ export default function SubscriptionPage() {
           <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '1rem', textAlign: 'center' }}>
             Choose Your Plan
           </h2>
+          <p style={{ textAlign: 'center', marginBottom: '2rem', color: 'var(--muted)' }}>
+            All plans are single-user. Need multiple seats? <a href="mailto:hello@scansnap.io" className="link">Contact us</a>.
+          </p>
+          
           <div className="grid" style={{ 
             display: 'grid', 
             gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', 
@@ -383,15 +301,16 @@ export default function SubscriptionPage() {
                   position: 'relative',
                   border: plan.popular 
                     ? '2px solid var(--brand0)' 
+                    : plan.comingSoon
+                    ? '1px dashed var(--brand0)'
                     : currentStatus === plan.id && !isSubscriptionCancelled(userProfile)
                     ? '2px solid #10b981'
-                    : currentStatus === plan.id && isSubscriptionCancelled(userProfile)
-                    ? '2px solid #ef4444'
                     : '1px solid var(--line)',
-                  background: 'var(--card)',
+                  background: plan.comingSoon ? 'rgba(139, 92, 246, 0.05)' : 'var(--card)',
                   display: 'flex',
                   flexDirection: 'column',
-                  justifyContent: 'space-between'
+                  justifyContent: 'space-between',
+                  opacity: plan.comingSoon ? 0.8 : 1
                 }}
               >
                 {plan.popular && (
@@ -412,7 +331,25 @@ export default function SubscriptionPage() {
                   </div>
                 )}
                 
-                {currentStatus === plan.id && !isSubscriptionCancelled(userProfile) && (
+                {plan.comingSoon && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '-12px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: '#8b5cf6',
+                    color: '#fff',
+                    padding: '4px 16px',
+                    borderRadius: 'var(--radius-pill)',
+                    fontSize: '0.75rem',
+                    fontWeight: '600',
+                    textTransform: 'uppercase'
+                  }}>
+                    Coming Soon
+                  </div>
+                )}
+                
+                {currentStatus === plan.id && !isSubscriptionCancelled(userProfile) && !plan.comingSoon && (
                   <div style={{
                     position: 'absolute',
                     top: '-12px',
@@ -428,22 +365,6 @@ export default function SubscriptionPage() {
                   </div>
                 )}
                 
-                {currentStatus === plan.id && isSubscriptionCancelled(userProfile) && (
-                  <div style={{
-                    position: 'absolute',
-                    top: '-12px',
-                    right: '16px',
-                    background: '#ef4444',
-                    color: '#fff',
-                    padding: '4px 12px',
-                    borderRadius: 'var(--radius-pill)',
-                    fontSize: '0.75rem',
-                    fontWeight: '600'
-                  }}>
-                    Cancelled
-                  </div>
-                )}
-                
                 <div>
                   <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
                     {plan.name}
@@ -452,9 +373,9 @@ export default function SubscriptionPage() {
                     <span style={{ fontSize: '2rem', fontWeight: 'bold' }}>
                       {plan.price}
                     </span>
-                    {plan.interval !== 'forever' && (
+                    {plan.interval && (
                       <span className="muted">
-                        /{plan.interval}
+                        {plan.interval}
                       </span>
                     )}
                   </div>
@@ -477,7 +398,21 @@ export default function SubscriptionPage() {
                   </ul>
                 </div>
                 
-                {currentStatus === plan.id && !isSubscriptionCancelled(userProfile) ? (
+                {plan.comingSoon ? (
+                  <a
+                    href="mailto:hello@scansnap.io?subject=Pro + DPMS Early Access"
+                    className="btn block"
+                    style={{
+                      background: '#8b5cf6',
+                      color: '#fff',
+                      border: 'none',
+                      textAlign: 'center',
+                      textDecoration: 'none'
+                    }}
+                  >
+                    Request Early Access
+                  </a>
+                ) : currentStatus === plan.id && !isSubscriptionCancelled(userProfile) ? (
                   <button
                     disabled
                     className="btn block"
@@ -490,25 +425,6 @@ export default function SubscriptionPage() {
                   >
                     Current Plan
                   </button>
-                ) : currentStatus === plan.id && isSubscriptionCancelled(userProfile) ? (
-                  <a
-                    href="https://app.lemonsqueezy.com/my-orders"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn block"
-                    style={{ 
-                      background: 'linear-gradient(135deg, #10b981, #059669)',
-                      color: '#fff',
-                      border: 'none',
-                      textAlign: 'center',
-                      textDecoration: 'none',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    Resume This Plan
-                  </a>
                 ) : (
                   <button
                     onClick={() => handleUpgrade(plan)}
@@ -526,14 +442,10 @@ export default function SubscriptionPage() {
                     }}
                   >
                     {plan.id === 'basic' 
-                      ? 'Downgrade to Free' 
-                      : isSubscriptionCancelled(userProfile)
-                        ? `Switch to ${plan.name}`
-                        : currentStatus === 'basic'
-                          ? 'Upgrade' 
-                          : Number(plan.price.replace(/[^0-9.]/g, '')) > Number(PLANS.find(p => p.id === currentStatus)?.price.replace(/[^0-9.]/g, '') || 0)
-                            ? 'Upgrade'
-                            : 'Change Plan'
+                      ? 'Use Free Plan'
+                      : currentStatus === 'basic'
+                        ? 'Upgrade' 
+                        : 'Change Plan'
                     }
                   </button>
                 )}
@@ -550,10 +462,10 @@ export default function SubscriptionPage() {
           padding: '1.5rem'
         }}>
           <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem', color: 'var(--brand0)' }}>
-            Need Help?
+            Questions?
           </h3>
           <p className="muted" style={{ marginBottom: '1rem' }}>
-            Have questions about which plan is right for you? Contact our sales team for personalized recommendations.
+            Need help choosing a plan or have questions about features?
           </p>
           <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <a
@@ -561,7 +473,7 @@ export default function SubscriptionPage() {
               className="btn"
               style={{ background: 'var(--brand0)', color: '#fff' }}
             >
-              Contact Sales
+              Contact Us
             </a>
             <Link
               href="/purchases"

@@ -1,26 +1,15 @@
-// components/PricingSection.tsx
+// components/PricingSection.tsx - Simplified version
 "use client";
 
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
-// CRITICAL: Static mapping of variant IDs - REQUIRED FOR PRODUCTION
-// These must match your Netlify environment variables exactly
+// CRITICAL: Static mapping of variant IDs
 const VARIANT_IDS = {
   basic: undefined, // Basic is free, no variant
   plus: process.env.NEXT_PUBLIC_LS_VARIANT_PLUS,
   pro: process.env.NEXT_PUBLIC_LS_VARIANT_PRO,
-  pro_dpms: process.env.NEXT_PUBLIC_LS_VARIANT_PRO_DPMS,
 } as const
-
-// Verify on mount that IDs are loaded (development only)
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-  console.log('PricingSection - Variant IDs loaded:', {
-    plus: VARIANT_IDS.plus || 'NOT SET',
-    pro: VARIANT_IDS.pro || 'NOT SET', 
-    pro_dpms: VARIANT_IDS.pro_dpms || 'NOT SET',
-  });
-}
 
 const PLANS = [
   {
@@ -28,25 +17,25 @@ const PLANS = [
     name: 'Basic',
     price: 'Free',
     interval: '',
-    description: 'Essential barcode scanning for small-scale operations.',
+    description: 'Get started with essential scanning.',
     features: [
       'Scan standard barcodes',
       'Manual barcode entry', 
       'Export to PDF, CSV, Excel',
-      'Single user'
+      'Works offline'
     ]
   },
   {
     id: 'plus' as const,
     name: 'Plus',
     price: '$9.99',
-    interval: '/ user / mo',
-    description: 'Verification and order building for professional workflows.',
+    interval: '/ month',
+    description: 'Add verification and order building.',
     features: [
       'Everything in Basic',
-      'Verify Mode: Import and verify against delivery lists',
-      'Order Builder: Upload catalogs, build orders by scanning',
-      'Track quantities and catch discrepancies'
+      'Verify Mode - Check against lists',
+      'Order Builder - Build from catalogs',
+      'Upload CSV/Excel files'
     ],
     popular: true
   },
@@ -54,26 +43,13 @@ const PLANS = [
     id: 'pro' as const,
     name: 'Pro', 
     price: '$14.99',
-    interval: '/ user / mo',
-    description: 'Advanced code support for complex operations.',
+    interval: '/ month',
+    description: 'Advanced code support.',
     features: [
       'Everything in Plus',
       'QR code scanning',
-      'DataMatrix code scanning',
-      'Ideal for modern packaging and parts'
-    ]
-  },
-  {
-    id: 'pro_dpms' as const,
-    name: 'Pro + DPMS',
-    price: '$49.99', 
-    interval: '/ user / mo',
-    description: 'Specialized algorithms for hard-to-read industrial codes.',
-    features: [
-      'Everything in Pro',
-      'Dot-peen marked codes',
-      'Laser-etched difficult marks',
-      'Custom scanning algorithms'
+      'DataMatrix scanning',
+      'Priority support'
     ]
   }
 ];
@@ -84,10 +60,9 @@ export default function PricingSection() {
 
   const handlePlanClick = (plan: typeof PLANS[0]) => {
     console.log('Plan clicked:', plan.name);
-    console.log('Plan ID:', plan.id);
     
     if (!isSignedIn) {
-      // Redirect to login with the plan information
+      // Redirect to login
       router.push(`/login?redirect_url=/dashboard&plan=${plan.id}`);
       return;
     }
@@ -98,10 +73,8 @@ export default function PricingSection() {
       return;
     }
 
-    // CRITICAL: Use static mapping, NOT dynamic env variable access
+    // Use static mapping
     const variantId = VARIANT_IDS[plan.id];
-    
-    console.log('Variant ID for', plan.name, ':', variantId);
     
     if (!variantId) {
       console.error('No variant ID found for plan:', plan.id);
@@ -109,7 +82,7 @@ export default function PricingSection() {
       return;
     }
 
-    // Build the Lemon Squeezy checkout URL
+    // Build checkout URL
     const checkoutUrl = `https://pay.scansnap.io/buy/${variantId}?` + 
       new URLSearchParams({
         'checkout[email]': user.emailAddresses[0].emailAddress,
@@ -130,67 +103,100 @@ export default function PricingSection() {
   }
 
   return (
-    <div className="pricing-grid">
-      {PLANS.map((plan) => (
-        <div
-          key={plan.id}
-          className="card plan"
-          style={{
-            position: 'relative',
-            border: plan.popular ? '2px solid var(--brand0)' : '1px solid var(--line)',
-            background: 'var(--card)',
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%'
-          }}
-        >
-          {plan.popular && (
-            <div style={{
-              position: 'absolute',
-              top: '-12px',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              background: 'var(--brand0)',
-              color: '#fff',
-              padding: '4px 16px',
-              borderRadius: 'var(--radius-pill)',
-              fontSize: '0.75rem',
-              fontWeight: '600',
-              textTransform: 'uppercase'
-            }}>
-              Most Popular
+    <>
+      <div className="pricing-grid" style={{ 
+        display: 'grid', 
+        gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', 
+        gap: '1.5rem',
+        maxWidth: '900px',
+        margin: '0 auto'
+      }}>
+        {PLANS.map((plan) => (
+          <div
+            key={plan.id}
+            className="card plan"
+            style={{
+              position: 'relative',
+              border: plan.popular ? '2px solid var(--brand0)' : '1px solid var(--line)',
+              background: 'var(--card)',
+              display: 'flex',
+              flexDirection: 'column',
+              height: '100%'
+            }}
+          >
+            {plan.popular && (
+              <div style={{
+                position: 'absolute',
+                top: '-12px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                background: 'var(--brand0)',
+                color: '#fff',
+                padding: '4px 16px',
+                borderRadius: 'var(--radius-pill)',
+                fontSize: '0.75rem',
+                fontWeight: '600',
+                textTransform: 'uppercase'
+              }}>
+                Most Popular
+              </div>
+            )}
+            
+            <div className="plan-head">
+              <div className="tag">{plan.name}</div>
+              <div className="price" style={{ margin: '1rem 0' }}>
+                {plan.price}
+                {plan.interval && <span className="muted" style={{ fontSize: '1rem', fontWeight: '400' }}>{plan.interval}</span>}
+              </div>
+              <p className="muted" style={{ marginBottom: '1rem' }}>{plan.description}</p>
             </div>
-          )}
-          
-          <div className="plan-head">
-            <div className="tag">{plan.name}</div>
-            <div className="price">
-              {plan.price}
-              {plan.interval && <span className="muted" style={{ fontSize: '1rem', fontWeight: '400' }}>{plan.interval}</span>}
+            
+            <ul className="feature" style={{ flexGrow: 1, listStyle: 'none', padding: 0 }}>
+              {plan.features.map((feature, index) => (
+                <li key={index} style={{ padding: '0.5rem 0', borderBottom: '1px solid var(--line)' }}>
+                  <span style={{ color: '#10b981', marginRight: '0.5rem' }}>✓</span>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+            
+            <div className="cta" style={{ marginTop: '1.5rem' }}>
+              <button
+                className="btn primary block"
+                onClick={() => handlePlanClick(plan)}
+                style={{ width: '100%' }}
+              >
+                {plan.id === 'basic' 
+                  ? (isSignedIn ? 'Use Free Plan' : 'Start Free')
+                  : `Get ${plan.name}`
+                }
+              </button>
             </div>
-            <p className="muted">{plan.description}</p>
           </div>
-          
-          <ul className="feature" style={{ flexGrow: 1 }}>
-            {plan.features.map((feature, index) => (
-              <li key={index}>{feature}</li>
-            ))}
-          </ul>
-          
-          <div className="cta">
-            <button
-              className="btn primary block"
-              onClick={() => handlePlanClick(plan)}
-              style={{ width: '100%' }}
-            >
-              {plan.id === 'basic' 
-                ? (isSignedIn ? 'Go to Dashboard' : 'Start Free')
-                : `Get ${plan.name}`
-              }
-            </button>
-          </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+      
+      {/* Coming Soon Card for Pro + DPMS */}
+      <div style={{ 
+        marginTop: '2rem', 
+        padding: '1.5rem', 
+        background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(74, 144, 226, 0.1))',
+        border: '1px solid var(--brand0)',
+        borderRadius: 'var(--radius-lg)',
+        textAlign: 'center'
+      }}>
+        <h3 style={{ color: 'var(--brand0)', marginBottom: '0.5rem' }}>
+          🚀 Pro + DPMS Coming Soon
+        </h3>
+        <p className="muted">
+          Need to scan laser-etched or dot-peen marks? Our specialized DPMS algorithms are coming soon.
+        </p>
+        <p className="note" style={{ marginTop: '0.5rem' }}>
+          <a href="mailto:hello@scansnap.io" style={{ color: 'var(--brand0)' }}>
+            Contact us for early access →
+          </a>
+        </p>
+      </div>
+    </>
   );
 }
